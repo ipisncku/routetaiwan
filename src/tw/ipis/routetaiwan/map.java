@@ -166,8 +166,8 @@ public class map extends Activity {
 
 
 		//Location Listener
-		long minTime = 5000;//ms
-		float minDist = 5;//meter
+		long minTime = 1000;//ms
+		float minDist = 1;//meter
 		locationMgr.requestLocationUpdates(provider, minTime, minDist, locationListener);
 	}
 
