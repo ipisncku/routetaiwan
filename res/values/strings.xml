@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">RouteTaiwan</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="but_checkpos">Check position</string>
+    <string name="your_pos">Your Position: </string>
+
+</resources>
