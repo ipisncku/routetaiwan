@@ -5,6 +5,7 @@
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
     <string name="but_checkpos">Check position</string>
+    <string name="showmap2">Show Fragment Map</string>
     <string name="your_pos">Your Position: </string>
 
 </resources>

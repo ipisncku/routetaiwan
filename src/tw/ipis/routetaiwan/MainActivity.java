@@ -10,12 +10,10 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.maps.GoogleMap;
 
 public class MainActivity extends Activity {
 
 	private static final String TAG = "~!!!!~";
-	GoogleMap map;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +29,11 @@ public class MainActivity extends Activity {
 			}
 			
 			Intent launchmap = new Intent(this, map.class);
+			startActivity(launchmap);
+		}
+		
+		public void show_map_v2(View v) {
+			Intent launchmap = new Intent(this, showmap.class);
 			startActivity(launchmap);
 		}
 		

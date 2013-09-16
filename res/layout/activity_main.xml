@@ -20,6 +20,13 @@
         android:layout_height="wrap_content"
         android:onClick="start_positioning"
         android:text="@string/but_checkpos" />
+    
+    <Button
+        android:id="@+id/showmap2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="show_map_v2"
+        android:text="@string/showmap2" />
 
     <ProgressBar
         android:id="@+id/processing_pos"

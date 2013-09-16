@@ -41,6 +41,9 @@
         <activity android:name="tw.ipis.routetaiwan.map"
             android:label="@string/app_name" ></activity>
         
+        <activity android:name="tw.ipis.routetaiwan.showmap"
+            android:label="@string/app_name" ></activity>
+        
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="AIzaSyCDwbPwtIIibRyFLA5RZaVBjVW18D7sJc8" />
