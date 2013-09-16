@@ -62,7 +62,6 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			// Setting event handler for location change
 //			googleMap.setOnMyLocationChangeListener((OnMyLocationChangeListener) this);
 			
-			Log.e(TAG, "before");
 			if(locationclient != null && locationclient.isConnected()){
 				Log.e(TAG, "locationclient connected");
 				locationrequest = LocationRequest.create();
@@ -73,13 +72,6 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			}
 		}
 	}
-	
-	LocationListener locationListener = new LocationListener(){
-		@Override
-		public void onLocationChanged(Location location) {
-			focus_on_me(location);
-		}
-	};
 	
 	@Override
 	public void onConnectionFailed(ConnectionResult arg0) {
@@ -97,6 +89,7 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			locationrequest.setInterval(100);
 			locationclient.requestLocationUpdates(locationrequest, this);
 			Location last = locationclient.getLastLocation();
+			Log.e(TAG, "onConnected");
 			focus_on_me(last);
 		}
 	}
@@ -114,6 +107,14 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			locationclient.disconnect();
 	}
 	
+	LocationListener locationListener1 = new LocationListener(){
+		@Override
+		public void onLocationChanged(Location location) {
+			Log.e(TAG, "onLocationChanged");
+			focus_on_me(location);
+		}
+
+	};
 
 	public void focus_on_me(Location location) {
 		Log.i(TAG, "focus on me!");

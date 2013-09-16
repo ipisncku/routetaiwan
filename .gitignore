@@ -1,2 +1,8 @@
 *.class
 *.apk
+R.java
+R.txt
+gen
+bin/classes.dex
+bin/resources.ap_
+.gitignore~
