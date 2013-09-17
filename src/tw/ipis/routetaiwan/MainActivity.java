@@ -37,6 +37,11 @@ public class MainActivity extends Activity {
 			startActivity(launchmap);
 		}
 		
+		public void plan_route(View v) {
+			Intent route = new Intent(this, planroute.class);
+			startActivity(route);
+		}
+		
 		private int checkGooglePlayServices(){
 		    int result = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
 		    switch (result) {

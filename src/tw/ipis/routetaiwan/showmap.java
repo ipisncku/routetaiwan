@@ -75,6 +75,12 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 	}
 	
 	@Override
+	protected void onStop() {
+		super.onStop();
+		first_read = true;
+	}
+	
+	@Override
 	public void onConnectionFailed(ConnectionResult arg0) {
 		// TODO Auto-generated method stub
 	}
@@ -88,6 +94,7 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			locationrequest.setInterval(100);
 			locationclient.requestLocationUpdates(locationrequest, this);
 			Location last = locationclient.getLastLocation();
+			first_read = true;
 			focus_on_me(last);
 		}
 	}
@@ -128,6 +135,7 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 		long time = location.getTime();
 		
 		if(first_read) {
+			Log.e(TAG, "changing camera...");
 			// Creating a LatLng object for the current location
 			LatLng latLng = new LatLng(latitude, longitude);
 			// Zoom in the Google Map

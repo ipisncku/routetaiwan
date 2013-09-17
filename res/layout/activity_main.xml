@@ -27,6 +27,13 @@
         android:layout_height="wrap_content"
         android:onClick="show_map_v2"
         android:text="@string/showmap2" />
+    
+    <Button
+        android:id="@+id/planroute"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="plan_route"
+        android:text="@string/plan_route" />
 
     <ProgressBar
         android:id="@+id/processing_pos"
@@ -34,18 +41,5 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="28dp" />
-
-    <TextView
-        android:id="@+id/your_pos"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/your_pos" />
-
-    <TextView
-        android:id="@+id/pos"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text=""
-        android:textAppearance="?android:attr/textAppearanceMedium" />
 
 </LinearLayout>

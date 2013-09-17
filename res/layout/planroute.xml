@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/route_edit_bg" >
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/from"
+        android:layout_alignBottom="@+id/from"
+        android:layout_alignParentLeft="true"
+        android:text="@string/str_from"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="#aba0a0" />
+
+    <EditText
+        android:id="@+id/from"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:background="#FFFFFF"
+        android:ems="10"
+        android:hint="@string/pos_from"
+        android:inputType="textPostalAddress" />
+    
+    <View
+        android:id="@+id/line1"
+        android:layout_width="fill_parent"
+        android:layout_height="5dp"
+        android:layout_below="@+id/from"
+        android:background="@color/route_edit_bg" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/to"
+        android:layout_alignBottom="@+id/to"
+        android:layout_alignParentLeft="true"
+        android:text="@string/str_to"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="#aba0a0" />
+
+    <EditText
+        android:id="@+id/to"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/line1"
+        android:layout_centerHorizontal="true"
+        android:background="#FFFFFF"
+        android:ems="10"
+        android:hint="@string/pos_to"
+        android:inputType="textPostalAddress" />
+
+    <View
+        android:id="@+id/line2"
+        android:layout_width="fill_parent"
+        android:layout_height="5dp"
+        android:layout_below="@+id/to"
+        android:background="@color/route_edit_bg" />
+
+    <ScrollView
+        android:id="@+id/routes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_below="@+id/line2"
+        android:background="@color/route_show_bg" >
+    </ScrollView>
+
+</RelativeLayout>

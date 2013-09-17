@@ -7,5 +7,10 @@
     <string name="but_checkpos">Check position</string>
     <string name="showmap2">Show Fragment Map</string>
     <string name="your_pos">Your Position: </string>
+    <string name="pos_from">Current position</string>
+    <string name="pos_to">Taipei 101</string>
+    <string name="str_from">From</string>
+    <string name="str_to">To</string>
+    <string name="plan_route">Plan Route</string>
 
 </resources>
