@@ -12,5 +12,6 @@
     <string name="str_from">From</string>
     <string name="str_to">To</string>
     <string name="plan_route">Plan Route</string>
+    <string name="go">Go</string>
 
 </resources>

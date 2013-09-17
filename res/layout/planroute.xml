@@ -68,6 +68,24 @@
         android:layout_alignParentBottom="true"
         android:layout_below="@+id/line2"
         android:background="@color/route_show_bg" >
+
+        <ProgressBar
+            android:id="@+id/planning"
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical" />
+
     </ScrollView>
+
+    <Button
+        android:id="@+id/button1"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:onClick="start_planing"
+        android:text="@string/go" />
 
 </RelativeLayout>

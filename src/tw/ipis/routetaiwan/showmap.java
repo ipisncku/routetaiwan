@@ -19,6 +19,7 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 
 public class showmap extends Activity implements 
@@ -136,12 +137,12 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 		
 		if(first_read) {
 			Log.e(TAG, "changing camera...");
-			// Creating a LatLng object for the current location
-			LatLng latLng = new LatLng(latitude, longitude);
-			// Zoom in the Google Map
-			googleMap.animateCamera(CameraUpdateFactory.zoomTo(15));
-			// Showing the current location in Google Map
-			googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+			CameraPosition camPosition = new CameraPosition.Builder()
+			.target(new LatLng(latitude, longitude))
+			.zoom(16)
+			.build();
+
+			googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(camPosition));
 			first_read = false;
 		}
 		
