@@ -29,12 +29,14 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 	GoogleMap googleMap;
 	private LocationClient locationclient;
 	private LocationRequest locationrequest;
+	private boolean first_read = true;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.showmap);
 
+		first_read = true;
 		// Getting Google Play availability status
 		int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getBaseContext());
 		// Showing status
@@ -63,7 +65,6 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 //			googleMap.setOnMyLocationChangeListener((OnMyLocationChangeListener) this);
 			
 			if(locationclient != null && locationclient.isConnected()){
-				Log.e(TAG, "locationclient connected");
 				locationrequest = LocationRequest.create();
 				locationrequest.setInterval(100);
 				locationclient.requestLocationUpdates(locationrequest, this);
@@ -76,7 +77,6 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 	@Override
 	public void onConnectionFailed(ConnectionResult arg0) {
 		// TODO Auto-generated method stub
-		Toast.makeText(this, "Connect failed....", Toast.LENGTH_LONG).show();
 	}
 
 	@Override
@@ -84,12 +84,10 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 		// TODO Auto-generated method stub
 		Toast.makeText(this, "Connected....", Toast.LENGTH_LONG).show();
 		if(locationclient != null && locationclient.isConnected()) {
-			Log.e(TAG, "locationclient connected");
 			locationrequest = LocationRequest.create();
 			locationrequest.setInterval(100);
 			locationclient.requestLocationUpdates(locationrequest, this);
 			Location last = locationclient.getLastLocation();
-			Log.e(TAG, "onConnected");
 			focus_on_me(last);
 		}
 	}
@@ -97,7 +95,6 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 	@Override
 	public void onDisconnected() {
 		// TODO Auto-generated method stub
-		Toast.makeText(this, "Connect disconnected....", Toast.LENGTH_LONG).show();
 	}
 	
 	@Override
@@ -105,19 +102,19 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 		super.onDestroy();
 		if(locationclient!=null)
 			locationclient.disconnect();
+		first_read = true;
 	}
 	
 	LocationListener locationListener1 = new LocationListener(){
 		@Override
 		public void onLocationChanged(Location location) {
-			Log.e(TAG, "onLocationChanged");
 			focus_on_me(location);
 		}
-
 	};
 
 	public void focus_on_me(Location location) {
 		Log.i(TAG, "focus on me!");
+		
 		// Getting latitude of the current location
 		double latitude = location.getLatitude();
 
@@ -130,14 +127,15 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 		// Getting current time
 		long time = location.getTime();
 		
-		// Creating a LatLng object for the current location
-		LatLng latLng = new LatLng(latitude, longitude);
-
-		// Showing the current location in Google Map
-		googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-
-		// Zoom in the Google Map
-		googleMap.animateCamera(CameraUpdateFactory.zoomTo(15));
+		if(first_read) {
+			// Creating a LatLng object for the current location
+			LatLng latLng = new LatLng(latitude, longitude);
+			// Zoom in the Google Map
+			googleMap.animateCamera(CameraUpdateFactory.zoomTo(15));
+			// Showing the current location in Google Map
+			googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+			first_read = false;
+		}
 		
 		show_info(longitude, latitude, speed, time);
 	}
