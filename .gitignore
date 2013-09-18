@@ -1,8 +1,14 @@
 *.jar
-*.class
-*.apk
-R.java
-R.txt
 gen
 bin
 .gitignore~
+
+# built application files
+*.apk
+*.ap_
+
+# files for the dex VM
+*.dex
+
+# Java class files
+*.class
