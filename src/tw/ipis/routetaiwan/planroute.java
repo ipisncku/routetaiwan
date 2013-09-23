@@ -13,6 +13,9 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 
+import tw.ipis.routetaiwan.planroute.DirectionResponseObject.Route.Bound;
+import tw.ipis.routetaiwan.planroute.DirectionResponseObject.Route.Leg.Step.Poly;
+import tw.ipis.routetaiwan.planroute.DirectionResponseObject.Route.Leg.Step.ValueText;
 import android.app.Activity;
 import android.content.Context;
 import android.location.Criteria;
@@ -30,7 +33,9 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.maps.GeoPoint;
+import com.google.gson.Gson;
 
 public class planroute extends Activity {
 
@@ -87,7 +92,7 @@ public class planroute extends Activity {
 		to = (EditText)findViewById(R.id.to);
 		String start = from.getText().toString();	// Get user input "From"
 		String destination = to.getText().toString();	// Get user input "to"
-		String Mapapi = "http://maps.googleapis.com/maps/api/directions/json?origin={0}&destination={1}&sensor={3}&departure_time={2}&mode={4}";
+		String Mapapi = "https://maps.googleapis.com/maps/api/directions/json?origin={0}&destination={1}&sensor={3}&departure_time={2}&mode={4}&alternatives=true&region=tw";
 		long now = System.currentTimeMillis() / 1000;
 
 		if(destination.isEmpty())
@@ -117,9 +122,9 @@ public class planroute extends Activity {
 
 		/* Use the url for http request */
 		DownloadWebPageTask task = new DownloadWebPageTask();
-		result = task.execute(new String[] {request}).toString();
+		task.execute(new String[] {request});
 	}
-	
+
 	private class DownloadWebPageTask extends AsyncTask<String, Void, String> {
 		@Override
 		protected String doInBackground(String... urls) {
@@ -127,7 +132,7 @@ public class planroute extends Activity {
 			for (String url : urls) {
 				HttpGet httpGet = new HttpGet(url);
 				httpGet.addHeader("accept", "application/json");
-//				StringBuilder builder = new StringBuilder();
+				//				StringBuilder builder = new StringBuilder();
 				HttpClient client = new DefaultHttpClient();
 				try {
 					HttpResponse result = client.execute(httpGet);
@@ -135,15 +140,14 @@ public class planroute extends Activity {
 					int statusCode = statusLine.getStatusCode();
 					if (statusCode == 200) {
 						HttpEntity entity = result.getEntity();
-//						InputStream content = entity.getContent();
-//						BufferedReader reader = new BufferedReader(new InputStreamReader(content), 65728);
-//						String line = null;
-//						while ((line = reader.readLine()) != null) {
-//							builder.append(line);
-//						}
-						
+						//						InputStream content = entity.getContent();
+						//						BufferedReader reader = new BufferedReader(new InputStreamReader(content), 65728);
+						//						String line = null;
+						//						while ((line = reader.readLine()) != null) {
+						//							builder.append(line);
+						//						}
+
 						response = EntityUtils.toString(entity);
-						Log.i(TAG, "QQ...--->" + response);
 					} else {
 						Log.e(TAG, "Failed to download file");
 					}
@@ -155,6 +159,26 @@ public class planroute extends Activity {
 				}
 			}
 			return "";
+		}
+
+		@Override
+		protected void onPostExecute(String result) {
+			decode(result);
+		}
+	}
+
+	private void decode(String result) {
+		Gson gson = new Gson();
+		DirectionResponseObject dires = gson.fromJson(result,	DirectionResponseObject.class);
+		Log.i(TAG, "Total routes = " + dires.routes.length);
+		for (int i = 0; i < dires.routes.length; i++) {
+			Log.i(TAG, "Total legs = " + dires.routes[i].legs.length);
+			for (int j = 0; j < dires.routes[i].legs.length; j++)	{
+				Log.i(TAG, "Total Steps = " + dires.routes[i].legs[j].steps.length  + ", duration = " + dires.routes[i].legs[j].duration.value);
+				for (int k = 0; k < dires.routes[i].legs[j].steps.length; k++) {
+					Log.i(TAG, "duration = " + dires.routes[i].legs[j].steps[k].duration.value);
+				}
+			}
 		}
 	}
 
@@ -267,4 +291,82 @@ public class planroute extends Activity {
 
 		}
 	};
+
+	public class DirectionResponseObject {
+		public String status;
+		public Route[] routes;
+		String copyrights;
+		Poly overview_polyline;
+		String[] warnings;
+		int[] waypoint_order;
+		Bound bounds;
+
+		public class Route {
+			String summary;
+			Leg[] legs;
+
+			public class Leg {
+				public Step[] steps;
+				ValueText duration;
+				Time arrival_time, departure_time;
+
+				public class Step {
+					String travel_mode;
+					LatLng start_location, end_location;
+					Poly polyline;
+					ValueText duration;
+					String html_instructions;
+					ValueText distance;
+					Transit transit_details;
+
+					public class Transit {
+						Stop arrival_stop, departure_stop;
+						Time arrival_time, departure_time;
+						String headsign;
+						int num_stops;
+						TransitLine line;
+						
+						public class Stop {
+							LatLng location;
+							String name;
+						}
+						public class TransitLine {
+							Agency agencies[];
+							String name;
+							String short_name;
+							Vehicle vehicle;
+							
+							public class Vehicle {
+								String icon;
+								String name;
+								String type;
+							}
+							
+							public class Agency {
+								String name;
+								String url;
+							}
+						}
+					}
+					
+					public class Poly {
+						public String points;
+					}
+
+					public class ValueText {
+						int value;
+						String text;
+					}
+				}
+			}
+
+			public class Bound {
+				LatLng southwest, northeast;
+			}
+
+			public class Time {
+				int value;
+			}
+		}
+	}
 }

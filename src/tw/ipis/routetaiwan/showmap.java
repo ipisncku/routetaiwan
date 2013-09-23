@@ -78,6 +78,7 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 	@Override
 	protected void onStop() {
 		super.onStop();
+		locationclient.disconnect();
 		first_read = true;
 	}
 	
