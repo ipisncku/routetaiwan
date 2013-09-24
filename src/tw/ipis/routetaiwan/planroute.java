@@ -4,6 +4,7 @@ import java.net.URLEncoder;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -14,15 +15,19 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 
 import tw.ipis.routetaiwan.planroute.DirectionResponseObject.Route.Bound;
+import tw.ipis.routetaiwan.planroute.DirectionResponseObject.Route.Leg.Step;
 import tw.ipis.routetaiwan.planroute.DirectionResponseObject.Route.Leg.Step.Poly;
 import tw.ipis.routetaiwan.planroute.DirectionResponseObject.Route.Leg.Step.ValueText;
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
 import android.location.Criteria;
 import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -30,7 +35,11 @@ import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
+import android.widget.TableLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -39,14 +48,18 @@ import com.google.gson.Gson;
 
 public class planroute extends Activity {
 
-	ProgressBar planning;
+//	ProgressBar planning;
 	String TAG = "~~planroute~~";
+	private ProgressBar planning;
 	private EditText from;
 	private EditText to;
 	private List<GeoPoint> _points = new ArrayList<GeoPoint>();
 	private LocationManager locationMgr;
 	private String provider;
 	private boolean gps_fix = false;
+	private DownloadWebPageTask task = null;
+	public DirectionResponseObject dires = null;
+	private int routeID = 0x34500000;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -55,22 +68,27 @@ public class planroute extends Activity {
 
 		setContentView(R.layout.planroute);
 
-		planning = (ProgressBar)findViewById(R.id.planning);
+		ScrollView sv = (ScrollView) this.findViewById(R.id.routes);
+		planning = new ProgressBar(this, null, android.R.attr.progressBarStyleLarge);
+		planning.setIndeterminate(true);
+		sv.addView(planning);
+		
 		planning.setVisibility(ProgressBar.GONE);
-
 	}
 
 	@Override
 	protected void onStop() {
 		locationMgr.removeUpdates(locationListener);
+		if(task != null && task.getStatus() != DownloadWebPageTask.Status.FINISHED)
+			task.cancel(true);
 		super.onStop();
 	}
 
 	public void start_planing(View v) {
+		if(task != null && task.getStatus() != DownloadWebPageTask.Status.FINISHED)
+			task.cancel(true);
 		foreground_cosmetic();
-
 		Getroute();
-
 	}
 
 	private void foreground_cosmetic() {
@@ -84,17 +102,18 @@ public class planroute extends Activity {
 		planning.setVisibility(ProgressBar.VISIBLE);
 	}
 
-	//	public List<GeoPoint> Getroute() {
 	public void Getroute() {
 		String request = "";
-		String result = "";
 		from = (EditText)findViewById(R.id.from);
 		to = (EditText)findViewById(R.id.to);
 		String start = from.getText().toString();	// Get user input "From"
 		String destination = to.getText().toString();	// Get user input "to"
 		String Mapapi = "https://maps.googleapis.com/maps/api/directions/json?origin={0}&destination={1}&sensor={3}&departure_time={2}&mode={4}&alternatives=true&region=tw";
+		
+		if(Locale.getDefault().getDisplayLanguage().contentEquals("中文"))
+			Mapapi = new StringBuilder().append(Mapapi).append("&language=zh-tw").toString();
+		
 		long now = System.currentTimeMillis() / 1000;
-
 		if(destination.isEmpty())
 			destination = "Taipei 101";
 
@@ -118,11 +137,18 @@ public class planroute extends Activity {
 			e.printStackTrace();
 			return;
 		}
-
-
-		/* Use the url for http request */
-		DownloadWebPageTask task = new DownloadWebPageTask();
-		task.execute(new String[] {request});
+		
+		ConnectivityManager connMgr = (ConnectivityManager) 
+		getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+		if (networkInfo != null && networkInfo.isConnected()) {
+			/* Use the url for http request */
+			task = new DownloadWebPageTask();
+			task.execute(new String[] {request});
+		} else {
+			Toast.makeText(this,"No network availalble" , Toast.LENGTH_LONG).show();
+			return;
+		}
 	}
 
 	private class DownloadWebPageTask extends AsyncTask<String, Void, String> {
@@ -166,19 +192,69 @@ public class planroute extends Activity {
 			decode(result);
 		}
 	}
-
-	private void decode(String result) {
-		Gson gson = new Gson();
-		DirectionResponseObject dires = gson.fromJson(result,	DirectionResponseObject.class);
-		Log.i(TAG, "Total routes = " + dires.routes.length);
+	
+	public boolean dumpdetails(DirectionResponseObject dires) {
+		ScrollView sv = (ScrollView) this.findViewById(R.id.routes);
+		
+		// Create a LinearLayout element
+		LinearLayout ll = new LinearLayout(this);
+		ll.setOrientation(LinearLayout.VERTICAL);
+		sv.removeAllViews();
+		
+		if(!dires.status.contentEquals("OK")) {
+			Toast.makeText(this,"No result" , Toast.LENGTH_LONG).show();
+			return false;
+		}
+		
+		// Add text
 		for (int i = 0; i < dires.routes.length; i++) {
-			Log.i(TAG, "Total legs = " + dires.routes[i].legs.length);
+			String output = "";
+			TextView tv = new TextView(this);
+			
+			output = new StringBuilder().append(String.valueOf(i+1) + ". ").toString();
 			for (int j = 0; j < dires.routes[i].legs.length; j++)	{
-				Log.i(TAG, "Total Steps = " + dires.routes[i].legs[j].steps.length  + ", duration = " + dires.routes[i].legs[j].duration.value);
 				for (int k = 0; k < dires.routes[i].legs[j].steps.length; k++) {
-					Log.i(TAG, "duration = " + dires.routes[i].legs[j].steps[k].duration.value);
+					Step step = dires.routes[i].legs[j].steps[k];
+					if(step.travel_mode.contentEquals("WALKING")) {
+						output = new StringBuilder().append(output).append(dires.routes[i].legs[j].steps[k].html_instructions).toString();
+						output = new StringBuilder().append(output).append(", ").toString();
+					}
+					else if(step.travel_mode.contentEquals("TRANSIT")) {
+						output = new StringBuilder().append(output).append("搭乘").append(step.transit_details.line.short_name).toString();
+						output = new StringBuilder().append(output).append("前往").append(step.transit_details.arrival_stop.name).toString();
+						output = new StringBuilder().append(output).append(", ").toString();
+					}
+					if(k == dires.routes[i].legs[j].steps.length - 1) {
+						output = new StringBuilder().append(output).append("抵達終點").toString();
+					}
 				}
 			}
+			tv.setId(routeID+i);
+			tv.setClickable(true);
+			tv.setText(output);
+			tv.setTextColor(Color.rgb(0,0,0));
+			tv.setHorizontallyScrolling(false);
+			tv.setTextSize(16);
+			ll.addView(tv);
+		}
+		// Add the LinearLayout element to the ScrollView
+		sv.addView(ll);
+		
+		return true;
+	}
+
+	private void decode(String result) {
+		try {
+			Gson gson = new Gson();
+			dires = gson.fromJson(result,	DirectionResponseObject.class);
+			Log.i(TAG, "Total routes = " + dires.routes.length);
+			planning.setVisibility(ProgressBar.GONE);
+			if(dumpdetails(dires)) {
+				List<LatLng> list = decodePoly(dires.routes[0].overview_polyline.points);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			Toast.makeText(this,"Cannot decode resource" , Toast.LENGTH_LONG).show();
 		}
 	}
 
@@ -242,6 +318,44 @@ public class planroute extends Activity {
 		Toast.makeText(this,"無法取得定位..." , Toast.LENGTH_LONG).show();
 		return false;
 	}
+	
+	/**
+	 * Method to decode polyline points
+	 * Courtesy : jeffreysambells.com/2010/05/27/decoding-polylines-from-google-maps-direction-api-with-java
+	 * */
+	private List<LatLng> decodePoly (String encoded) {
+
+		List<LatLng> poly = new ArrayList<LatLng>();
+		int index = 0, len = encoded.length();
+		int lat = 0, lng = 0;
+
+		while (index < len) {
+			int b, shift = 0, result = 0;
+			do {
+				b = encoded.charAt(index++) - 63;
+				result |= (b & 0x1f) << shift;
+				shift += 5;
+			} while (b >= 0x20);
+			int dlat = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+			lat += dlat;
+
+			shift = 0;
+			result = 0;
+			do {
+				b = encoded.charAt(index++) - 63;
+				result |= (b & 0x1f) << shift;
+				shift += 5;
+			} while (b >= 0x20);
+			int dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+			lng += dlng;
+
+			LatLng p = new LatLng((((double) lat / 1E5)),
+					(((double) lng / 1E5)));
+			poly.add(p);
+		}
+
+		return poly;
+	}
 
 	GpsStatus.Listener gpsListener = new GpsStatus.Listener() {
 		@Override
@@ -303,7 +417,10 @@ public class planroute extends Activity {
 
 		public class Route {
 			String summary;
+			String[] warnings;
 			Leg[] legs;
+			Poly overview_polyline;
+			String copyrights;
 
 			public class Leg {
 				public Step[] steps;

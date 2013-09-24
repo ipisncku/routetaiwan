@@ -69,13 +69,6 @@
         android:layout_below="@+id/line2"
         android:background="@color/route_show_bg" >
 
-        <ProgressBar
-            android:id="@+id/planning"
-            style="?android:attr/progressBarStyleLarge"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical" />
-
     </ScrollView>
 
     <Button
