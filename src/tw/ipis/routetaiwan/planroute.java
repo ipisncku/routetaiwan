@@ -35,13 +35,11 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TableLayout;
@@ -64,7 +62,6 @@ public class planroute extends Activity {
 	private List<GeoPoint> _points = new ArrayList<GeoPoint>();
 	private LocationManager locationMgr;
 	private String provider;
-	private boolean gps_fix = false;
 	private DownloadWebPageTask task = null;
 	public DirectionResponseObject dires = null;
 
@@ -261,7 +258,7 @@ public class planroute extends Activity {
 				departure_time = dires.routes[i].legs[j].departure_time;
 				int duration = arrival_time.value - departure_time.value;
 				
-				String dur = String.format(" (%d小時%d分)", TimeUnit.SECONDS.toHours(duration), TimeUnit.SECONDS.toMinutes(duration));
+				String dur = String.format(" (%d小時%d分)", TimeUnit.SECONDS.toHours(duration), TimeUnit.SECONDS.toMinutes(duration % 3600));
 				
 				title = new StringBuilder().append(convertTime(departure_time.value)).append(" - ").append(convertTime(arrival_time.value)).append(dur).toString();
 
@@ -325,16 +322,8 @@ public class planroute extends Activity {
 			locationMgr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
 			Toast.makeText(this,"Getting current position..." , Toast.LENGTH_LONG).show();
 			locationMgr.addGpsStatusListener(gpsListener);
-			while (gps_fix == false) {
-				Handler handler = new Handler(); 
-				handler.postDelayed(new Runnable() { 
-					public void run() {
-						Log.i(TAG, "positioning...");
-					} 
-				}, 1000); 
-			}
-			Toast.makeText(this,"GPS fixed!" , Toast.LENGTH_LONG).show();
-			return locationMgr.getLastKnownLocation(provider);
+			Toast.makeText(this,"return..." , Toast.LENGTH_LONG).show();
+			return locationMgr.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 		}
 		else {
 			locationMgr.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
@@ -424,17 +413,14 @@ public class planroute extends Activity {
 			case GpsStatus.GPS_EVENT_STARTED:
 				Log.d(TAG, "GPS_EVENT_STARTED");
 				Toast.makeText(planroute.this, "GPS_EVENT_STARTED", Toast.LENGTH_SHORT).show();
-				gps_fix = false;
 				break;
 			case GpsStatus.GPS_EVENT_STOPPED:
 				Log.d(TAG, "GPS_EVENT_STOPPED");
 				Toast.makeText(planroute.this, "GPS_EVENT_STOPPED", Toast.LENGTH_SHORT).show();
-				gps_fix = false;
 				break;
 			case GpsStatus.GPS_EVENT_FIRST_FIX:
 				Log.d(TAG, "GPS_EVENT_FIRST_FIX");
 				Toast.makeText(planroute.this, "GPS_EVENT_FIRST_FIX", Toast.LENGTH_SHORT).show();
-				gps_fix = true;
 				break;
 			case GpsStatus.GPS_EVENT_SATELLITE_STATUS:
 				Log.d(TAG, "GPS_EVENT_SATELLITE_STATUS");
@@ -450,18 +436,15 @@ public class planroute extends Activity {
 
 		@Override
 		public void onProviderDisabled(String provider) {
-			// TODO 自動產生的方法 Stub
 		}
 
 		@Override
 		public void onProviderEnabled(String provider) {
-			// TODO 自動產生的方法 Stub
 
 		}
 
 		@Override
 		public void onStatusChanged(String provider, int status, Bundle extras) {
-			// TODO 自動產生的方法 Stub
 
 		}
 	};
