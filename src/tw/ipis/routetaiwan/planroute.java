@@ -37,6 +37,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -206,12 +207,14 @@ public class planroute extends Activity {
 		return format.format(date).toString();
 	}
 	
-	private TextView createTextView(String content, TableRow parent, int textcolor, float weight) {
+	private TextView createTextView(String content, TableRow parent, int textcolor, float weight, int gravity) {
 		TextView tv = new TextView(this);
 		tv.setText(content);
 		tv.setTextColor(textcolor);
 		tv.setTextSize(16);
 		tv.setHorizontallyScrolling(false);
+		tv.setWidth(0);
+		tv.setGravity(gravity);
 		if(weight != 0)
 			tv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT, weight));
 		parent.addView(tv);
@@ -262,7 +265,7 @@ public class planroute extends Activity {
 				
 				title = new StringBuilder().append(convertTime(departure_time.value)).append(" - ").append(convertTime(arrival_time.value)).append(dur).toString();
 
-				createTextView(title, tr, Color.rgb(0,0,0), 1.0f);
+				createTextView(title, tr, Color.rgb(0,0,0), 1.0f, Gravity.LEFT);
 				
 				TableRow transit_times = CreateTableRow(tl, 0, i);	// 2nd row, leave it for later use
 
@@ -271,8 +274,8 @@ public class planroute extends Activity {
 					if(step.travel_mode.contentEquals("WALKING")) {
 						String walk = new StringBuilder().append(step.html_instructions).append(" (" + step.distance.text + ", " +step.duration.text + ")").toString();
 						tr = CreateTableRow(tl, 1.0f, i);
-						createTextView("走", tr, Color.rgb(0,0,0), 0.1f);
-						createTextView(walk, tr, Color.rgb(0,0,0), 0.9f);
+						createTextView("走", tr, Color.rgb(0,0,0), 0.1f, Gravity.CENTER);
+						createTextView(walk, tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT);
 					}
 					else if(step.travel_mode.contentEquals("TRANSIT")) {
 						String trans = new StringBuilder().append(getResources().getString(R.string.taketransit)).append(step.transit_details.line.short_name).append(" (" + step.transit_details.num_stops + 
@@ -280,18 +283,18 @@ public class planroute extends Activity {
 						transit++;
 						
 						tr = CreateTableRow(tl, 1.0f, i);
-						createTextView("車", tr, Color.rgb(0,0,0), 0.1f);
-						createTextView(trans, tr, Color.rgb(0,0,0), 0.9f);
+						createTextView("車", tr, Color.rgb(0,0,0), 0.1f, Gravity.CENTER);
+						createTextView(trans, tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT);
 					}
 					if(k == dires.routes[i].legs[j].steps.length - 1) {
 						// Arrived
 						tr = CreateTableRow(tl, 1.0f, i);
-						createTextView("到", tr, Color.rgb(0,0,0), 0.1f);
-						createTextView("目的地", tr, Color.rgb(0,0,0), 0.9f);
+						createTextView("到", tr, Color.rgb(0,0,0), 0.1f, Gravity.CENTER);
+						createTextView("目的地", tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT);
 					}
 				}
 				String str = getResources().getString(R.string.transit) + ": " + transit + "X";
-				createTextView(str, transit_times, Color.rgb(0,0,0), 1.0f);
+				createTextView(str, transit_times, Color.rgb(0,0,0), 1.0f, Gravity.LEFT);
 			}
 		}
 		// Add the LinearLayout element to the ScrollView
