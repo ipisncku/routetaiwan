@@ -1,10 +1,14 @@
 package tw.ipis.routetaiwan;
 
 import java.net.URLEncoder;
+import java.text.Format;
 import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -18,6 +22,7 @@ import tw.ipis.routetaiwan.planroute.DirectionResponseObject.Route.Bound;
 import tw.ipis.routetaiwan.planroute.DirectionResponseObject.Route.Leg.Step;
 import tw.ipis.routetaiwan.planroute.DirectionResponseObject.Route.Leg.Step.Poly;
 import tw.ipis.routetaiwan.planroute.DirectionResponseObject.Route.Leg.Step.ValueText;
+import tw.ipis.routetaiwan.planroute.DirectionResponseObject.Route.Time;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
@@ -39,6 +44,8 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TableLayout;
+import android.widget.TableRow;
+import android.widget.TableRow.LayoutParams;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,7 +55,7 @@ import com.google.gson.Gson;
 
 public class planroute extends Activity {
 
-//	ProgressBar planning;
+	//	ProgressBar planning;
 	String TAG = "~~planroute~~";
 	private ProgressBar planning;
 	private EditText from;
@@ -59,7 +66,6 @@ public class planroute extends Activity {
 	private boolean gps_fix = false;
 	private DownloadWebPageTask task = null;
 	public DirectionResponseObject dires = null;
-	private int routeID = 0x34500000;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -72,7 +78,7 @@ public class planroute extends Activity {
 		planning = new ProgressBar(this, null, android.R.attr.progressBarStyleLarge);
 		planning.setIndeterminate(true);
 		sv.addView(planning);
-		
+
 		planning.setVisibility(ProgressBar.GONE);
 	}
 
@@ -109,10 +115,10 @@ public class planroute extends Activity {
 		String start = from.getText().toString();	// Get user input "From"
 		String destination = to.getText().toString();	// Get user input "to"
 		String Mapapi = "https://maps.googleapis.com/maps/api/directions/json?origin={0}&destination={1}&sensor={3}&departure_time={2}&mode={4}&alternatives=true&region=tw";
-		
+
 		if(Locale.getDefault().getDisplayLanguage().contentEquals("中文"))
 			Mapapi = new StringBuilder().append(Mapapi).append("&language=zh-tw").toString();
-		
+
 		long now = System.currentTimeMillis() / 1000;
 		if(destination.isEmpty())
 			destination = "Taipei 101";
@@ -137,7 +143,7 @@ public class planroute extends Activity {
 			e.printStackTrace();
 			return;
 		}
-		
+
 		ConnectivityManager connMgr = (ConnectivityManager) 
 		getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
@@ -192,54 +198,105 @@ public class planroute extends Activity {
 			decode(result);
 		}
 	}
+
+	public String convertTime(long time){
+		time = time * 1000;	// Change to milli-seconds
+		Date date = new Date(time);
+		Format format = new SimpleDateFormat("HH:mm");
+		return format.format(date).toString();
+	}
 	
+	private TextView createTextView(String content, TableRow parent, int textcolor, float weight) {
+		TextView tv = new TextView(this);
+		tv.setText(content);
+		tv.setTextColor(textcolor);
+		tv.setTextSize(16);
+		tv.setHorizontallyScrolling(false);
+		if(weight != 0)
+			tv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT, weight));
+		parent.addView(tv);
+		return tv;
+	}
+	
+	private TableRow CreateTableRow(TableLayout parent, float weight, int num){
+		TableRow tr = new TableRow(this);	// 1st row
+		if(num % 2 == 0)
+			tr.setBackgroundColor(Color.WHITE);
+		else
+			tr.setBackgroundColor(Color.LTGRAY);
+		if(weight != 0)
+			tr.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, weight));
+		else
+			tr.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+		parent.addView(tr);
+		return tr;
+	}
+
 	public boolean dumpdetails(DirectionResponseObject dires) {
 		ScrollView sv = (ScrollView) this.findViewById(R.id.routes);
-		
+
 		// Create a LinearLayout element
-		LinearLayout ll = new LinearLayout(this);
-		ll.setOrientation(LinearLayout.VERTICAL);
+		TableLayout tl = new TableLayout(this);
+		tl.setOrientation(TableLayout.VERTICAL);
 		sv.removeAllViews();
-		
+
 		if(!dires.status.contentEquals("OK")) {
 			Toast.makeText(this,"No result" , Toast.LENGTH_LONG).show();
 			return false;
 		}
-		
+
+
 		// Add text
 		for (int i = 0; i < dires.routes.length; i++) {
-			String output = "";
-			TextView tv = new TextView(this);
-			
-			output = new StringBuilder().append(String.valueOf(i+1) + ". ").toString();
+			int transit = 0;
 			for (int j = 0; j < dires.routes[i].legs.length; j++)	{
+				TableRow tr = CreateTableRow(tl, 0, i);	// 1st row
+
+				String title = "";
+				Time arrival_time, departure_time;
+				arrival_time = dires.routes[i].legs[j].arrival_time;
+				departure_time = dires.routes[i].legs[j].departure_time;
+				int duration = arrival_time.value - departure_time.value;
+				
+				String dur = String.format(" (%d小時%d分)", TimeUnit.SECONDS.toHours(duration), TimeUnit.SECONDS.toMinutes(duration));
+				
+				title = new StringBuilder().append(convertTime(departure_time.value)).append(" - ").append(convertTime(arrival_time.value)).append(dur).toString();
+
+				createTextView(title, tr, Color.rgb(0,0,0), 1.0f);
+				
+				TableRow transit_times = CreateTableRow(tl, 0, i);	// 2nd row, leave it for later use
+
 				for (int k = 0; k < dires.routes[i].legs[j].steps.length; k++) {
 					Step step = dires.routes[i].legs[j].steps[k];
 					if(step.travel_mode.contentEquals("WALKING")) {
-						output = new StringBuilder().append(output).append(dires.routes[i].legs[j].steps[k].html_instructions).toString();
-						output = new StringBuilder().append(output).append(", ").toString();
+						String walk = new StringBuilder().append(step.html_instructions).append(" (" + step.distance.text + ", " +step.duration.text + ")").toString();
+						tr = CreateTableRow(tl, 1.0f, i);
+						createTextView("走", tr, Color.rgb(0,0,0), 0.1f);
+						createTextView(walk, tr, Color.rgb(0,0,0), 0.9f);
 					}
 					else if(step.travel_mode.contentEquals("TRANSIT")) {
-						output = new StringBuilder().append(output).append("搭乘").append(step.transit_details.line.short_name).toString();
-						output = new StringBuilder().append(output).append("前往").append(step.transit_details.arrival_stop.name).toString();
-						output = new StringBuilder().append(output).append(", ").toString();
+						String trans = new StringBuilder().append(getResources().getString(R.string.taketransit)).append(step.transit_details.line.short_name).append(" (" + step.transit_details.num_stops + 
+								getResources().getString(R.string.stops) + ", " +step.duration.text + ")").toString();
+						transit++;
+						
+						tr = CreateTableRow(tl, 1.0f, i);
+						createTextView("車", tr, Color.rgb(0,0,0), 0.1f);
+						createTextView(trans, tr, Color.rgb(0,0,0), 0.9f);
 					}
 					if(k == dires.routes[i].legs[j].steps.length - 1) {
-						output = new StringBuilder().append(output).append("抵達終點").toString();
+						// Arrived
+						tr = CreateTableRow(tl, 1.0f, i);
+						createTextView("到", tr, Color.rgb(0,0,0), 0.1f);
+						createTextView("目的地", tr, Color.rgb(0,0,0), 0.9f);
 					}
 				}
+				String str = getResources().getString(R.string.transit) + ": " + transit + "X";
+				createTextView(str, transit_times, Color.rgb(0,0,0), 1.0f);
 			}
-			tv.setId(routeID+i);
-			tv.setClickable(true);
-			tv.setText(output);
-			tv.setTextColor(Color.rgb(0,0,0));
-			tv.setHorizontallyScrolling(false);
-			tv.setTextSize(16);
-			ll.addView(tv);
 		}
 		// Add the LinearLayout element to the ScrollView
-		sv.addView(ll);
-		
+		sv.addView(tl);
+
 		return true;
 	}
 
@@ -318,7 +375,7 @@ public class planroute extends Activity {
 		Toast.makeText(this,"無法取得定位..." , Toast.LENGTH_LONG).show();
 		return false;
 	}
-	
+
 	/**
 	 * Method to decode polyline points
 	 * Courtesy : jeffreysambells.com/2010/05/27/decoding-polylines-from-google-maps-direction-api-with-java
@@ -442,7 +499,7 @@ public class planroute extends Activity {
 						String headsign;
 						int num_stops;
 						TransitLine line;
-						
+
 						public class Stop {
 							LatLng location;
 							String name;
@@ -452,20 +509,20 @@ public class planroute extends Activity {
 							String name;
 							String short_name;
 							Vehicle vehicle;
-							
+
 							public class Vehicle {
 								String icon;
 								String name;
 								String type;
 							}
-							
+
 							public class Agency {
 								String name;
 								String url;
 							}
 						}
 					}
-					
+
 					public class Poly {
 						public String points;
 					}

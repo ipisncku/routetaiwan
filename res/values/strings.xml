@@ -7,11 +7,15 @@
     <string name="but_checkpos">Check position</string>
     <string name="showmap2">Show Fragment Map</string>
     <string name="your_pos">Your Position: </string>
-    <string name="pos_from">Current position</string>
+    <string name="pos_from">現在位置</string>
     <string name="pos_to">Taipei 101</string>
-    <string name="str_from">From</string>
-    <string name="str_to">To</string>
+    <string name="str_from">起點</string>
+    <string name="str_to">終點</string>
     <string name="plan_route">Plan Route</string>
     <string name="go">Go</string>
+    <string name="transit">轉乘</string>
+    <string name="walkto">行走到</string>
+    <string name="taketransit">搭乘</string>
+    <string name="stops">站</string>
 
 </resources>
