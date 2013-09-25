@@ -17,5 +17,20 @@
     <string name="walkto">行走到</string>
     <string name="taketransit">搭乘</string>
     <string name="stops">站</string>
+    <string name="hour">小時</string>
+    <string name="minute">分</string>
+    <string name="to">到</string>
+    <string name="warninig_no_network">無法使用網路</string>
+    <string name="warning_no_loc_provider">無法定位, 請開啟GPS或網路</string>
+    <string name="info_network_using">網路服務: </string>
+    <string name="info_positioning_by_gps">使用GPS定位中</string>
+    <string name="info_positioning_by_network">使用網路定位中</string>
+    <string name="info_no_result">沒有結果, 請重新輸入</string>
+    <string name="info_internal_error">發生錯誤</string>
+    
+    <string name="trtc">台北捷運</string>
+    <string name="krtc">高雄捷運</string>
+    <string name="hsr">台灣高鐵</string>
+    <string name="tra">台灣鐵路管理局</string>
 
 </resources>

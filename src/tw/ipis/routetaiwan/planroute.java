@@ -40,6 +40,8 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TableLayout;
@@ -61,9 +63,10 @@ public class planroute extends Activity {
 	private EditText to;
 	private List<GeoPoint> _points = new ArrayList<GeoPoint>();
 	private LocationManager locationMgr;
-	private String provider;
 	private DownloadWebPageTask task = null;
+	private boolean isrequested = false;
 	public DirectionResponseObject dires = null;
+	String provider = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -71,13 +74,26 @@ public class planroute extends Activity {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.planroute);
+		
+		ConnectivityManager connMgr = (ConnectivityManager) 
+		getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+		if (networkInfo != null && networkInfo.isConnected()) {
+			Toast.makeText(this, getResources().getString(R.string.info_network_using) + networkInfo.getTypeName() , Toast.LENGTH_LONG).show();
+		}
+		else {
+			Toast.makeText(this, getResources().getString(R.string.warninig_no_network) , Toast.LENGTH_LONG).show();
+		}
 
-		ScrollView sv = (ScrollView) this.findViewById(R.id.routes);
-		planning = new ProgressBar(this, null, android.R.attr.progressBarStyleLarge);
-		planning.setIndeterminate(true);
-		sv.addView(planning);
-
-		planning.setVisibility(ProgressBar.GONE);
+		start_positioning();
+	}
+	
+	@Override
+	protected void onResume() {
+		
+		super.onResume();
+		
+		start_positioning();
 	}
 
 	@Override
@@ -92,7 +108,29 @@ public class planroute extends Activity {
 		if(task != null && task.getStatus() != DownloadWebPageTask.Status.FINISHED)
 			task.cancel(true);
 		foreground_cosmetic();
-		Getroute();
+		
+		isrequested = true;
+
+		from = (EditText)findViewById(R.id.from);
+		String start = from.getText().toString();	// Get user input "From"
+		Location currentloc = GetCurrentPosition();
+		if (!start.isEmpty() || currentloc.getProvider().contentEquals("network")) // Wait for positioning
+			Getroute();
+	}
+	
+	public void start_positioning() {
+		String locprovider = 	initLocationProvider();
+		if(locprovider == null) {
+			Toast.makeText(this, getResources().getString(R.string.warning_no_loc_provider) , Toast.LENGTH_LONG).show();
+			return;
+		}
+		locationMgr.requestLocationUpdates(locprovider, 0, 0, locationListener);
+		if(locprovider.contentEquals("gps")) {
+			Toast.makeText(this, getResources().getString(R.string.info_positioning_by_gps) , Toast.LENGTH_SHORT).show();
+			locationMgr.addGpsStatusListener(gpsListener);
+		}
+		else
+			Toast.makeText(this, getResources().getString(R.string.info_positioning_by_network) , Toast.LENGTH_SHORT).show();
 	}
 
 	private void foreground_cosmetic() {
@@ -102,6 +140,12 @@ public class planroute extends Activity {
 		InputMethodManager imm = (InputMethodManager)getSystemService(
 				Context.INPUT_METHOD_SERVICE);
 		imm.hideSoftInputFromWindow(from.getWindowToken(), 0);
+
+		ScrollView sv = (ScrollView) this.findViewById(R.id.routes);
+		sv.removeAllViews();	// Clear screen
+		planning = new ProgressBar(this, null, android.R.attr.progressBarStyleLarge);
+		planning.setIndeterminate(true);
+		sv.addView(planning);	// Add processbar
 
 		planning.setVisibility(ProgressBar.VISIBLE);
 	}
@@ -113,6 +157,8 @@ public class planroute extends Activity {
 		String start = from.getText().toString();	// Get user input "From"
 		String destination = to.getText().toString();	// Get user input "to"
 		String Mapapi = "https://maps.googleapis.com/maps/api/directions/json?origin={0}&destination={1}&sensor={3}&departure_time={2}&mode={4}&alternatives=true&region=tw";
+		
+		isrequested = false;
 
 		if(Locale.getDefault().getDisplayLanguage().contentEquals("中文"))
 			Mapapi = new StringBuilder().append(Mapapi).append("&language=zh-tw").toString();
@@ -142,17 +188,9 @@ public class planroute extends Activity {
 			return;
 		}
 
-		ConnectivityManager connMgr = (ConnectivityManager) 
-		getSystemService(Context.CONNECTIVITY_SERVICE);
-		NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-		if (networkInfo != null && networkInfo.isConnected()) {
-			/* Use the url for http request */
-			task = new DownloadWebPageTask();
-			task.execute(new String[] {request});
-		} else {
-			Toast.makeText(this,"No network availalble" , Toast.LENGTH_LONG).show();
-			return;
-		}
+		/* Use the url for http request */
+		task = new DownloadWebPageTask();
+		task.execute(new String[] {request});
 	}
 
 	private class DownloadWebPageTask extends AsyncTask<String, Void, String> {
@@ -170,12 +208,6 @@ public class planroute extends Activity {
 					int statusCode = statusLine.getStatusCode();
 					if (statusCode == 200) {
 						HttpEntity entity = result.getEntity();
-						//						InputStream content = entity.getContent();
-						//						BufferedReader reader = new BufferedReader(new InputStreamReader(content), 65728);
-						//						String line = null;
-						//						while ((line = reader.readLine()) != null) {
-						//							builder.append(line);
-						//						}
 
 						response = EntityUtils.toString(entity);
 					} else {
@@ -213,9 +245,20 @@ public class planroute extends Activity {
 		tv.setWidth(0);
 		tv.setGravity(gravity);
 		if(weight != 0)
-			tv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT, weight));
+			tv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, weight));
 		parent.addView(tv);
 		return tv;
+	}
+	
+	private ImageView createImageViewbyR(int R, TableRow parent, int height, int width) {
+		ImageView iv = new ImageView(this);
+		iv.setImageBitmap(null);
+		iv.setImageResource(R);
+		iv.setMaxHeight(height);
+		iv.setMaxWidth(width);
+		iv.setAdjustViewBounds(true);
+		parent.addView(iv);
+		return iv;
 	}
 	
 	private TableRow CreateTableRow(TableLayout parent, float weight, int num){
@@ -228,6 +271,7 @@ public class planroute extends Activity {
 			tr.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, weight));
 		else
 			tr.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+		tr.setGravity(Gravity.CENTER_VERTICAL);
 		parent.addView(tr);
 		return tr;
 	}
@@ -241,7 +285,7 @@ public class planroute extends Activity {
 		sv.removeAllViews();
 
 		if(!dires.status.contentEquals("OK")) {
-			Toast.makeText(this,"No result" , Toast.LENGTH_LONG).show();
+			Toast.makeText(this, getResources().getString(R.string.info_no_result) , Toast.LENGTH_LONG).show();
 			return false;
 		}
 
@@ -258,40 +302,71 @@ public class planroute extends Activity {
 				departure_time = dires.routes[i].legs[j].departure_time;
 				int duration = arrival_time.value - departure_time.value;
 				
-				String dur = String.format(" (%d小時%d分)", TimeUnit.SECONDS.toHours(duration), TimeUnit.SECONDS.toMinutes(duration % 3600));
+				String dur = String.format(" (%d" + getResources().getString(R.string.hour) + "%d" + getResources().getString(R.string.minute) + ")",
+						TimeUnit.SECONDS.toHours(duration), TimeUnit.SECONDS.toMinutes(duration % 3600));
 				
 				title = new StringBuilder().append(convertTime(departure_time.value)).append(" - ").append(convertTime(arrival_time.value)).append(dur).toString();
 
-				createTextView(title, tr, Color.rgb(0,0,0), 1.0f, Gravity.LEFT);
+				createTextView(title, tr, Color.rgb(0,0,0), 1.0f, Gravity.LEFT | Gravity.CENTER_VERTICAL);
 				
 				TableRow transit_times = CreateTableRow(tl, 0, i);	// 2nd row, leave it for later use
-
+				
+				tr = CreateTableRow(tl, 1.0f, i);
+				createImageViewbyR(R.drawable.start, tr, 50, 50);
+				createTextView(dires.routes[i].legs[j].start_address, tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT | Gravity.CENTER_VERTICAL);
+				
 				for (int k = 0; k < dires.routes[i].legs[j].steps.length; k++) {
 					Step step = dires.routes[i].legs[j].steps[k];
 					if(step.travel_mode.contentEquals("WALKING")) {
 						String walk = new StringBuilder().append(step.html_instructions).append(" (" + step.distance.text + ", " +step.duration.text + ")").toString();
 						tr = CreateTableRow(tl, 1.0f, i);
-						createTextView("走", tr, Color.rgb(0,0,0), 0.1f, Gravity.CENTER);
-						createTextView(walk, tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT);
+//						createTextView("走", tr, Color.rgb(0,0,0), 0.1f, Gravity.CENTER);
+						createImageViewbyR(R.drawable.walk, tr, 50, 50);
+						createTextView(walk, tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT | Gravity.CENTER_VERTICAL);
 					}
 					else if(step.travel_mode.contentEquals("TRANSIT")) {
-						String trans = new StringBuilder().append(getResources().getString(R.string.taketransit)).append(step.transit_details.line.short_name).append(" (" + step.transit_details.num_stops + 
-								getResources().getString(R.string.stops) + ", " +step.duration.text + ")").toString();
+						String type = step.transit_details.line.vehicle.type;
+						String agencyname = step.transit_details.line.agencies[0].name;
+						
+						String trans = new StringBuilder().append(getResources().getString(R.string.taketransit)).append(step.transit_details.line.short_name).toString();
+						
+						trans = new StringBuilder().append(trans).append(getResources().getString(R.string.to)).append(step.transit_details.arrival_stop.name).toString();
+						
+						trans = new StringBuilder().append(trans).append(" (" + step.transit_details.num_stops + getResources().getString(R.string.stops) + ", " +step.duration.text + ")").toString();
 						transit++;
 						
 						tr = CreateTableRow(tl, 1.0f, i);
-						createTextView("車", tr, Color.rgb(0,0,0), 0.1f, Gravity.CENTER);
-						createTextView(trans, tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT);
+//						createTextView("車", tr, Color.rgb(0,0,0), 0.1f, Gravity.CENTER);
+						if(type.contentEquals("BUS"))
+							createImageViewbyR(R.drawable.bus, tr, 50, 50);
+						else if(type.contentEquals("SUBWAY")) {
+							if(agencyname.contentEquals(getResources().getString(R.string.trtc)))
+								createImageViewbyR(R.drawable.trtc, tr, 50, 50);
+							else if(agencyname.contentEquals(getResources().getString(R.string.krtc)))
+								createImageViewbyR(R.drawable.krtc, tr, 50, 50);
+							else
+								createTextView("車", tr, Color.rgb(0,0,0), 0.1f, Gravity.CENTER);
+						}
+						else if(type.contentEquals("HEAVY_RAIL")) {
+							if(agencyname.contentEquals(getResources().getString(R.string.hsr)))
+								createImageViewbyR(R.drawable.hsr, tr, 50, 50);
+							else if(agencyname.contentEquals(getResources().getString(R.string.tra)))
+								createImageViewbyR(R.drawable.train, tr, 50, 50);
+							else
+								createTextView("車", tr, Color.rgb(0,0,0), 0.1f, Gravity.CENTER);
+						}
+						createTextView(trans, tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT | Gravity.CENTER_VERTICAL);
 					}
 					if(k == dires.routes[i].legs[j].steps.length - 1) {
 						// Arrived
 						tr = CreateTableRow(tl, 1.0f, i);
-						createTextView("到", tr, Color.rgb(0,0,0), 0.1f, Gravity.CENTER);
-						createTextView("目的地", tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT);
+//						createTextView("到", tr, Color.rgb(0,0,0), 0.1f, Gravity.CENTER);
+						createImageViewbyR(R.drawable.destination, tr, 50, 50);
+						createTextView(dires.routes[i].legs[j].end_address, tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT);
 					}
 				}
-				String str = getResources().getString(R.string.transit) + ": " + transit + "X";
-				createTextView(str, transit_times, Color.rgb(0,0,0), 1.0f, Gravity.LEFT);
+				String str = getResources().getString(R.string.transit) + ": " + transit + "x";
+				createTextView(str, transit_times, Color.rgb(0,0,0), 1.0f, Gravity.LEFT | Gravity.CENTER_VERTICAL);
 			}
 		}
 		// Add the LinearLayout element to the ScrollView
@@ -311,28 +386,20 @@ public class planroute extends Activity {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			Toast.makeText(this,"Cannot decode resource" , Toast.LENGTH_LONG).show();
+			Toast.makeText(this, getResources().getString(R.string.info_internal_error) , Toast.LENGTH_LONG).show();
 		}
 	}
 
 	public Location GetCurrentPosition() {
-		initLocationProvider();
-		if(locationMgr.isProviderEnabled(LocationManager.GPS_PROVIDER)) {	// Using GPS as provider, wait for GPS_EVENT_FIRST_FIX
-			Log.e(TAG, "GPS");
-			locationMgr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
-			Toast.makeText(this,"Getting current position..." , Toast.LENGTH_LONG).show();
-			locationMgr.addGpsStatusListener(gpsListener);
-			Toast.makeText(this,"return..." , Toast.LENGTH_LONG).show();
-			return locationMgr.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+		if(provider != null) {
+			Log.i(TAG, "Current provider is " + provider);
+			return locationMgr.getLastKnownLocation(provider);
 		}
-		else {
-			locationMgr.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
-			Log.e(TAG, "network");
+		else
 			return locationMgr.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-		}
 	}
 
-	private boolean initLocationProvider() {
+	private String initLocationProvider() {
 		locationMgr = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
 		//1.選擇最佳提供器
@@ -345,10 +412,8 @@ public class planroute extends Activity {
 
 		provider = locationMgr.getBestProvider(criteria, true);
 
-		Toast.makeText(this,"使用" + provider + "定位..." , Toast.LENGTH_LONG).show();
-
 		if (provider != null) {
-			return true;
+			return provider;
 		}
 
 		//2.選擇使用GPS提供器
@@ -364,8 +429,7 @@ public class planroute extends Activity {
 		//  return true;
 		// }
 
-		Toast.makeText(this,"無法取得定位..." , Toast.LENGTH_LONG).show();
-		return false;
+		return null;
 	}
 
 	/**
@@ -412,15 +476,12 @@ public class planroute extends Activity {
 			switch (event) {
 			case GpsStatus.GPS_EVENT_STARTED:
 				Log.d(TAG, "GPS_EVENT_STARTED");
-				Toast.makeText(planroute.this, "GPS_EVENT_STARTED", Toast.LENGTH_SHORT).show();
 				break;
 			case GpsStatus.GPS_EVENT_STOPPED:
 				Log.d(TAG, "GPS_EVENT_STOPPED");
-				Toast.makeText(planroute.this, "GPS_EVENT_STOPPED", Toast.LENGTH_SHORT).show();
 				break;
 			case GpsStatus.GPS_EVENT_FIRST_FIX:
 				Log.d(TAG, "GPS_EVENT_FIRST_FIX");
-				Toast.makeText(planroute.this, "GPS_EVENT_FIRST_FIX", Toast.LENGTH_SHORT).show();
 				break;
 			case GpsStatus.GPS_EVENT_SATELLITE_STATUS:
 				Log.d(TAG, "GPS_EVENT_SATELLITE_STATUS");
@@ -432,6 +493,8 @@ public class planroute extends Activity {
 		@Override
 		public void onLocationChanged(Location location) {
 			Log.e(TAG, "location: " + location.getLatitude() + "," + location.getLongitude());
+			if (isrequested)
+				Getroute();
 		}
 
 		@Override
@@ -469,6 +532,7 @@ public class planroute extends Activity {
 				public Step[] steps;
 				ValueText duration;
 				Time arrival_time, departure_time;
+				String start_address, end_address;
 
 				public class Step {
 					String travel_mode;
