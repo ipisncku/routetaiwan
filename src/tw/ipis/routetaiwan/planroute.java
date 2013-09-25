@@ -41,7 +41,6 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TableLayout;
@@ -66,6 +65,8 @@ public class planroute extends Activity {
 	private DownloadWebPageTask task = null;
 	private boolean isrequested = false;
 	public DirectionResponseObject dires = null;
+	private int textid = 0;
+	private List<String> textview_extra = new ArrayList<String>();
 	String provider = null;
 
 	@Override
@@ -236,7 +237,7 @@ public class planroute extends Activity {
 		return format.format(date).toString();
 	}
 	
-	private TextView createTextView(String content, TableRow parent, int textcolor, float weight, int gravity) {
+	private TextView createTextView(String content, TableRow parent, int textcolor, float weight, int gravity, String text) {
 		TextView tv = new TextView(this);
 		tv.setText(content);
 		tv.setTextColor(textcolor);
@@ -244,6 +245,11 @@ public class planroute extends Activity {
 		tv.setHorizontallyScrolling(false);
 		tv.setWidth(0);
 		tv.setGravity(gravity);
+		tv.setId(textid);
+		textview_extra.add(textid, text);
+		Log.i(TAG, textid + ". " + text);
+		textid++;
+		// TODO: write a onClickListener and onLongClickListener
 		if(weight != 0)
 			tv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, weight));
 		parent.addView(tv);
@@ -307,66 +313,65 @@ public class planroute extends Activity {
 				
 				title = new StringBuilder().append(convertTime(departure_time.value)).append(" - ").append(convertTime(arrival_time.value)).append(dur).toString();
 
-				createTextView(title, tr, Color.rgb(0,0,0), 1.0f, Gravity.LEFT | Gravity.CENTER_VERTICAL);
+				createTextView(title, tr, Color.rgb(0,0,0), 1.0f, Gravity.LEFT | Gravity.CENTER_VERTICAL, "map," + dires.routes[i].overview_polyline.points);
 				
 				TableRow transit_times = CreateTableRow(tl, 0, i);	// 2nd row, leave it for later use
 				
 				tr = CreateTableRow(tl, 1.0f, i);
 				createImageViewbyR(R.drawable.start, tr, 50, 50);
-				createTextView(dires.routes[i].legs[j].start_address, tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT | Gravity.CENTER_VERTICAL);
+				createTextView(dires.routes[i].legs[j].start_address, tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT | Gravity.CENTER_VERTICAL, "map,current");
 				
 				for (int k = 0; k < dires.routes[i].legs[j].steps.length; k++) {
 					Step step = dires.routes[i].legs[j].steps[k];
 					if(step.travel_mode.contentEquals("WALKING")) {
-						String walk = new StringBuilder().append(step.html_instructions).append(" (" + step.distance.text + ", " +step.duration.text + ")").toString();
+						String walk = new StringBuilder().append(step.html_instructions).append("\n(" + step.distance.text + ", " +step.duration.text + ")").toString();
 						tr = CreateTableRow(tl, 1.0f, i);
-//						createTextView("走", tr, Color.rgb(0,0,0), 0.1f, Gravity.CENTER);
 						createImageViewbyR(R.drawable.walk, tr, 50, 50);
-						createTextView(walk, tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT | Gravity.CENTER_VERTICAL);
+						createTextView(walk, tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT | Gravity.CENTER_VERTICAL, "map," + step.polyline.points);
 					}
 					else if(step.travel_mode.contentEquals("TRANSIT")) {
 						String type = step.transit_details.line.vehicle.type;
 						String agencyname = step.transit_details.line.agencies[0].name;
+						// TODO: filled the text
+						String text = "transit,";
 						
 						String trans = new StringBuilder().append(getResources().getString(R.string.taketransit)).append(step.transit_details.line.short_name).toString();
 						
 						trans = new StringBuilder().append(trans).append(getResources().getString(R.string.to)).append(step.transit_details.arrival_stop.name).toString();
 						
-						trans = new StringBuilder().append(trans).append(" (" + step.transit_details.num_stops + getResources().getString(R.string.stops) + ", " +step.duration.text + ")").toString();
+						trans = new StringBuilder().append(trans).append("\n(" + step.transit_details.num_stops + getResources().getString(R.string.stops) + ", " +step.duration.text + ")").toString();
 						transit++;
 						
 						tr = CreateTableRow(tl, 1.0f, i);
-//						createTextView("車", tr, Color.rgb(0,0,0), 0.1f, Gravity.CENTER);
 						if(type.contentEquals("BUS"))
 							createImageViewbyR(R.drawable.bus, tr, 50, 50);
 						else if(type.contentEquals("SUBWAY")) {
-							if(agencyname.contentEquals(getResources().getString(R.string.trtc)))
+							if(agencyname.contentEquals("台北捷運"))
 								createImageViewbyR(R.drawable.trtc, tr, 50, 50);
-							else if(agencyname.contentEquals(getResources().getString(R.string.krtc)))
+							else if(agencyname.contentEquals("高雄捷運"))
 								createImageViewbyR(R.drawable.krtc, tr, 50, 50);
 							else
-								createTextView("車", tr, Color.rgb(0,0,0), 0.1f, Gravity.CENTER);
+								createTextView("車", tr, Color.rgb(0,0,0), 0.1f, Gravity.CENTER, "transit,null");
 						}
 						else if(type.contentEquals("HEAVY_RAIL")) {
-							if(agencyname.contentEquals(getResources().getString(R.string.hsr)))
+							if(agencyname.contentEquals("台灣高鐵"))
 								createImageViewbyR(R.drawable.hsr, tr, 50, 50);
-							else if(agencyname.contentEquals(getResources().getString(R.string.tra)))
+							else if(agencyname.contentEquals("台灣鐵路管理局"))
 								createImageViewbyR(R.drawable.train, tr, 50, 50);
 							else
-								createTextView("車", tr, Color.rgb(0,0,0), 0.1f, Gravity.CENTER);
+								createTextView("車", tr, Color.rgb(0,0,0), 0.1f, Gravity.CENTER, "transit,null");
 						}
-						createTextView(trans, tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT | Gravity.CENTER_VERTICAL);
+						createTextView(trans, tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT | Gravity.CENTER_VERTICAL, text);
 					}
 					if(k == dires.routes[i].legs[j].steps.length - 1) {
 						// Arrived
 						tr = CreateTableRow(tl, 1.0f, i);
-//						createTextView("到", tr, Color.rgb(0,0,0), 0.1f, Gravity.CENTER);
 						createImageViewbyR(R.drawable.destination, tr, 50, 50);
-						createTextView(dires.routes[i].legs[j].end_address, tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT);
+						createTextView(dires.routes[i].legs[j].end_address, tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT, "map," + dires.routes[i].overview_polyline.points );
 					}
 				}
 				String str = getResources().getString(R.string.transit) + ": " + transit + "x";
-				createTextView(str, transit_times, Color.rgb(0,0,0), 1.0f, Gravity.LEFT | Gravity.CENTER_VERTICAL);
+				createTextView(str, transit_times, Color.rgb(0,0,0), 1.0f, Gravity.LEFT | Gravity.CENTER_VERTICAL, "map," + dires.routes[i].overview_polyline.points );
 			}
 		}
 		// Add the LinearLayout element to the ScrollView

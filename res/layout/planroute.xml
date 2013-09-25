@@ -13,7 +13,7 @@
         android:layout_alignParentLeft="true"
         android:text="@string/str_from"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="#aba0a0" />
+        android:textColor="@color/route_edit_fg" />
 
     <EditText
         android:id="@+id/from"
@@ -41,7 +41,7 @@
         android:layout_alignParentLeft="true"
         android:text="@string/str_to"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="#aba0a0" />
+        android:textColor="@color/route_edit_fg" />
 
     <EditText
         android:id="@+id/to"

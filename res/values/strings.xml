@@ -2,6 +2,11 @@
 <resources>
 
     <string name="app_name">RouteTaiwan</string>
+    <string name="plan_route">路徑規劃</string>
+    <string name="show_map">顯示地圖</string>
+    <string name="my_favorite">我的最愛</string>
+    
+    
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
     <string name="but_checkpos">Check position</string>
@@ -11,7 +16,6 @@
     <string name="pos_to">Taipei 101</string>
     <string name="str_from">起點</string>
     <string name="str_to">終點</string>
-    <string name="plan_route">Plan Route</string>
     <string name="go">Go</string>
     <string name="transit">轉乘</string>
     <string name="walkto">行走到</string>
