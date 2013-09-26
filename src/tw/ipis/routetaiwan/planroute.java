@@ -26,6 +26,7 @@ import tw.ipis.routetaiwan.planroute.DirectionResponseObject.Route.Time;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.location.Criteria;
 import android.location.GpsStatus;
 import android.location.Location;
@@ -36,12 +37,19 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Display;
 import android.view.Gravity;
+import android.view.InflateException;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.PopupWindow;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -66,8 +74,8 @@ public class planroute extends Activity {
 	private boolean isrequested = false;
 	public DirectionResponseObject dires = null;
 	private int textid = 0;
-	private List<String> textview_extra = new ArrayList<String>();
 	String provider = null;
+	private PopupWindow popup = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -75,7 +83,7 @@ public class planroute extends Activity {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.planroute);
-		
+
 		ConnectivityManager connMgr = (ConnectivityManager) 
 		getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
@@ -88,12 +96,12 @@ public class planroute extends Activity {
 
 		start_positioning();
 	}
-	
+
 	@Override
 	protected void onResume() {
-		
+
 		super.onResume();
-		
+
 		start_positioning();
 	}
 
@@ -109,7 +117,7 @@ public class planroute extends Activity {
 		if(task != null && task.getStatus() != DownloadWebPageTask.Status.FINISHED)
 			task.cancel(true);
 		foreground_cosmetic();
-		
+
 		isrequested = true;
 
 		from = (EditText)findViewById(R.id.from);
@@ -118,7 +126,7 @@ public class planroute extends Activity {
 		if (!start.isEmpty() || currentloc.getProvider().contentEquals("network")) // Wait for positioning
 			Getroute();
 	}
-	
+
 	public void start_positioning() {
 		String locprovider = 	initLocationProvider();
 		if(locprovider == null) {
@@ -158,7 +166,7 @@ public class planroute extends Activity {
 		String start = from.getText().toString();	// Get user input "From"
 		String destination = to.getText().toString();	// Get user input "to"
 		String Mapapi = "https://maps.googleapis.com/maps/api/directions/json?origin={0}&destination={1}&sensor={3}&departure_time={2}&mode={4}&alternatives=true&region=tw";
-		
+
 		isrequested = false;
 
 		if(Locale.getDefault().getDisplayLanguage().contentEquals("中文"))
@@ -236,7 +244,7 @@ public class planroute extends Activity {
 		Format format = new SimpleDateFormat("HH:mm");
 		return format.format(date).toString();
 	}
-	
+
 	private TextView createTextView(String content, TableRow parent, int textcolor, float weight, int gravity, String text) {
 		TextView tv = new TextView(this);
 		tv.setText(content);
@@ -246,16 +254,16 @@ public class planroute extends Activity {
 		tv.setWidth(0);
 		tv.setGravity(gravity);
 		tv.setId(textid);
-		textview_extra.add(textid, text);
-		Log.i(TAG, textid + ". " + text);
-		textid++;
-		// TODO: write a onClickListener and onLongClickListener
+		tv.setTag(text);
+		//		textview_extra.add(textid, text);
+		//		Log.i(TAG, textid + ". " + text);
+		//		textid++;
 		if(weight != 0)
 			tv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, weight));
 		parent.addView(tv);
 		return tv;
 	}
-	
+
 	private ImageView createImageViewbyR(int R, TableRow parent, int height, int width) {
 		ImageView iv = new ImageView(this);
 		iv.setImageBitmap(null);
@@ -266,9 +274,23 @@ public class planroute extends Activity {
 		parent.addView(iv);
 		return iv;
 	}
-	
+
 	private TableRow CreateTableRow(TableLayout parent, float weight, int num){
 		TableRow tr = new TableRow(this);	// 1st row
+
+		OnClickListener popup = new OnClickListener() {
+			@Override
+			public void onClick(View onclick) {
+				int childcount = ((ViewGroup) onclick).getChildCount();
+				Log.i(TAG, "childcount=" + childcount);
+				TextView act = (TextView)((ViewGroup) onclick).getChildAt(childcount - 1);
+
+				if(act != null) {
+					showPopup(planroute.this, act);
+				}
+			}
+		};
+
 		if(num % 2 == 0)
 			tr.setBackgroundColor(Color.WHITE);
 		else
@@ -278,6 +300,9 @@ public class planroute extends Activity {
 		else
 			tr.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
 		tr.setGravity(Gravity.CENTER_VERTICAL);
+		tr.setClickable(true);
+		tr.setOnClickListener(popup);
+
 		parent.addView(tr);
 		return tr;
 	}
@@ -307,20 +332,20 @@ public class planroute extends Activity {
 				arrival_time = dires.routes[i].legs[j].arrival_time;
 				departure_time = dires.routes[i].legs[j].departure_time;
 				int duration = arrival_time.value - departure_time.value;
-				
+
 				String dur = String.format(" (%d" + getResources().getString(R.string.hour) + "%d" + getResources().getString(R.string.minute) + ")",
 						TimeUnit.SECONDS.toHours(duration), TimeUnit.SECONDS.toMinutes(duration % 3600));
-				
+
 				title = new StringBuilder().append(convertTime(departure_time.value)).append(" - ").append(convertTime(arrival_time.value)).append(dur).toString();
 
 				createTextView(title, tr, Color.rgb(0,0,0), 1.0f, Gravity.LEFT | Gravity.CENTER_VERTICAL, "map," + dires.routes[i].overview_polyline.points);
-				
+
 				TableRow transit_times = CreateTableRow(tl, 0, i);	// 2nd row, leave it for later use
-				
+
 				tr = CreateTableRow(tl, 1.0f, i);
 				createImageViewbyR(R.drawable.start, tr, 50, 50);
 				createTextView(dires.routes[i].legs[j].start_address, tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT | Gravity.CENTER_VERTICAL, "map,current");
-				
+
 				for (int k = 0; k < dires.routes[i].legs[j].steps.length; k++) {
 					Step step = dires.routes[i].legs[j].steps[k];
 					if(step.travel_mode.contentEquals("WALKING")) {
@@ -334,17 +359,19 @@ public class planroute extends Activity {
 						String agencyname = step.transit_details.line.agencies[0].name;
 						// TODO: filled the text
 						String text = "transit,";
-						
+
 						String trans = new StringBuilder().append(getResources().getString(R.string.taketransit)).append(step.transit_details.line.short_name).toString();
-						
+
 						trans = new StringBuilder().append(trans).append(getResources().getString(R.string.to)).append(step.transit_details.arrival_stop.name).toString();
-						
+
 						trans = new StringBuilder().append(trans).append("\n(" + step.transit_details.num_stops + getResources().getString(R.string.stops) + ", " +step.duration.text + ")").toString();
 						transit++;
-						
+
 						tr = CreateTableRow(tl, 1.0f, i);
-						if(type.contentEquals("BUS"))
+						if(type.contentEquals("BUS")) {
 							createImageViewbyR(R.drawable.bus, tr, 50, 50);
+							text = new StringBuilder().append(text).append("bus").toString();
+						}
 						else if(type.contentEquals("SUBWAY")) {
 							if(agencyname.contentEquals("台北捷運"))
 								createImageViewbyR(R.drawable.trtc, tr, 50, 50);
@@ -352,6 +379,7 @@ public class planroute extends Activity {
 								createImageViewbyR(R.drawable.krtc, tr, 50, 50);
 							else
 								createTextView("車", tr, Color.rgb(0,0,0), 0.1f, Gravity.CENTER, "transit,null");
+							text = new StringBuilder().append("map,").append(step.polyline.points).toString();
 						}
 						else if(type.contentEquals("HEAVY_RAIL")) {
 							if(agencyname.contentEquals("台灣高鐵"))
@@ -597,5 +625,18 @@ public class planroute extends Activity {
 				int value;
 			}
 		}
+	}
+
+	private void showPopup(final Activity context, TextView act) {
+		View layout = null;
+		RelativeLayout viewGroup;
+
+		String action = (String) act.getTag();
+		Log.i(TAG, "tag=" + action);
+		if(action.regionMatches(0, "map", 0, 3)) {
+		}
+		else {
+		}
+
 	}
 }
