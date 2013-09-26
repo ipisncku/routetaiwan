@@ -47,6 +47,12 @@
         <activity android:name="tw.ipis.routetaiwan.planroute"
             android:label="@string/plan_route" ></activity>
         
+        <activity android:name="tw.ipis.routetaiwan.pop_map"
+            android:theme="@style/ThemeWithCorners" ></activity>
+        
+        <activity android:name="tw.ipis.routetaiwan.pop_transit"
+            android:theme="@style/ThemeWithCorners" ></activity>
+        
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="AIzaSyC-V89bdpb8epZ42zW3skFlKHcu1hh4t7k" />

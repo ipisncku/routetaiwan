@@ -25,8 +25,8 @@ import tw.ipis.routetaiwan.planroute.DirectionResponseObject.Route.Leg.Step.Valu
 import tw.ipis.routetaiwan.planroute.DirectionResponseObject.Route.Time;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.Point;
 import android.location.Criteria;
 import android.location.GpsStatus;
 import android.location.Location;
@@ -37,10 +37,7 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Display;
 import android.view.Gravity;
-import android.view.InflateException;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -49,7 +46,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -75,7 +71,6 @@ public class planroute extends Activity {
 	public DirectionResponseObject dires = null;
 	private int textid = 0;
 	String provider = null;
-	private PopupWindow popup = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -628,15 +623,20 @@ public class planroute extends Activity {
 	}
 
 	private void showPopup(final Activity context, TextView act) {
-		View layout = null;
-		RelativeLayout viewGroup;
 
 		String action = (String) act.getTag();
 		Log.i(TAG, "tag=" + action);
 		if(action.regionMatches(0, "map", 0, 3)) {
+			Intent launchpop = new Intent(this, pop_map.class);
+			Bundle bundle=new Bundle();
+			bundle.putString("poly", (String) act.getTag());
+			launchpop.putExtras(bundle);
+			
+			startActivity(launchpop);
 		}
-		else {
+		else if(action.regionMatches(0, "transit", 0, 7)) {
+			Intent launchpop = new Intent(this, pop_transit.class);
+			startActivity(launchpop);
 		}
-
 	}
 }

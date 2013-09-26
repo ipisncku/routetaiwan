@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="route_edit_bg">#0ae0d5</color>
+    <color name="route_edit_bg">#ff7800</color>
     <color name="route_edit_fg">#535253</color>
     <color name="route_show_bg">#FFFFFF</color>
 </resources>
