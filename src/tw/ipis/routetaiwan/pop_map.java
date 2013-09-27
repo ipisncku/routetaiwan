@@ -163,17 +163,17 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			if (t.contentEquals("start"))
 				add_marker(p, R.drawable.start);
 			else if (t.contentEquals("walk"))
-				add_marker(p, R.drawable.walk);
+				add_marker(p, R.drawable.map_walk);
 			else if (t.contentEquals("bus"))
-				add_marker(p, R.drawable.bus);
+				add_marker(p, R.drawable.map_bus);
 			else if (t.contentEquals("trtc"))
-				add_marker(p, R.drawable.trtc);
+				add_marker(p, R.drawable.map_trtc);
 			else if (t.contentEquals("krtc"))
-				add_marker(p, R.drawable.krtc);
+				add_marker(p, R.drawable.map_krtc);
 			else if (t.contentEquals("thsrc"))
-				add_marker(p, R.drawable.hsr);
+				add_marker(p, R.drawable.map_thsrc);
 			else if (t.contentEquals("tra"))
-				add_marker(p, R.drawable.train);
+				add_marker(p, R.drawable.map_tra);
 			else if (t.contentEquals("end"))
 				add_marker(p, R.drawable.destination);
 			else
