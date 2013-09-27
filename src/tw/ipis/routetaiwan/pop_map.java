@@ -1,10 +1,7 @@
 package tw.ipis.routetaiwan;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-
-import tw.ipis.routetaiwan.planroute.MarkP;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -22,11 +19,12 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
@@ -182,26 +180,30 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 				add_marker(p, 0);
 		}
 		
-//		LatLngBounds bounds = new LatLngBounds.Builder()
-//		.include(p0)
-//		.include(p1)
-//		.build();
-//		
-//		for (int i = 0; i < points.size(); i++) {
-//			bounds.including(points.get(i));
-//		}
+		final LatLngBounds.Builder builder = new LatLngBounds.Builder();
+		
+		for (int i = 0; i < points.size(); i++) {
+			builder.include(points.get(i));
+		}
 		
 		googleMap.addPolyline(new PolylineOptions().addAll(points).width(5).color(Color.BLUE));
-//		googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 30));
-		Log.i(TAG, "draw~~");
+		
+		googleMap.setOnCameraChangeListener(new OnCameraChangeListener() {
+
+		    @Override
+		    public void onCameraChange(CameraPosition arg0) {
+		        // Move camera.
+		    	googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 30));
+		        // Remove listener to prevent position reset on camera move.
+		    	googleMap.setOnCameraChangeListener(null);
+		    }
+		});
+		
 	}
 	
 	public void draw_polyline(String poly, LatLng start, LatLng det) {
 		Log.i(TAG, "poly=" + poly);
-//		LatLngBounds bounds = new LatLngBounds.Builder()
-//        .include(start)
-//        .include(det)
-//        .build();
+		final LatLngBounds.Builder builder = new LatLngBounds.Builder();
 		
 		if(!poly.contentEquals("current"))
 			points = decodePoly(poly);
@@ -211,13 +213,23 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 		add_marker(start, R.drawable.start);
 		add_marker(det, R.drawable.destination);
 		
-//		for (int i = 0; i < points.size(); i++) {
-//			bounds.including(points.get(i));
-//		}
+		for (int i = 0; i < points.size(); i++) {
+			builder.include(points.get(i));
+		}
 		
 		googleMap.addPolyline(new PolylineOptions().addAll(points).width(5).color(Color.BLUE));
-//		googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 30));
-		Log.i(TAG, "draw~~");
+		
+		googleMap.setOnCameraChangeListener(new OnCameraChangeListener() {
+
+		    @Override
+		    public void onCameraChange(CameraPosition arg0) {
+		        // Move camera.
+		    	googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 30));
+		        // Remove listener to prevent position reset on camera move.
+		    	googleMap.setOnCameraChangeListener(null);
+		    }
+		});
+		
 	}
 	
 	public void add_marker(LatLng _point, int icon) {
