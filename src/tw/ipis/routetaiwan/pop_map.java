@@ -1,7 +1,10 @@
 package tw.ipis.routetaiwan;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+
+import tw.ipis.routetaiwan.planroute.MarkP;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -17,9 +20,12 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -77,10 +83,20 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			
 			Bundle Data = this.getIntent().getExtras();
 			String poly = Data.getString("poly");
-			poly = poly.substring(4);
-			
-			draw_polyline(poly);
-			
+			String start, det;
+			ArrayList<String> types, locations;
+			start = Data.getString("departure");
+			if(start != null) {
+				det = Data.getString("destination");
+				poly = poly.substring(4);
+				draw_polyline(poly, decode_latlng(start), decode_latlng(det));
+			}
+			else {
+				types = Data.getStringArrayList("types");
+				locations = Data.getStringArrayList("locations");
+				poly = poly.substring(4);
+				draw_polyline(poly, types, locations);
+			}
 		}
 	}
 	
@@ -129,26 +145,91 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 		}
 	};
 	
-	public void draw_polyline(String poly) {
+	// input string should be "LAT,LNG"
+	private LatLng decode_latlng(String str) {
+		String location[] = str.split(",", 2);
+		
+		LatLng ret = new LatLng(Double.parseDouble(location[0]), Double.parseDouble(location[1]));
+		
+		return ret;
+	}
+	
+	public void draw_polyline(String poly, ArrayList<String> types, ArrayList<String> locations) {
 		Log.i(TAG, "poly=" + poly);
 		points = decodePoly(poly);
 		
-		for(LatLng d : points) {
-			Log.i(TAG, "points=" + d.latitude + "," + d.longitude);
+		for (int i = 0; i < locations.size(); i++) {
+			LatLng p = decode_latlng(locations.get(i));
+			String t = types.get(i);
+			
+			if (t.contentEquals("start"))
+				add_marker(p, R.drawable.start);
+			else if (t.contentEquals("walk"))
+				add_marker(p, R.drawable.walk);
+			else if (t.contentEquals("bus"))
+				add_marker(p, R.drawable.bus);
+			else if (t.contentEquals("trtc"))
+				add_marker(p, R.drawable.trtc);
+			else if (t.contentEquals("krtc"))
+				add_marker(p, R.drawable.krtc);
+			else if (t.contentEquals("thsrc"))
+				add_marker(p, R.drawable.hsr);
+			else if (t.contentEquals("tra"))
+				add_marker(p, R.drawable.train);
+			else if (t.contentEquals("end"))
+				add_marker(p, R.drawable.destination);
+			else
+				add_marker(p, 0);
 		}
 		
-		googleMap.addPolyline(new PolylineOptions().addAll(points).width(5).color(Color.GRAY));
+//		LatLngBounds bounds = new LatLngBounds.Builder()
+//		.include(p0)
+//		.include(p1)
+//		.build();
+//		
+//		for (int i = 0; i < points.size(); i++) {
+//			bounds.including(points.get(i));
+//		}
+		
+		googleMap.addPolyline(new PolylineOptions().addAll(points).width(5).color(Color.BLUE));
+//		googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 30));
+		Log.i(TAG, "draw~~");
 	}
 	
-	public void add_marker(LatLng _point) {
+	public void draw_polyline(String poly, LatLng start, LatLng det) {
+		Log.i(TAG, "poly=" + poly);
+//		LatLngBounds bounds = new LatLngBounds.Builder()
+//        .include(start)
+//        .include(det)
+//        .build();
+		
+		if(!poly.contentEquals("current"))
+			points = decodePoly(poly);
+		
+		points.add(0, start);
+		points.add(points.size(), det);
+		add_marker(start, R.drawable.start);
+		add_marker(det, R.drawable.destination);
+		
+//		for (int i = 0; i < points.size(); i++) {
+//			bounds.including(points.get(i));
+//		}
+		
+		googleMap.addPolyline(new PolylineOptions().addAll(points).width(5).color(Color.BLUE));
+//		googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 30));
+		Log.i(TAG, "draw~~");
+	}
+	
+	public void add_marker(LatLng _point, int icon) {
 		
 		MarkerOptions markerOpt = new MarkerOptions();
 		markerOpt.position(_point);
+		if (icon != 0)
+			markerOpt.icon(BitmapDescriptorFactory.fromResource(icon));
 		googleMap.addMarker(markerOpt);
 	}
 
 	public void focus_on_me(Location location) {
-		Log.i(TAG, "focus on me!");
 		
 //		// Getting latitude of the current location
 //		double latitude = location.getLatitude();

@@ -36,5 +36,9 @@
     <string name="krtc">高雄捷運</string>
     <string name="hsr">台灣高鐵</string>
     <string name="tra">台灣鐵路管理局</string>
+    
+    <item type="id" name="tag_zero"></item>
+    <item type="id" name="tag_first"></item>
+		<item type="id" name="tag_second"></item>
 
 </resources>
