@@ -44,7 +44,6 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TableLayout;
@@ -409,9 +408,7 @@ public class planroute extends Activity {
 			dires = gson.fromJson(result,	DirectionResponseObject.class);
 			Log.i(TAG, "Total routes = " + dires.routes.length);
 			planning.setVisibility(ProgressBar.GONE);
-			if(dumpdetails(dires)) {
-				List<LatLng> list = decodePoly(dires.routes[0].overview_polyline.points);
-			}
+			dumpdetails(dires);
 		} catch (Exception e) {
 			e.printStackTrace();
 			Toast.makeText(this, getResources().getString(R.string.info_internal_error) , Toast.LENGTH_LONG).show();
@@ -458,44 +455,6 @@ public class planroute extends Activity {
 		// }
 
 		return null;
-	}
-
-	/**
-	 * Method to decode polyline points
-	 * Courtesy : jeffreysambells.com/2010/05/27/decoding-polylines-from-google-maps-direction-api-with-java
-	 * */
-	private List<LatLng> decodePoly (String encoded) {
-
-		List<LatLng> poly = new ArrayList<LatLng>();
-		int index = 0, len = encoded.length();
-		int lat = 0, lng = 0;
-
-		while (index < len) {
-			int b, shift = 0, result = 0;
-			do {
-				b = encoded.charAt(index++) - 63;
-				result |= (b & 0x1f) << shift;
-				shift += 5;
-			} while (b >= 0x20);
-			int dlat = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
-			lat += dlat;
-
-			shift = 0;
-			result = 0;
-			do {
-				b = encoded.charAt(index++) - 63;
-				result |= (b & 0x1f) << shift;
-				shift += 5;
-			} while (b >= 0x20);
-			int dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
-			lng += dlng;
-
-			LatLng p = new LatLng((((double) lat / 1E5)),
-					(((double) lng / 1E5)));
-			poly.add(p);
-		}
-
-		return poly;
 	}
 
 	GpsStatus.Listener gpsListener = new GpsStatus.Listener() {

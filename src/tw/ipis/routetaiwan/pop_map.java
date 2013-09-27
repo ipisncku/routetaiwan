@@ -1,7 +1,11 @@
 package tw.ipis.routetaiwan;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.app.Activity;
 import android.app.Dialog;
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,21 +17,23 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 public class pop_map extends Activity implements 
 GooglePlayServicesClient.ConnectionCallbacks,
 GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 
-	private static final String TAG = "~~showmap~~";
+	private static final String TAG = "--popup_map--";
 	GoogleMap googleMap;
 	private LocationClient locationclient;
 	private LocationRequest locationrequest;
-	private boolean first_read = true;
+	private boolean first_read;
+	private List<LatLng> points;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +74,13 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 				Location last = locationclient.getLastLocation();
 				focus_on_me(last);
 			}
+			
+			Bundle Data = this.getIntent().getExtras();
+			String poly = Data.getString("poly");
+			poly = poly.substring(4);
+			
+			draw_polyline(poly);
+			
 		}
 	}
 	
@@ -115,6 +128,24 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			focus_on_me(location);
 		}
 	};
+	
+	public void draw_polyline(String poly) {
+		Log.i(TAG, "poly=" + poly);
+		points = decodePoly(poly);
+		
+		for(LatLng d : points) {
+			Log.i(TAG, "points=" + d.latitude + "," + d.longitude);
+		}
+		
+		googleMap.addPolyline(new PolylineOptions().addAll(points).width(5).color(Color.GRAY));
+	}
+	
+	public void add_marker(LatLng _point) {
+		
+		MarkerOptions markerOpt = new MarkerOptions();
+		markerOpt.position(_point);
+		googleMap.addMarker(markerOpt);
+	}
 
 	public void focus_on_me(Location location) {
 		Log.i(TAG, "focus on me!");
@@ -138,10 +169,48 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 		
 	}
 	
-
 	@Override
 	public void onLocationChanged(Location arg0) {
 		// TODO Auto-generated method stub
 		focus_on_me(arg0);
 	}
+	
+	/**
+	 * Method to decode polyline points
+	 * Courtesy : jeffreysambells.com/2010/05/27/decoding-polylines-from-google-maps-direction-api-with-java
+	 * */
+	private List<LatLng> decodePoly (String encoded) {
+
+		List<LatLng> poly = new ArrayList<LatLng>();
+		int index = 0, len = encoded.length();
+		int lat = 0, lng = 0;
+
+		while (index < len) {
+			int b, shift = 0, result = 0;
+			do {
+				b = encoded.charAt(index++) - 63;
+				result |= (b & 0x1f) << shift;
+				shift += 5;
+			} while (b >= 0x20);
+			int dlat = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+			lat += dlat;
+
+			shift = 0;
+			result = 0;
+			do {
+				b = encoded.charAt(index++) - 63;
+				result |= (b & 0x1f) << shift;
+				shift += 5;
+			} while (b >= 0x20);
+			int dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+			lng += dlng;
+
+			LatLng p = new LatLng((((double) lat / 1E5)),
+					(((double) lng / 1E5)));
+			poly.add(p);
+		}
+
+		return poly;
+	}
+	
 }
