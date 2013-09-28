@@ -445,8 +445,8 @@ public class planroute extends Activity {
 						// Arrived
 						tr = CreateTableRow(tl, 1.0f, i);
 						createImageViewbyR(R.drawable.destination, tr, 50, 50);
-						createTextView(dires.routes[i].legs[j].end_address, tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT, "map," + dires.routes[i].overview_polyline.points
-								, dires.routes[i].legs[0].end_location, dires.routes[i].legs[0].end_location);
+						createTextView(dires.routes[i].legs[j].end_address, tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT, "map,destination", 
+								dires.routes[i].legs[0].end_location, dires.routes[i].legs[0].end_location);
 						
 						dires.routes[i].legs[j].mark.add(new MarkP("end", dires.routes[i].legs[0].end_location));
 					}

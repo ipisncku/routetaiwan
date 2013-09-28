@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">RouteTaiwan</string>
+    <string name="app_name">繞台灣</string>
     <string name="plan_route">路徑規劃</string>
     <string name="show_map">顯示地圖</string>
     <string name="my_favorite">我的最愛</string>

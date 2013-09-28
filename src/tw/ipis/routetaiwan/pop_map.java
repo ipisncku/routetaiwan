@@ -76,7 +76,6 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 				locationrequest.setInterval(100);
 				locationclient.requestLocationUpdates(locationrequest, this);
 				Location last = locationclient.getLastLocation();
-				focus_on_me(last);
 			}
 			
 			Bundle Data = this.getIntent().getExtras();
@@ -87,7 +86,18 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			if(start != null) {
 				det = Data.getString("destination");
 				poly = poly.substring(4);
-				draw_polyline(poly, decode_latlng(start), decode_latlng(det));
+				if(poly.contentEquals("current")) {
+					LatLng p = decode_latlng(start);
+					add_marker(p, R.drawable.start);
+					focus_on_me(p);
+				}
+				else if(poly.contentEquals("destination")) {
+					LatLng p = decode_latlng(det);
+					add_marker(p, R.drawable.destination);
+					focus_on_me(p);
+				}
+				else
+					draw_polyline(poly, decode_latlng(start), decode_latlng(det));
 			}
 			else {
 				types = Data.getStringArrayList("types");
@@ -119,7 +129,6 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			locationclient.requestLocationUpdates(locationrequest, this);
 			Location last = locationclient.getLastLocation();
 			first_read = true;
-			focus_on_me(last);
 		}
 	}
 
@@ -139,7 +148,6 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 	LocationListener locationListener1 = new LocationListener(){
 		@Override
 		public void onLocationChanged(Location location) {
-			focus_on_me(location);
 		}
 	};
 	
@@ -241,31 +249,20 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 		googleMap.addMarker(markerOpt);
 	}
 
-	public void focus_on_me(Location location) {
+	public void focus_on_me(LatLng location) {
 		
-//		// Getting latitude of the current location
-//		double latitude = location.getLatitude();
-//
-//		// Getting longitude of the current location
-//		double longitude = location.getLongitude();
-//
-//		if(first_read) {
-//			Log.e(TAG, "changing camera...");
-//			CameraPosition camPosition = new CameraPosition.Builder()
-//			.target(new LatLng(latitude, longitude))
-//			.zoom(16)
-//			.build();
-//
-//			googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(camPosition));
-//			first_read = false;
-//		}
+		CameraPosition camPosition = new CameraPosition.Builder()
+		.target(location)
+		.zoom(16)
+		.build();
+
+		googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(camPosition));
 		
 	}
 	
 	@Override
 	public void onLocationChanged(Location arg0) {
 		// TODO Auto-generated method stub
-		focus_on_me(arg0);
 	}
 	
 	/**
