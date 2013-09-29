@@ -79,7 +79,7 @@ public class planroute extends Activity {
 		getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 		if (networkInfo != null && networkInfo.isConnected()) {
-			Toast.makeText(this, getResources().getString(R.string.info_network_using) + networkInfo.getTypeName() , Toast.LENGTH_LONG).show();
+			Toast.makeText(this, getResources().getString(R.string.info_network_using) + networkInfo.getTypeName() , Toast.LENGTH_SHORT).show();
 		}
 		else {
 			Toast.makeText(this, getResources().getString(R.string.warninig_no_network) , Toast.LENGTH_LONG).show();
@@ -184,6 +184,7 @@ public class planroute extends Activity {
 		}
 		catch (Exception e)
 		{
+			planning.setVisibility(ProgressBar.GONE);
 			e.printStackTrace();
 			return;
 		}
@@ -216,6 +217,7 @@ public class planroute extends Activity {
 					return response;
 				}
 				catch (Exception e) {
+					planning.setVisibility(ProgressBar.GONE);
 					e.printStackTrace();
 					return "";
 				}
@@ -485,6 +487,7 @@ public class planroute extends Activity {
 			planning.setVisibility(ProgressBar.GONE);
 			dumpdetails(dires);
 		} catch (Exception e) {
+			planning.setVisibility(ProgressBar.GONE);
 			e.printStackTrace();
 			Toast.makeText(this, getResources().getString(R.string.info_internal_error) , Toast.LENGTH_LONG).show();
 		}

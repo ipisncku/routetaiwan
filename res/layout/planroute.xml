@@ -3,7 +3,7 @@
     android:id="@+id/rl_planroute"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/route_edit_bg" >
+    android:background="@drawable/style_angle" >
 
     <TextView
         android:id="@+id/textfrom"
@@ -31,7 +31,7 @@
         android:layout_width="fill_parent"
         android:layout_height="5dp"
         android:layout_below="@+id/from"
-        android:background="@color/route_edit_bg" />
+        android:background="#00000000" />
 
     <TextView
         android:id="@+id/textto"
@@ -60,7 +60,7 @@
         android:layout_width="fill_parent"
         android:layout_height="5dp"
         android:layout_below="@+id/to"
-        android:background="@color/route_edit_bg" />
+        android:background="#00000000" />
 
     <ScrollView
         android:id="@+id/routes"
