@@ -14,9 +14,7 @@ import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
@@ -34,9 +32,6 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 
 	private static final String TAG = "--popup_map--";
 	GoogleMap googleMap;
-	private LocationClient locationclient;
-	private LocationRequest locationrequest;
-	private boolean first_read;
 	private List<LatLng> points;
 
 	@Override
@@ -44,7 +39,6 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.pop_map);
 
-		first_read = true;
 		// Getting Google Play availability status
 		int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getBaseContext());
 		// Showing status
@@ -56,9 +50,6 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 		}else {    // Google Play Services are available
 			Log.d(TAG, "Google play service available");
 			
-			locationclient = new LocationClient(this,this,this);
-			locationclient.connect();
-			
 			// Getting reference to the SupportMapFragment of activity_main.xml
 			MapFragment fm = ((MapFragment)getFragmentManager().findFragmentById(R.id.smallmap));
 
@@ -67,17 +58,8 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 
 			// Enabling MyLocation Layer of Google Map
 			googleMap.setMyLocationEnabled(true);
-
-			// Setting event handler for location change
-//			googleMap.setOnMyLocationChangeListener((OnMyLocationChangeListener) this);
 			
-			if(locationclient != null && locationclient.isConnected()){
-				locationrequest = LocationRequest.create();
-				locationrequest.setInterval(100);
-				locationclient.requestLocationUpdates(locationrequest, this);
-				Location last = locationclient.getLastLocation();
-			}
-			
+			// Draw poly line and make markers.
 			Bundle Data = this.getIntent().getExtras();
 			String poly = Data.getString("poly");
 			String start, det;
@@ -111,8 +93,6 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 	@Override
 	protected void onStop() {
 		super.onStop();
-		locationclient.disconnect();
-		first_read = true;
 	}
 	
 	@Override
@@ -123,13 +103,6 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 	@Override
 	public void onConnected(Bundle arg0) {
 		// TODO Auto-generated method stub
-		if(locationclient != null && locationclient.isConnected()) {
-			locationrequest = LocationRequest.create();
-			locationrequest.setInterval(100);
-			locationclient.requestLocationUpdates(locationrequest, this);
-			Location last = locationclient.getLastLocation();
-			first_read = true;
-		}
 	}
 
 	@Override
@@ -140,16 +113,7 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		if(locationclient!=null)
-			locationclient.disconnect();
-		first_read = true;
 	}
-	
-	LocationListener locationListener1 = new LocationListener(){
-		@Override
-		public void onLocationChanged(Location location) {
-		}
-	};
 	
 	// input string should be "LAT,LNG"
 	private LatLng decode_latlng(String str) {

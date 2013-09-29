@@ -23,8 +23,6 @@ import tw.ipis.routetaiwan.planroute.DirectionResponseObject.Route.Bound;
 import tw.ipis.routetaiwan.planroute.DirectionResponseObject.Route.Leg.Step;
 import tw.ipis.routetaiwan.planroute.DirectionResponseObject.Route.Leg.Step.Poly;
 import tw.ipis.routetaiwan.planroute.DirectionResponseObject.Route.Leg.Step.ValueText;
-import tw.ipis.routetaiwan.planroute.DirectionResponseObject.Route.Time;
-import tw.ipis.routetaiwan.planroute.MarkP;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -257,7 +255,7 @@ public class planroute extends Activity {
 		parent.addView(tv);
 		return tv;
 	}
-	
+
 	private TextView createTextView(String content, TableRow parent, int textcolor, float weight, int gravity, String text, String departure, String destination) {
 		TextView tv = new TextView(this);
 		tv.setText(content);
@@ -275,7 +273,7 @@ public class planroute extends Activity {
 		parent.addView(tv);
 		return tv;
 	}
-	
+
 	private TextView createTextView(String content, TableRow parent, int textcolor, float weight, int gravity, String text, List<MarkP> allP) {
 		TextView tv = new TextView(this);
 		tv.setText(content);
@@ -311,7 +309,6 @@ public class planroute extends Activity {
 			@Override
 			public void onClick(View onclick) {
 				int childcount = ((ViewGroup) onclick).getChildCount();
-				Log.i(TAG, "childcount=" + childcount);
 				TextView act = (TextView)((ViewGroup) onclick).getChildAt(childcount - 1);
 
 				if(act != null) {
@@ -349,28 +346,33 @@ public class planroute extends Activity {
 			return false;
 		}
 
-
 		// Add text
 		for (int i = 0; i < dires.routes.length; i++) {
 			int transit = 0;
 			for (int j = 0; j < dires.routes[i].legs.length; j++)	{
-				TableRow tr = CreateTableRow(tl, 0, i);	// 1st row
+				boolean pure_walk_flag = false;
+				TableRow tr = null;
+				TableRow time_row = CreateTableRow(tl, 0, i);	// 1st row
 
 				String title = "";
 				Time arrival_time, departure_time;
 				arrival_time = dires.routes[i].legs[j].arrival_time;
 				departure_time = dires.routes[i].legs[j].departure_time;
-				int duration = arrival_time.value - departure_time.value;
-				
+				long duration = 0;
+
 				dires.routes[i].legs[j].mark = new ArrayList<MarkP>();
 
-				String dur = String.format(" (%d" + getResources().getString(R.string.hour) + "%d" + getResources().getString(R.string.minute) + ")",
-						TimeUnit.SECONDS.toHours(duration), TimeUnit.SECONDS.toMinutes(duration % 3600));
-
-				title = new StringBuilder().append(convertTime(departure_time.value)).append(" - ").append(convertTime(arrival_time.value)).append(dur).toString();
-
-				createTextView(title, tr, Color.rgb(0,0,0), 1.0f, Gravity.LEFT | Gravity.CENTER_VERTICAL,
-						"all," + dires.routes[i].overview_polyline.points, dires.routes[i].legs[j].mark);
+				if(dires.routes[i].legs[j].arrival_time != null && dires.routes[i].legs[j].departure_time != null) {
+					duration = arrival_time.value - departure_time.value;
+				}
+				else {
+					pure_walk_flag = true;
+					departure_time = new Time(0);
+					arrival_time = new Time(0);
+					departure_time.value = System.currentTimeMillis() / 1000;
+				}
+					
+				
 
 				TableRow transit_times = CreateTableRow(tl, 0, i);	// 2nd row, leave it for later use
 
@@ -380,7 +382,7 @@ public class planroute extends Activity {
 						dires.routes[i].legs[0].start_location, dires.routes[i].legs[0].start_location);
 
 				dires.routes[i].legs[j].mark.add(new MarkP("start", dires.routes[i].legs[0].start_location));
-				
+
 				for (int k = 0; k < dires.routes[i].legs[j].steps.length; k++) {
 					Step step = dires.routes[i].legs[j].steps[k];
 					if(step.travel_mode.contentEquals("WALKING")) {
@@ -389,8 +391,11 @@ public class planroute extends Activity {
 						createImageViewbyR(R.drawable.walk, tr, 50, 50);
 						createTextView(walk, tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT | Gravity.CENTER_VERTICAL, "map," + step.polyline.points, 
 								step.start_location, step.end_location);
-						
+
 						dires.routes[i].legs[j].mark.add(new MarkP("walk", step.start_location));
+						if(pure_walk_flag == true) {
+							duration += step.duration.value;
+						}
 					}
 					else if(step.travel_mode.contentEquals("TRANSIT")) {
 						String type = step.transit_details.line.vehicle.type;
@@ -409,7 +414,7 @@ public class planroute extends Activity {
 							createImageViewbyR(R.drawable.bus, tr, 50, 50);
 							text = new StringBuilder().append(text).append("bus").toString();
 							createTextView(trans, tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT | Gravity.CENTER_VERTICAL, text, step.transit_details.departure_stop.name, step.transit_details.arrival_stop.name);
-							
+
 							dires.routes[i].legs[j].mark.add(new MarkP("bus", step.transit_details.departure_stop.location));
 						}
 						else if(type.contentEquals("SUBWAY")) {
@@ -447,13 +452,23 @@ public class planroute extends Activity {
 						createImageViewbyR(R.drawable.destination, tr, 50, 50);
 						createTextView(dires.routes[i].legs[j].end_address, tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT, "map,destination", 
 								dires.routes[i].legs[0].end_location, dires.routes[i].legs[0].end_location);
-						
+
 						dires.routes[i].legs[j].mark.add(new MarkP("end", dires.routes[i].legs[0].end_location));
 					}
 				}
 				String str = getResources().getString(R.string.transit) + ": " + transit + "x";
 				createTextView(str, transit_times, Color.rgb(0,0,0), 1.0f, Gravity.LEFT | Gravity.CENTER_VERTICAL, "all," + dires.routes[i].overview_polyline.points, 
 						dires.routes[i].legs[j].mark);
+				// Set time row
+				if(pure_walk_flag == true) {
+					arrival_time.value = departure_time.value + duration;
+				}
+				
+				String dur = String.format(" (%d" + getResources().getString(R.string.hour) + "%d" + getResources().getString(R.string.minute) + ")",
+						TimeUnit.SECONDS.toHours(duration), TimeUnit.SECONDS.toMinutes(duration % 3600));
+				title = new StringBuilder().append(convertTime(departure_time.value)).append(" - ").append(convertTime(arrival_time.value)).append(dur).toString();
+				createTextView(title, time_row, Color.rgb(0,0,0), 1.0f, Gravity.LEFT | Gravity.CENTER_VERTICAL,
+						"all," + dires.routes[i].overview_polyline.points, dires.routes[i].legs[j].mark);
 			}
 		}
 		// Add the LinearLayout element to the ScrollView
@@ -539,7 +554,6 @@ public class planroute extends Activity {
 	LocationListener locationListener = new LocationListener(){
 		@Override
 		public void onLocationChanged(Location location) {
-			Log.e(TAG, "location: " + location.getLatitude() + "," + location.getLongitude());
 			if (isrequested)
 				Getroute();
 		}
@@ -636,22 +650,26 @@ public class planroute extends Activity {
 			public class Bound {
 				LatLng_s southwest, northeast;
 			}
-
-			public class Time {
-				int value;
-			}
 		}
 	}
-	
+
 	public class LatLng_s {
 		double lat;
 		double lng;
+	}
+
+	public class Time {
+		long value;
+		
+		public Time(long v) {
+			value = v;
+		}
 	}
 	
 	public class MarkP {
 		String type;
 		LatLng_s location;
-		
+
 		public MarkP(String s, LatLng_s l) {
 			type = s;
 			location = l;
@@ -665,14 +683,12 @@ public class planroute extends Activity {
 		if(action.regionMatches(0, "map", 0, 3)) {
 			Intent launchpop = new Intent(this, pop_map.class);
 			Bundle bundle=new Bundle();
-			
-			Log.i(TAG, "what is = " + act.getTag(R.id.tag_first));
-			
+
 			bundle.putString("poly", action);
 			bundle.putString("departure", (String) act.getTag(R.id.tag_first));
 			bundle.putString("destination", (String) act.getTag(R.id.tag_second));
 			launchpop.putExtras(bundle);
-			
+
 			startActivity(launchpop);
 		}
 		else if(action.regionMatches(0, "all", 0, 3)) {
@@ -680,21 +696,21 @@ public class planroute extends Activity {
 			Bundle bundle=new Bundle();
 			ArrayList<String> types = new ArrayList<String>();
 			ArrayList<String> locations = new ArrayList<String>();
-			
+
 			List<MarkP> allP = (List<MarkP>)act.getTag(R.id.tag_first);
-			
+
 			Iterator<MarkP> mark =  allP.iterator();
 			while(mark.hasNext()){
 				MarkP e = mark.next();
 				types.add(e.type);
 				locations.add(e.location.lat + "," + e.location.lng);
 			}
-			
+
 			bundle.putString("poly", action);
 			bundle.putStringArrayList("types", types);
 			bundle.putStringArrayList("locations", locations);
 			launchpop.putExtras(bundle);
-			
+
 			startActivity(launchpop);
 		}
 		else if(action.regionMatches(0, "transit", 0, 7)) {
@@ -702,7 +718,7 @@ public class planroute extends Activity {
 			Bundle bundle=new Bundle();
 			bundle.putString("poly", action);
 			launchpop.putExtras(bundle);
-			
+
 			startActivity(launchpop);
 		}
 	}
