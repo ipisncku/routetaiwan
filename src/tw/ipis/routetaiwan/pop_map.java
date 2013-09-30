@@ -49,7 +49,7 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			Toast.makeText(this, "Google play service unavailable", Toast.LENGTH_LONG).show();
 		}else {    // Google Play Services are available
 			Log.d(TAG, "Google play service available");
-			
+
 			// Getting reference to the SupportMapFragment of activity_main.xml
 			MapFragment fm = ((MapFragment)getFragmentManager().findFragmentById(R.id.smallmap));
 
@@ -58,12 +58,12 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 
 			// Enabling MyLocation Layer of Google Map
 			googleMap.setMyLocationEnabled(true);
-			
+
 			// Draw poly line and make markers.
 			Bundle Data = this.getIntent().getExtras();
 			String poly = Data.getString("poly");
 			String start, det;
-			ArrayList<String> types, locations;
+			ArrayList<String> types, locations, title, descriptions;
 			start = Data.getString("departure");
 			if(start != null) {
 				det = Data.getString("destination");
@@ -84,17 +84,19 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			else {
 				types = Data.getStringArrayList("types");
 				locations = Data.getStringArrayList("locations");
+				title = Data.getStringArrayList("title");
+				descriptions = Data.getStringArrayList("descriptions");
 				poly = poly.substring(4);
-				draw_polyline(poly, types, locations);
+				draw_polyline(poly, types, locations, title, descriptions);
 			}
 		}
 	}
-	
+
 	@Override
 	protected void onStop() {
 		super.onStop();
 	}
-	
+
 	@Override
 	public void onConnectionFailed(ConnectionResult arg0) {
 		// TODO Auto-generated method stub
@@ -109,126 +111,141 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 	public void onDisconnected() {
 		// TODO Auto-generated method stub
 	}
-	
+
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
 	}
-	
+
 	// input string should be "LAT,LNG"
 	private LatLng decode_latlng(String str) {
 		String location[] = str.split(",", 2);
-		
+
 		LatLng ret = new LatLng(Double.parseDouble(location[0]), Double.parseDouble(location[1]));
-		
+
 		return ret;
 	}
-	
-	public void draw_polyline(String poly, ArrayList<String> types, ArrayList<String> locations) {
+
+	public void draw_polyline(String poly, ArrayList<String> types, ArrayList<String> locations, ArrayList<String> title, ArrayList<String> descriptions) {
 		Log.i(TAG, "poly=" + poly);
 		points = decodePoly(poly);
-		
+
 		for (int i = 0; i < locations.size(); i++) {
 			LatLng p = decode_latlng(locations.get(i));
 			String t = types.get(i);
-			
+			String tl = title.get(i);
+			String d = descriptions.get(i);
+
 			if (t.contentEquals("start"))
-				add_marker(p, R.drawable.start);
+				add_marker(p, R.drawable.start, tl, d);
 			else if (t.contentEquals("walk"))
-				add_marker(p, R.drawable.map_walk);
+				add_marker(p, R.drawable.map_walk, tl, d);
 			else if (t.contentEquals("bus"))
-				add_marker(p, R.drawable.map_bus);
+				add_marker(p, R.drawable.map_bus, tl, d);
 			else if (t.contentEquals("trtc"))
-				add_marker(p, R.drawable.map_trtc);
+				add_marker(p, R.drawable.map_trtc, tl, d);
 			else if (t.contentEquals("krtc"))
-				add_marker(p, R.drawable.map_krtc);
+				add_marker(p, R.drawable.map_krtc, tl, d);
 			else if (t.contentEquals("thsrc"))
-				add_marker(p, R.drawable.map_thsrc);
+				add_marker(p, R.drawable.map_thsrc, tl, d);
 			else if (t.contentEquals("tra"))
-				add_marker(p, R.drawable.map_tra);
+				add_marker(p, R.drawable.map_tra, tl, d);
 			else if (t.contentEquals("end"))
-				add_marker(p, R.drawable.destination);
+				add_marker(p, R.drawable.destination, tl, d);
 			else
-				add_marker(p, 0);
+				add_marker(p, 0, "", "");
 		}
-		
+
 		final LatLngBounds.Builder builder = new LatLngBounds.Builder();
-		
+
 		for (int i = 0; i < points.size(); i++) {
 			builder.include(points.get(i));
 		}
-		
-		googleMap.addPolyline(new PolylineOptions().addAll(points).width(5).color(Color.BLUE));
-		
+
+		googleMap.addPolyline(new PolylineOptions().addAll(points).width(10).color(Color.argb(0xff, 0, 0xd2, 0xff)));
+
 		googleMap.setOnCameraChangeListener(new OnCameraChangeListener() {
 
-		    @Override
-		    public void onCameraChange(CameraPosition arg0) {
-		        // Move camera.
-		    	googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 30));
-		        // Remove listener to prevent position reset on camera move.
-		    	googleMap.setOnCameraChangeListener(null);
-		    }
+			@Override
+			public void onCameraChange(CameraPosition arg0) {
+				// Move camera.
+				googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 30));
+				// Remove listener to prevent position reset on camera move.
+				googleMap.setOnCameraChangeListener(null);
+			}
 		});
-		
+
 	}
-	
+
 	public void draw_polyline(String poly, LatLng start, LatLng det) {
 		Log.i(TAG, "poly=" + poly);
 		final LatLngBounds.Builder builder = new LatLngBounds.Builder();
-		
+
 		if(!poly.contentEquals("current"))
 			points = decodePoly(poly);
-		
+
 		points.add(0, start);
 		points.add(points.size(), det);
 		add_marker(start, R.drawable.start);
 		add_marker(det, R.drawable.destination);
-		
+
 		for (int i = 0; i < points.size(); i++) {
 			builder.include(points.get(i));
 		}
-		
-		googleMap.addPolyline(new PolylineOptions().addAll(points).width(5).color(Color.BLUE));
-		
+
+		googleMap.addPolyline(new PolylineOptions().addAll(points).width(10).color(Color.argb(0xff, 0, 0xd2, 0xff)));
+
 		googleMap.setOnCameraChangeListener(new OnCameraChangeListener() {
 
-		    @Override
-		    public void onCameraChange(CameraPosition arg0) {
-		        // Move camera.
-		    	googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 30));
-		        // Remove listener to prevent position reset on camera move.
-		    	googleMap.setOnCameraChangeListener(null);
-		    }
+			@Override
+			public void onCameraChange(CameraPosition arg0) {
+				// Move camera.
+				googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 30));
+				// Remove listener to prevent position reset on camera move.
+				googleMap.setOnCameraChangeListener(null);
+			}
 		});
-		
+
 	}
-	
+
 	public void add_marker(LatLng _point, int icon) {
-		
+
 		MarkerOptions markerOpt = new MarkerOptions();
 		markerOpt.position(_point);
-		if (icon != 0)
+		if (icon != 0) {
 			markerOpt.icon(BitmapDescriptorFactory.fromResource(icon));
-		googleMap.addMarker(markerOpt);
+			googleMap.addMarker(markerOpt);
+		}
+	}
+
+	public void add_marker(LatLng _point, int icon, String title, String description) {
+
+		MarkerOptions markerOpt = new MarkerOptions();
+		markerOpt.position(_point);
+		if (icon != 0) {
+			markerOpt.icon(BitmapDescriptorFactory.fromResource(icon));
+			markerOpt.title(title);
+			markerOpt.snippet(description);
+			googleMap.addMarker(markerOpt);
+		}
 	}
 
 	public void focus_on_me(LatLng location) {
-		
+
 		CameraPosition camPosition = new CameraPosition.Builder()
 		.target(location)
 		.zoom(16)
 		.build();
 
 		googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(camPosition));
-		
+
 	}
-	
+
 	@Override
 	public void onLocationChanged(Location arg0) {
 		// TODO Auto-generated method stub
 	}
-	
+
 	/**
 	 * Method to decode polyline points
 	 * Courtesy : jeffreysambells.com/2010/05/27/decoding-polylines-from-google-maps-direction-api-with-java
@@ -266,5 +283,5 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 
 		return poly;
 	}
-	
+
 }

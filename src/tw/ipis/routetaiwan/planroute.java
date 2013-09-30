@@ -383,7 +383,7 @@ public class planroute extends Activity {
 				createTextView(dires.routes[i].legs[j].start_address, tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT | Gravity.CENTER_VERTICAL, "map,current", 
 						dires.routes[i].legs[0].start_location, dires.routes[i].legs[0].start_location);
 
-				dires.routes[i].legs[j].mark.add(new MarkP("start", dires.routes[i].legs[0].start_location));
+				dires.routes[i].legs[j].mark.add(new MarkP("start", getResources().getString(R.string.str_from), dires.routes[i].legs[0].start_address, dires.routes[i].legs[0].start_location));
 
 				for (int k = 0; k < dires.routes[i].legs[j].steps.length; k++) {
 					Step step = dires.routes[i].legs[j].steps[k];
@@ -394,7 +394,7 @@ public class planroute extends Activity {
 						createTextView(walk, tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT | Gravity.CENTER_VERTICAL, "map," + step.polyline.points, 
 								step.start_location, step.end_location);
 
-						dires.routes[i].legs[j].mark.add(new MarkP("walk", step.start_location));
+						dires.routes[i].legs[j].mark.add(new MarkP("walk", step.html_instructions, step.distance.text, step.start_location));
 						if(pure_walk_flag == true) {
 							duration += step.duration.value;
 						}
@@ -405,46 +405,66 @@ public class planroute extends Activity {
 						String text = "transit,";
 
 						String trans = new StringBuilder().append(getResources().getString(R.string.taketransit)).append(step.transit_details.line.short_name).toString();
+						
+						String headsign = step.transit_details.headsign;
 
-						trans = new StringBuilder().append(trans).append(getResources().getString(R.string.to)).append(step.transit_details.arrival_stop.name).toString();
-
-						trans = new StringBuilder().append(trans).append("\n(" + step.transit_details.num_stops + getResources().getString(R.string.stops) + ", " +step.duration.text + ")").toString();
+						String trans_to = new StringBuilder().append(getResources().getString(R.string.to)).append(step.transit_details.arrival_stop.name).toString();
+						
+						String time_taken = new StringBuilder().append("\n(" + step.transit_details.num_stops + getResources().getString(R.string.stops) + ", " +step.duration.text + ")").toString();
 						transit++;
 
 						tr = CreateTableRow(tl, 1.0f, i);
 						if(type.contentEquals("BUS")) {
 							createImageViewbyR(R.drawable.bus, tr, 50, 50);
 							text = new StringBuilder().append(text).append("bus").toString();
-							createTextView(trans, tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT | Gravity.CENTER_VERTICAL, text, step.transit_details.departure_stop.name, step.transit_details.arrival_stop.name);
+							headsign = new StringBuilder().append("(" + getResources().getString(R.string.go_to)).append(headsign + ")").toString();
+							createTextView(trans + headsign + trans_to + time_taken, tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT | Gravity.CENTER_VERTICAL, text, step.transit_details.departure_stop.name, step.transit_details.arrival_stop.name);
 
-							dires.routes[i].legs[j].mark.add(new MarkP("bus", step.transit_details.departure_stop.location));
+							dires.routes[i].legs[j].mark.add(new MarkP("bus"
+									,	getResources().getString(R.string.taketransit) + step.transit_details.line.short_name
+									, getResources().getString(R.string.go_to) + step.transit_details.headsign + getResources().getString(R.string.dirction)
+									, step.transit_details.departure_stop.location));
 						}
 						else if(type.contentEquals("SUBWAY")) {
 							if(agencyname.contentEquals("台北捷運")) {
 								createImageViewbyR(R.drawable.trtc, tr, 50, 50);
-								dires.routes[i].legs[j].mark.add(new MarkP("trtc", step.transit_details.departure_stop.location));
+								dires.routes[i].legs[j].mark.add(new MarkP("trtc"
+										, getResources().getString(R.string.taketransit) + step.transit_details.line.short_name
+										, getResources().getString(R.string.go_to) + step.transit_details.headsign + getResources().getString(R.string.dirction)
+										, step.transit_details.departure_stop.location));
 							}
 							else if(agencyname.contentEquals("高雄捷運")) {
 								createImageViewbyR(R.drawable.krtc, tr, 50, 50);
-								dires.routes[i].legs[j].mark.add(new MarkP("krtc", step.transit_details.departure_stop.location));
+								dires.routes[i].legs[j].mark.add(new MarkP("krtc"
+										, getResources().getString(R.string.taketransit) + step.transit_details.line.short_name
+										, getResources().getString(R.string.go_to) + step.transit_details.headsign + getResources().getString(R.string.dirction)
+										, step.transit_details.departure_stop.location));
 							}
 							else
 								createTextView("車", tr, Color.rgb(0,0,0), 0.1f, Gravity.CENTER, "transit,null", (String)null, (String)null);
 							text = new StringBuilder().append("map,").append(step.polyline.points).toString();
-							createTextView(trans, tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT | Gravity.CENTER_VERTICAL, text, step.start_location, step.end_location);
+							headsign = new StringBuilder().append("(" + getResources().getString(R.string.go_to)).append(headsign + ")").toString();
+							createTextView(trans + headsign + trans_to + time_taken, tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT | Gravity.CENTER_VERTICAL, text, step.start_location, step.end_location);
 						}
 						else if(type.contentEquals("HEAVY_RAIL")) {
 							if(agencyname.contentEquals("台灣高鐵")) {
 								createImageViewbyR(R.drawable.hsr, tr, 50, 50);
-								dires.routes[i].legs[j].mark.add(new MarkP("thsrc", step.transit_details.departure_stop.location));
+								dires.routes[i].legs[j].mark.add(new MarkP("thsrc"
+										, getResources().getString(R.string.taketransit) + step.transit_details.line.short_name
+										, step.transit_details.headsign
+										, step.transit_details.departure_stop.location));
 							}
 							else if(agencyname.contentEquals("台灣鐵路管理局")) {
 								createImageViewbyR(R.drawable.train, tr, 50, 50);
-								dires.routes[i].legs[j].mark.add(new MarkP("tra", step.transit_details.departure_stop.location));
+								dires.routes[i].legs[j].mark.add(new MarkP("tra"
+										, getResources().getString(R.string.taketransit) + step.transit_details.line.short_name
+										, step.transit_details.headsign
+										, step.transit_details.departure_stop.location));
 							}
 							else
 								createTextView("車", tr, Color.rgb(0,0,0), 0.1f, Gravity.CENTER, "transit,null", step.transit_details.departure_stop.name, step.transit_details.arrival_stop.name);
-							createTextView(trans, tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT | Gravity.CENTER_VERTICAL, text, 
+							headsign = new StringBuilder().append("(" + headsign + ")").toString();
+							createTextView(trans + headsign + trans_to + time_taken, tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT | Gravity.CENTER_VERTICAL, text, 
 									step.start_location, step.end_location);
 						}
 					}
@@ -455,7 +475,7 @@ public class planroute extends Activity {
 						createTextView(dires.routes[i].legs[j].end_address, tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT, "map,destination", 
 								dires.routes[i].legs[0].end_location, dires.routes[i].legs[0].end_location);
 
-						dires.routes[i].legs[j].mark.add(new MarkP("end", dires.routes[i].legs[0].end_location));
+						dires.routes[i].legs[j].mark.add(new MarkP("end", getResources().getString(R.string.str_to),dires.routes[i].legs[0].end_address, dires.routes[i].legs[0].end_location));
 					}
 				}
 				String str = getResources().getString(R.string.transit) + ": " + transit + "x";
@@ -671,10 +691,14 @@ public class planroute extends Activity {
 	
 	public class MarkP {
 		String type;
+		String title;
+		String description;
 		LatLng_s location;
 
-		public MarkP(String s, LatLng_s l) {
+		public MarkP(String s, String t, String d, LatLng_s l) {
 			type = s;
+			title = t;
+			description = d;
 			location = l;
 		}
 	}
@@ -698,6 +722,8 @@ public class planroute extends Activity {
 			Intent launchpop = new Intent(this, pop_map.class);
 			Bundle bundle=new Bundle();
 			ArrayList<String> types = new ArrayList<String>();
+			ArrayList<String> title = new ArrayList<String>();
+			ArrayList<String> description = new ArrayList<String>();
 			ArrayList<String> locations = new ArrayList<String>();
 
 			List<MarkP> allP = (List<MarkP>)act.getTag(R.id.tag_first);
@@ -706,14 +732,18 @@ public class planroute extends Activity {
 			while(mark.hasNext()){
 				MarkP e = mark.next();
 				types.add(e.type);
+				title.add(e.title);
+				description.add(e.description);
 				locations.add(e.location.lat + "," + e.location.lng);
 			}
 
 			bundle.putString("poly", action);
 			bundle.putStringArrayList("types", types);
+			bundle.putStringArrayList("title", title);
+			bundle.putStringArrayList("descriptions", description);
 			bundle.putStringArrayList("locations", locations);
 			launchpop.putExtras(bundle);
-
+			
 			startActivity(launchpop);
 		}
 		else if(action.regionMatches(0, "transit", 0, 7)) {

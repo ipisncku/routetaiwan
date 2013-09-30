@@ -20,6 +20,8 @@
     <string name="transit">轉乘</string>
     <string name="walkto">行走到</string>
     <string name="taketransit">搭乘</string>
+    <string name="go_to">往</string>
+    <string name="dirction">方向</string>
     <string name="stops">站</string>
     <string name="hour">小時</string>
     <string name="minute">分</string>
@@ -31,6 +33,9 @@
     <string name="info_positioning_by_network">使用網路定位中</string>
     <string name="info_no_result">沒有結果, 請重新輸入</string>
     <string name="info_internal_error">發生錯誤</string>
+    
+    <string name="common_bus">公車</string>
+    <string name="common_mrt">捷運</string>
     
     <string name="trtc">台北捷運</string>
     <string name="krtc">高雄捷運</string>
