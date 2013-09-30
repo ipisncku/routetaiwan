@@ -3,6 +3,7 @@ package tw.ipis.routetaiwan;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Point;
 import android.location.Location;
 import android.os.Bundle;
@@ -13,9 +14,11 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -43,6 +46,7 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 	private LocationClient locationclient;
 	private LocationRequest locationrequest;
 	private boolean first_read = true;
+	private boolean button_exist = false;
 	MarkerOptions opt_start, opt_destination;
 	Marker start, dest;
 	Point p = new Point(0, 0);
@@ -64,7 +68,7 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			Toast.makeText(this, "Google play service unavailable", Toast.LENGTH_LONG).show();
 		}else {    // Google Play Services are available
 			Log.d(TAG, "Google play service available");
-			
+
 			opt_start = new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.start));
 			opt_destination  = new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.destination));
 
@@ -79,7 +83,7 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 
 			// Enabling MyLocation Layer of Google Map
 			googleMap.setMyLocationEnabled(true);
-			
+
 			View cover = findViewById(R.id.mapcover);
 			cover.setOnTouchListener(new OnTouchListener() {
 				@Override
@@ -182,6 +186,33 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 		focus_on_me(arg0);
 	}
 
+	public void create_button() {
+		if(button_exist == false) {
+			Button gotoplan = new Button(this);
+			gotoplan.setText(getResources().getString(R.string.goto_planroute));
+
+			RelativeLayout ll = (RelativeLayout)findViewById(R.id.rl_showmap);
+			LayoutParams lp = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+			RelativeLayout.LayoutParams buttonLayoutParameters = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+			buttonLayoutParameters.setMargins(0, 0, 0, 0);
+
+			// Add Rule to Layout
+			buttonLayoutParameters.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+
+			// Setting the parameters on the Button
+			gotoplan.setLayoutParams(buttonLayoutParameters); 
+			ll.addView(gotoplan, lp);
+			button_exist = true;
+//			gotoplan.setOnClickListener(new OnClickListener(){  
+//				public void onClick(View v) {  
+//					Intent route = new Intent();
+//					route.setClass(this, planroute.this);
+//					startActivity(route);
+//				}  
+//			});
+		}
+	}
+
 	// The method that displays the popup.
 	private void showPopup(final Activity context, final LatLng position) {
 		int popupWidth = 250;
@@ -190,9 +221,9 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 		// Inflate the popup_layout.xml
 		LinearLayout viewGroup = (LinearLayout) context.findViewById(R.id.menu1);
 		LayoutInflater layoutInflater = (LayoutInflater) context
-		.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		View layout = layoutInflater.inflate(R.layout.menu_route, viewGroup);
-		
+
 		// Creating the PopupWindow
 		final PopupWindow popup = new PopupWindow(context);
 		popup.setContentView(layout);
@@ -205,12 +236,12 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 		int OFFSET_Y = 30;
 
 		// Clear the default translucent background
-//		popup.setBackgroundDrawable(new BitmapDrawable());
+		//		popup.setBackgroundDrawable(new BitmapDrawable());
 		popup.setOutsideTouchable(true);
 
 		// Displaying the popup at the specified location, + offsets.
 		popup.showAtLocation(layout, Gravity.NO_GRAVITY, p.x + OFFSET_X, p.y + OFFSET_Y);
-		
+
 		Button set_start = (Button) layout.findViewById(R.id.add_to_departure);
 		set_start.setOnClickListener(new OnClickListener() {
 
@@ -221,6 +252,7 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 				opt_start.position(position);
 				start = googleMap.addMarker(opt_start);
 				popup.dismiss();
+				create_button();
 			}
 		});
 
@@ -234,6 +266,7 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 				opt_destination.position(position);
 				dest = googleMap.addMarker(opt_destination);
 				popup.dismiss();
+				create_button();
 			}
 		});
 		// Getting a reference to Close button, and close the popup when clicked.
