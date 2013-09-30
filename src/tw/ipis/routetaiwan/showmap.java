@@ -1,13 +1,21 @@
 package tw.ipis.routetaiwan;
 
-import java.text.SimpleDateFormat;
-
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Context;
+import android.graphics.Point;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.TextView;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -18,9 +26,13 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 public class showmap extends Activity implements 
 GooglePlayServicesClient.ConnectionCallbacks,
@@ -31,6 +43,9 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 	private LocationClient locationclient;
 	private LocationRequest locationrequest;
 	private boolean first_read = true;
+	MarkerOptions opt_start, opt_destination;
+	Marker start, dest;
+	Point p = new Point(0, 0);
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -50,9 +65,12 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 		}else {    // Google Play Services are available
 			Log.d(TAG, "Google play service available");
 			
+			opt_start = new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.start));
+			opt_destination  = new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.destination));
+
 			locationclient = new LocationClient(this,this,this);
 			locationclient.connect();
-			
+
 			// Getting reference to the SupportMapFragment of activity_main.xml
 			MapFragment fm = ((MapFragment)getFragmentManager().findFragmentById(R.id.mapv2));
 
@@ -61,10 +79,27 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 
 			// Enabling MyLocation Layer of Google Map
 			googleMap.setMyLocationEnabled(true);
-
-			// Setting event handler for location change
-//			googleMap.setOnMyLocationChangeListener((OnMyLocationChangeListener) this);
 			
+			View cover = findViewById(R.id.mapcover);
+			cover.setOnTouchListener(new OnTouchListener() {
+				@Override
+				public boolean onTouch(View v, MotionEvent event) {
+					p.x = (int)event.getX();
+					p.y = (int)event.getY();
+					Log.i(TAG, "touch=" + p.x + "," + p.y);
+					return false;
+				}
+			});
+
+
+			googleMap.setOnMapLongClickListener(new OnMapLongClickListener() {
+				@Override
+				public void onMapLongClick(LatLng position) {
+					Log.i(TAG, "lat=" + position.latitude + ",lnt=" + position.longitude);
+					showPopup(showmap.this, position);
+				}
+			});
+
 			if(locationclient != null && locationclient.isConnected()){
 				locationrequest = LocationRequest.create();
 				locationrequest.setInterval(100);
@@ -74,14 +109,14 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			}
 		}
 	}
-	
+
 	@Override
 	protected void onStop() {
 		super.onStop();
 		locationclient.disconnect();
 		first_read = true;
 	}
-	
+
 	@Override
 	public void onConnectionFailed(ConnectionResult arg0) {
 		// TODO Auto-generated method stub
@@ -90,7 +125,6 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 	@Override
 	public void onConnected(Bundle arg0) {
 		// TODO Auto-generated method stub
-		Toast.makeText(this, "Connected....", Toast.LENGTH_LONG).show();
 		if(locationclient != null && locationclient.isConnected()) {
 			locationrequest = LocationRequest.create();
 			locationrequest.setInterval(100);
@@ -105,7 +139,7 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 	public void onDisconnected() {
 		// TODO Auto-generated method stub
 	}
-	
+
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
@@ -113,7 +147,7 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			locationclient.disconnect();
 		first_read = true;
 	}
-	
+
 	LocationListener locationListener1 = new LocationListener(){
 		@Override
 		public void onLocationChanged(Location location) {
@@ -122,49 +156,24 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 	};
 
 	public void focus_on_me(Location location) {
-		Log.i(TAG, "focus on me!");
-		
+
 		// Getting latitude of the current location
 		double latitude = location.getLatitude();
 
 		// Getting longitude of the current location
 		double longitude = location.getLongitude();
 
-		// Getting current speed
-		float speed = location.getSpeed();
-		
-		// Getting current time
-		long time = location.getTime();
-		
+
 		if(first_read) {
-			Log.e(TAG, "changing camera...");
 			CameraPosition camPosition = new CameraPosition.Builder()
 			.target(new LatLng(latitude, longitude))
 			.zoom(16)
 			.build();
 
-			googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(camPosition));
+			googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(camPosition));
 			first_read = false;
 		}
-		
-		show_info(longitude, latitude, speed, time);
-	}
-	
-	private void show_info(double lon, double lat, float speed, long time) {
-		TextView longtitude = (TextView) findViewById(R.id.longitude);
-		TextView latitude = (TextView) findViewById(R.id.latitude);
-		TextView volecity = (TextView) findViewById(R.id.speed);
-		TextView nowtime = (TextView) findViewById(R.id.time);
-		
-		longtitude.setText("經度: " + String.valueOf(lon));
-		latitude.setText("緯度: " + String.valueOf(lat));
-		volecity.setText("速度: " + String.valueOf(speed));
-		nowtime.setText("時間: " + getTimeString(time));
-	}
-	
-	private String getTimeString(long timeInMilliseconds){
-		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		return format.format(timeInMilliseconds);
+
 	}
 
 	@Override
@@ -172,4 +181,70 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 		// TODO Auto-generated method stub
 		focus_on_me(arg0);
 	}
+
+	// The method that displays the popup.
+	private void showPopup(final Activity context, final LatLng position) {
+		int popupWidth = 250;
+		int popupHeight = 250;
+
+		// Inflate the popup_layout.xml
+		LinearLayout viewGroup = (LinearLayout) context.findViewById(R.id.menu1);
+		LayoutInflater layoutInflater = (LayoutInflater) context
+		.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		View layout = layoutInflater.inflate(R.layout.menu_route, viewGroup);
+		
+		// Creating the PopupWindow
+		final PopupWindow popup = new PopupWindow(context);
+		popup.setContentView(layout);
+		popup.setWidth(popupWidth);
+		popup.setHeight(popupHeight);
+		popup.setFocusable(true);
+
+		// Some offset to align the popup a bit to the right, and a bit down, relative to button's position.
+		int OFFSET_X = 30;
+		int OFFSET_Y = 30;
+
+		// Clear the default translucent background
+//		popup.setBackgroundDrawable(new BitmapDrawable());
+		popup.setOutsideTouchable(true);
+
+		// Displaying the popup at the specified location, + offsets.
+		popup.showAtLocation(layout, Gravity.NO_GRAVITY, p.x + OFFSET_X, p.y + OFFSET_Y);
+		
+		Button set_start = (Button) layout.findViewById(R.id.add_to_departure);
+		set_start.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				if(start != null)
+					start.remove();
+				opt_start.position(position);
+				start = googleMap.addMarker(opt_start);
+				popup.dismiss();
+			}
+		});
+
+		Button set_end = (Button) layout.findViewById(R.id.add_to_arrival);
+		set_end.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				if(dest != null)
+					dest.remove();
+				opt_destination.position(position);
+				dest = googleMap.addMarker(opt_destination);
+				popup.dismiss();
+			}
+		});
+		// Getting a reference to Close button, and close the popup when clicked.
+		Button close = (Button) layout.findViewById(R.id.close);
+		close.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				popup.dismiss();
+			}
+		});
+	}
+
 }

@@ -42,6 +42,10 @@
     <string name="hsr">台灣高鐵</string>
     <string name="tra">台灣鐵路管理局</string>
     
+    <string name="add_to_departure">設為起點</string>
+    <string name="add_to_arrival">設為終點</string>
+    <string name="cancel">取消</string>
+    
     <item type="id" name="tag_zero"></item>
     <item type="id" name="tag_first"></item>
 		<item type="id" name="tag_second"></item>
