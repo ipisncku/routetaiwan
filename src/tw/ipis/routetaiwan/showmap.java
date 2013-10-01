@@ -1,12 +1,25 @@
 package tw.ipis.routetaiwan;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.text.DecimalFormat;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -15,10 +28,13 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -29,6 +45,7 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMapOptions;
 import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -40,7 +57,11 @@ import com.google.android.gms.maps.model.MarkerOptions;
 public class showmap extends Activity implements 
 GooglePlayServicesClient.ConnectionCallbacks,
 GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
-
+	/* Define area */
+	private static final int TEXT_INSTRUCTION = 0x12300001;
+	private static final int BUTTON_PLAN_ROUTE = 0x12300002;
+	/* Define area end */
+	
 	private static final String TAG = "~~showmap~~";
 	GoogleMap googleMap;
 	private LocationClient locationclient;
@@ -68,6 +89,74 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			Toast.makeText(this, "Google play service unavailable", Toast.LENGTH_LONG).show();
 		}else {    // Google Play Services are available
 			Log.d(TAG, "Google play service available");
+			View cover = findViewById(R.id.mapcover);
+
+			/* Check if it is the first time to use this app, If yes, show some instruction */
+			File chk_fist_use = new File(Environment.getExternalStorageDirectory() + "/.routetaiwan/.first_showmap");
+			if(chk_fist_use.exists() == false) {
+				//				try {
+				//					FileOutputStream fd = openFileOutput(Environment.getExternalStorageDirectory() + "/.routetaiwan/.first_showmap", MODE_PRIVATE);
+				//					OutputStreamWriter osw = new OutputStreamWriter(fd);
+				//					osw.write("read");
+				//					osw.flush();
+				//					osw.close();
+				//				} catch (IOException e) {
+				//					// TODO Auto-generated catch block
+				//					e.printStackTrace();
+				//				}
+
+
+				cover.setBackgroundColor(Color.argb(0x80, 0xC, 0xC, 0xC));
+				TextView instruction = new TextView(this);
+				instruction.setId(TEXT_INSTRUCTION);
+				instruction.setText(getResources().getString(R.string.instruction));
+				instruction.setTextColor(Color.WHITE);
+				instruction.setTextSize(20);
+				instruction.setGravity(Gravity.CENTER);
+
+				Button ok = new Button(this);
+				ok.setText(getResources().getString(R.string.understand));
+				ok.setGravity(Gravity.CENTER);
+				ok.setTextColor(Color.WHITE);
+				
+				RelativeLayout ll = (RelativeLayout)findViewById(R.id.rl_showmap);
+				RelativeLayout.LayoutParams textLayoutParameters = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+				textLayoutParameters.addRule(RelativeLayout.CENTER_IN_PARENT);
+				instruction.setLayoutParams(textLayoutParameters);
+
+				RelativeLayout.LayoutParams buttonLayoutParameters = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+				buttonLayoutParameters.addRule(RelativeLayout.BELOW, instruction.getId());
+				buttonLayoutParameters.addRule(RelativeLayout.CENTER_IN_PARENT, instruction.getId());
+				ok.setLayoutParams(buttonLayoutParameters);
+
+				ll.addView(instruction);
+				ll.addView(ok);
+
+				ok.setOnClickListener(new OnClickListener(){  
+					public void onClick(View v) {  
+						View cover = findViewById(R.id.mapcover);
+						RelativeLayout ll = (RelativeLayout)findViewById(R.id.rl_showmap);
+						TextView instruction = (TextView) findViewById(TEXT_INSTRUCTION);
+
+						ll.removeView(instruction);
+						ll.removeView(v);
+
+						final Animation animTrans = AnimationUtils.loadAnimation(showmap.this, R.anim.anim_alpha_out);
+						cover.setAnimation(animTrans);
+
+						/* Make the cover fully transparent after 500ms */
+						Handler reset_view = new Handler();
+						reset_view.postDelayed(new Runnable()
+						{
+							public void run()
+							{
+								View cover = findViewById(R.id.mapcover);
+								cover.setBackgroundColor(Color.argb(0x0, 0x0, 0x0, 0x0));
+							}
+						}, 500);
+					}  
+				});
+			}
 
 			opt_start = new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.start));
 			opt_destination  = new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.destination));
@@ -84,13 +173,13 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			// Enabling MyLocation Layer of Google Map
 			googleMap.setMyLocationEnabled(true);
 
-			View cover = findViewById(R.id.mapcover);
+			googleMap.getUiSettings().setCompassEnabled(true);
+
 			cover.setOnTouchListener(new OnTouchListener() {
 				@Override
 				public boolean onTouch(View v, MotionEvent event) {
 					p.x = (int)event.getX();
 					p.y = (int)event.getY();
-					Log.i(TAG, "touch=" + p.x + "," + p.y);
 					return false;
 				}
 			});
@@ -189,11 +278,11 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 	public void create_button() {
 		if(button_exist == false) {
 			Button gotoplan = new Button(this);
+			gotoplan.setId(BUTTON_PLAN_ROUTE);
 			gotoplan.setText(getResources().getString(R.string.goto_planroute));
 
 			RelativeLayout ll = (RelativeLayout)findViewById(R.id.rl_showmap);
-			LayoutParams lp = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-			RelativeLayout.LayoutParams buttonLayoutParameters = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+			RelativeLayout.LayoutParams buttonLayoutParameters = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
 			buttonLayoutParameters.setMargins(0, 0, 0, 0);
 
 			// Add Rule to Layout
@@ -201,15 +290,49 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 
 			// Setting the parameters on the Button
 			gotoplan.setLayoutParams(buttonLayoutParameters); 
-			ll.addView(gotoplan, lp);
+			ll.addView(gotoplan);
+			final Animation animTrans = AnimationUtils.loadAnimation(this, R.anim.anim_translate);
+			gotoplan.startAnimation(animTrans);
+
 			button_exist = true;
-//			gotoplan.setOnClickListener(new OnClickListener(){  
-//				public void onClick(View v) {  
-//					Intent route = new Intent();
-//					route.setClass(this, planroute.this);
-//					startActivity(route);
-//				}  
-//			});
+			gotoplan.setOnClickListener(new OnClickListener(){  
+				public void onClick(View v) {  
+					Intent route = new Intent(showmap.this, planroute.class);
+					Bundle bundle=new Bundle();
+
+					if(start != null) {
+						bundle.putString("start", new DecimalFormat("###.######").format(start.getPosition().latitude) + "," + new DecimalFormat("###.######").format(start.getPosition().longitude));
+					}
+					if(dest != null) {
+						bundle.putString("end", new DecimalFormat("###.######").format(dest.getPosition().latitude) + "," + new DecimalFormat("###.######").format(dest.getPosition().longitude));
+					}
+
+					route.putExtras(bundle);
+					startActivity(route);
+				}  
+			});
+		}
+	}
+	
+	public void remove_button() {
+		if(button_exist == true) {
+			Button gotoplan = (Button) findViewById(BUTTON_PLAN_ROUTE);
+			
+			final Animation animTrans = AnimationUtils.loadAnimation(showmap.this, R.anim.anim_translate_out);
+			gotoplan.setAnimation(animTrans);
+
+			/* Make the cover fully transparent after 500ms */
+			Handler reset_view = new Handler();
+			reset_view.postDelayed(new Runnable()
+			{
+				public void run()
+				{
+					Button gotoplan = (Button) findViewById(BUTTON_PLAN_ROUTE);
+					RelativeLayout ll = (RelativeLayout)findViewById(R.id.rl_showmap);
+					ll.removeView(gotoplan);
+					button_exist = false;
+				}
+			}, 500);
 		}
 	}
 
@@ -221,7 +344,7 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 		// Inflate the popup_layout.xml
 		LinearLayout viewGroup = (LinearLayout) context.findViewById(R.id.menu1);
 		LayoutInflater layoutInflater = (LayoutInflater) context
-				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		View layout = layoutInflater.inflate(R.layout.menu_route, viewGroup);
 
 		// Creating the PopupWindow
@@ -270,11 +393,16 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			}
 		});
 		// Getting a reference to Close button, and close the popup when clicked.
-		Button close = (Button) layout.findViewById(R.id.close);
-		close.setOnClickListener(new OnClickListener() {
+		Button clearall = (Button) layout.findViewById(R.id.close);
+		clearall.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
+				if(start != null)
+					start.remove();
+				if(dest != null)
+					dest.remove();
+				remove_button();
 				popup.dismiss();
 			}
 		});

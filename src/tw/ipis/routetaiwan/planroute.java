@@ -86,6 +86,21 @@ public class planroute extends Activity {
 		}
 
 		start_positioning();
+		
+		/* Intent from showmap class */
+		Bundle Data = this.getIntent().getExtras();
+		if(Data != null) {
+			String start = Data.getString("start");
+			String dest = Data.getString("end");
+			if(start != null) {
+				from = (EditText)findViewById(R.id.from);
+				from.setText(start, TextView.BufferType.EDITABLE);
+			}
+			if(dest != null) {
+				to = (EditText)findViewById(R.id.to);
+				to.setText(dest, TextView.BufferType.EDITABLE);
+			}
+		}
 	}
 
 	@Override

@@ -56,8 +56,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:onClick="start_positioning"
-            android:text="@string/but_checkpos" />
+            android:onClick="my_favorite"
+            android:text="@string/my_favorite" />
     </RelativeLayout>
 
 </LinearLayout>

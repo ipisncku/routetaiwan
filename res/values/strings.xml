@@ -9,8 +9,8 @@
     
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
-    <string name="but_checkpos">Check position</string>
-    <string name="showmap2">Show Fragment Map</string>
+    <string name="my_favorite">我的最愛</string>
+    <string name="showmap2">觀看地圖</string>
     <string name="your_pos">Your Position: </string>
     <string name="pos_from">現在位置</string>
     <string name="pos_to">Taipei 101</string>
@@ -44,9 +44,12 @@
     
     <string name="add_to_departure">設為起點</string>
     <string name="add_to_arrival">設為終點</string>
-    <string name="cancel">取消</string>
+    <string name="cancel">清除</string>
     
     <string name="goto_planroute">規劃路徑</string>
+    
+    <string name="instruction">長按地圖可以設定起/終點\n進行路徑規劃</string>
+    <string name="understand">了解</string>
     
     <item type="id" name="tag_zero"></item>
     <item type="id" name="tag_first"></item>
