@@ -94,17 +94,13 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			/* Check if it is the first time to use this app, If yes, show some instruction */
 			File chk_fist_use = new File(Environment.getExternalStorageDirectory() + "/.routetaiwan/.first_showmap");
 			if(chk_fist_use.exists() == false) {
-				//				try {
-				//					FileOutputStream fd = openFileOutput(Environment.getExternalStorageDirectory() + "/.routetaiwan/.first_showmap", MODE_PRIVATE);
-				//					OutputStreamWriter osw = new OutputStreamWriter(fd);
-				//					osw.write("read");
-				//					osw.flush();
-				//					osw.close();
-				//				} catch (IOException e) {
-				//					// TODO Auto-generated catch block
-				//					e.printStackTrace();
-				//				}
-
+				
+				try {
+					chk_fist_use.createNewFile();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 
 				cover.setBackgroundColor(Color.argb(0x80, 0xC, 0xC, 0xC));
 				TextView instruction = new TextView(this);
