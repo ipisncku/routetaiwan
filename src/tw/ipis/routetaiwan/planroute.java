@@ -741,6 +741,7 @@ public class planroute extends Activity {
 			ArrayList<String> description = new ArrayList<String>();
 			ArrayList<String> locations = new ArrayList<String>();
 
+			@SuppressWarnings("unchecked")
 			List<MarkP> allP = (List<MarkP>)act.getTag(R.id.tag_first);
 
 			Iterator<MarkP> mark =  allP.iterator();
