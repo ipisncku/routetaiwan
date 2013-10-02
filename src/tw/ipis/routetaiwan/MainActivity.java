@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.view.Menu;
 import android.view.View;
-import android.widget.Toast;
 
 public class MainActivity extends Activity {
 
@@ -16,21 +15,15 @@ public class MainActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		
+
 		File folder = new File(Environment.getExternalStorageDirectory() + "/.routetaiwan");
 		if (!folder.exists()) {
-		    folder.mkdir();
+			folder.mkdir();
 		}
 	}
 	public void my_favorite(View v) {
-		Toast.makeText(this,"施工中...",Toast.LENGTH_LONG).show();
-		//		if(checkGooglePlayServices() > 0) {
-		//			Toast.makeText(this,"無法連接上Google Play",Toast.LENGTH_LONG).show();
-		//			return;
-		//		}
-		//
-		//		Intent launchmap = new Intent(this, map.class);
-		//		startActivity(launchmap);
+		Intent myfavorite = new Intent(this, myfavorite.class);
+		startActivity(myfavorite);
 	}
 
 	public void show_map_v2(View v) {

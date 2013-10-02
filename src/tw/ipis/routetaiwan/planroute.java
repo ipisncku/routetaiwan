@@ -1,6 +1,10 @@
 package tw.ipis.routetaiwan;
 
+import java.io.File;
+import java.math.BigInteger;
 import java.net.URLEncoder;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.Format;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
@@ -36,10 +40,12 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -65,8 +71,8 @@ public class planroute extends Activity {
 	private DownloadWebPageTask task = null;
 	private boolean isrequested = false;
 	public DirectionResponseObject dires = null;
-	private int textid = 0;
 	String provider = null;
+	private static final String projectdir = Environment.getExternalStorageDirectory() + "/.routetaiwan/";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -141,11 +147,11 @@ public class planroute extends Activity {
 		}
 		locationMgr.requestLocationUpdates(locprovider, 0, 0, locationListener);
 		if(locprovider.contentEquals("gps")) {
-			Toast.makeText(this, getResources().getString(R.string.info_positioning_by_gps) , Toast.LENGTH_SHORT).show();
+//			Toast.makeText(this, getResources().getString(R.string.info_positioning_by_gps) , Toast.LENGTH_SHORT).show();
 			locationMgr.addGpsStatusListener(gpsListener);
 		}
-		else
-			Toast.makeText(this, getResources().getString(R.string.info_positioning_by_network) , Toast.LENGTH_SHORT).show();
+//		else
+//			Toast.makeText(this, getResources().getString(R.string.info_positioning_by_network) , Toast.LENGTH_SHORT).show();
 	}
 
 	private void foreground_cosmetic() {
@@ -261,7 +267,6 @@ public class planroute extends Activity {
 		tv.setHorizontallyScrolling(false);
 		tv.setWidth(0);
 		tv.setGravity(gravity);
-		tv.setId(textid);
 		tv.setTag(R.id.tag_zero, text);
 		String dept = String.valueOf(departure.lat) + "," + String.valueOf(departure.lng);
 		String det = String.valueOf(destination.lat) + "," + String.valueOf(destination.lng);
@@ -281,7 +286,6 @@ public class planroute extends Activity {
 		tv.setHorizontallyScrolling(false);
 		tv.setWidth(0);
 		tv.setGravity(gravity);
-		tv.setId(textid);
 		tv.setTag(R.id.tag_zero, text);
 		tv.setTag(R.id.tag_first, departure);
 		tv.setTag(R.id.tag_second, destination);
@@ -299,7 +303,6 @@ public class planroute extends Activity {
 		tv.setHorizontallyScrolling(false);
 		tv.setWidth(0);
 		tv.setGravity(gravity);
-		tv.setId(textid);
 		tv.setTag(R.id.tag_zero, text);
 		tv.setTag(R.id.tag_first, allP);
 		if(weight != 0)
@@ -319,7 +322,7 @@ public class planroute extends Activity {
 		return iv;
 	}
 
-	private TableRow CreateTableRow(TableLayout parent, float weight, int num){
+	private TableRow CreateTableRow(TableLayout parent, float weight, final int num){
 		TableRow tr = new TableRow(this);	// 1st row
 
 		OnClickListener popup = new OnClickListener() {
@@ -333,6 +336,33 @@ public class planroute extends Activity {
 				}
 			}
 		};
+		
+		OnLongClickListener save_to_favorite = new OnLongClickListener() {
+			@Override
+			public boolean onLongClick(View arg0) {
+				/* Pop-up a dialog to ask for permission */
+				Intent launchpop = new Intent(planroute.this, diag_save.class);
+				Bundle bundle=new Bundle();
+				Gson gson = new Gson();
+				String json = gson.toJson(dires.routes[num]);
+				/* File name is the MD5SUM of the content */
+				String filename = projectdir + getMD5EncryptedString(json) + ".json";
+
+				File file = new File(filename);
+				if (!file.exists()) {
+					bundle.putString("filename", filename);
+					bundle.putString("content", json);
+					launchpop.putExtras(bundle);
+
+					startActivity(launchpop);
+				}
+				else {
+					Toast.makeText(planroute.this, getResources().getString(R.string.file_already_existed) , Toast.LENGTH_SHORT).show();
+				}
+				
+				return true;
+			}
+		};
 
 		if(num % 2 == 0)
 			tr.setBackgroundColor(Color.WHITE);
@@ -344,10 +374,26 @@ public class planroute extends Activity {
 			tr.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
 		tr.setGravity(Gravity.CENTER_VERTICAL);
 		tr.setClickable(true);
+		/* Short click: open a popup activity for MAP or REALTIME INFO */
 		tr.setOnClickListener(popup);
+		/* Long click: open a dialog menu asking for saving to My Favorite */
+		tr.setOnLongClickListener(save_to_favorite);
 
 		parent.addView(tr);
 		return tr;
+	}
+	
+	public static String getMD5EncryptedString(String encTarget){
+		MessageDigest mdEnc = null;
+		try {
+			mdEnc = MessageDigest.getInstance("MD5");
+		} catch (NoSuchAlgorithmException e) {
+			System.out.println("Exception while encrypting to md5");
+			e.printStackTrace();
+		} // Encryption algorithm
+		mdEnc.update(encTarget.getBytes(), 0, encTarget.length());
+		String md5 = new BigInteger(1, mdEnc.digest()).toString(16) ;
+		return md5;
 	}
 
 	public boolean dumpdetails(DirectionResponseObject dires) {
@@ -372,24 +418,19 @@ public class planroute extends Activity {
 				TableRow time_row = CreateTableRow(tl, 0, i);	// 1st row
 
 				String title = "";
-				Time arrival_time, departure_time;
-				arrival_time = dires.routes[i].legs[j].arrival_time;
-				departure_time = dires.routes[i].legs[j].departure_time;
 				long duration = 0;
 
 				dires.routes[i].legs[j].mark = new ArrayList<MarkP>();
 
 				if(dires.routes[i].legs[j].arrival_time != null && dires.routes[i].legs[j].departure_time != null) {
-					duration = arrival_time.value - departure_time.value;
+					duration = dires.routes[i].legs[j].arrival_time.value - dires.routes[i].legs[j].departure_time.value;
 				}
 				else {
 					pure_walk_flag = true;
-					departure_time = new Time(0);
-					arrival_time = new Time(0);
-					departure_time.value = System.currentTimeMillis() / 1000;
+					dires.routes[i].legs[j].departure_time = new Time(0);
+					dires.routes[i].legs[j].arrival_time = new Time(0);
+					dires.routes[i].legs[j].departure_time.value = System.currentTimeMillis() / 1000;
 				}
-					
-				
 
 				TableRow transit_times = CreateTableRow(tl, 0, i);	// 2nd row, leave it for later use
 
@@ -498,12 +539,12 @@ public class planroute extends Activity {
 						dires.routes[i].legs[j].mark);
 				// Set time row
 				if(pure_walk_flag == true) {
-					arrival_time.value = departure_time.value + duration;
+					dires.routes[i].legs[j].arrival_time.value = dires.routes[i].legs[j].departure_time.value + duration;
 				}
 				
 				String dur = String.format(" (%d" + getResources().getString(R.string.hour) + "%d" + getResources().getString(R.string.minute) + ")",
 						TimeUnit.SECONDS.toHours(duration), TimeUnit.SECONDS.toMinutes(duration % 3600));
-				title = new StringBuilder().append(convertTime(departure_time.value)).append(" - ").append(convertTime(arrival_time.value)).append(dur).toString();
+				title = new StringBuilder().append(convertTime(dires.routes[i].legs[j].departure_time.value)).append(" - ").append(convertTime(dires.routes[i].legs[j].arrival_time.value)).append(dur).toString();
 				createTextView(title, time_row, Color.rgb(0,0,0), 1.0f, Gravity.LEFT | Gravity.CENTER_VERTICAL,
 						"all," + dires.routes[i].overview_polyline.points, dires.routes[i].legs[j].mark);
 			}

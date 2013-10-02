@@ -90,7 +90,6 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 				try {
 					chk_fist_use.createNewFile();
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 
@@ -200,12 +199,10 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 
 	@Override
 	public void onConnectionFailed(ConnectionResult arg0) {
-		// TODO Auto-generated method stub
 	}
 
 	@Override
 	public void onConnected(Bundle arg0) {
-		// TODO Auto-generated method stub
 		if(locationclient != null && locationclient.isConnected()) {
 			locationrequest = LocationRequest.create();
 			locationrequest.setInterval(100);
@@ -218,7 +215,6 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 
 	@Override
 	public void onDisconnected() {
-		// TODO Auto-generated method stub
 	}
 
 	@Override
@@ -259,7 +255,6 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 
 	@Override
 	public void onLocationChanged(Location arg0) {
-		// TODO Auto-generated method stub
 		focus_on_me(arg0);
 	}
 

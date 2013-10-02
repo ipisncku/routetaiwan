@@ -99,17 +99,14 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 
 	@Override
 	public void onConnectionFailed(ConnectionResult arg0) {
-		// TODO Auto-generated method stub
 	}
 
 	@Override
 	public void onConnected(Bundle arg0) {
-		// TODO Auto-generated method stub
 	}
 
 	@Override
 	public void onDisconnected() {
-		// TODO Auto-generated method stub
 	}
 
 	@Override
@@ -136,9 +133,9 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			String tl = title.get(i);
 			String d = descriptions.get(i);
 
-			if (t.contentEquals("start"))
-				add_marker(p, R.drawable.start, tl, d);
-			else if (t.contentEquals("walk"))
+//			if (t.contentEquals("start"))
+//				add_marker(p, R.drawable.start, tl, d);
+			if (t.contentEquals("walk"))
 				add_marker(p, R.drawable.map_walk, tl, d);
 			else if (t.contentEquals("bus"))
 				add_marker(p, R.drawable.map_bus, tl, d);

@@ -16,6 +16,7 @@
         android:orientation="vertical" >
 
         <Button
+            style="@style/Button"
             android:id="@+id/planroute"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -35,6 +36,7 @@
         android:orientation="vertical" >
 
         <Button
+            style="@style/Button"
             android:id="@+id/showmap2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -52,6 +54,7 @@
         android:orientation="vertical" >
 
         <Button
+            style="@style/Button"
             android:id="@+id/but_checkpos"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

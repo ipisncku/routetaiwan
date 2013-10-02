@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:stretchColumns="0,1" >
+
+    <TableRow>
+
+        <TextView
+            android:id="@+id/diag_saving"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:layout_span="2"
+            android:gravity="center"
+            android:text="@string/diag_saving"
+            android:textColor="#FFFFFFFF"
+            android:textSize="18sp" />
+    </TableRow>
+
+    <TableRow>
+
+        <Button
+            android:id="@+id/btn_save_yes"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="save_yes"
+            android:text="@string/diag_saving_yes" />
+
+        <Button
+            android:id="@+id/btn_save_no"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="save_no"
+            android:text="@string/diag_saving_no" />
+    </TableRow>
+
+</TableLayout>
