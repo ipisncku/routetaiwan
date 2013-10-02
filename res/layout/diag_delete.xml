@@ -7,13 +7,13 @@
     <TableRow>
 
         <TextView
-            android:id="@+id/diag_saving"
+            android:id="@+id/diag_delete"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="center"
             android:layout_span="2"
             android:gravity="center"
-            android:text="@string/diag_saving"
+            android:text="@string/diag_delete"
             android:textColor="#FFFFFFFF"
             android:textSize="18sp" />
     </TableRow>
@@ -21,19 +21,19 @@
     <TableRow>
 
         <Button
-            android:id="@+id/btn_save_yes"
+            android:id="@+id/btn_del_yes"
             style="?android:attr/buttonBarButtonStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:onClick="save_yes"
+            android:onClick="del_yes"
             android:text="@string/diag_yes" />
 
         <Button
-            android:id="@+id/btn_save_no"
+            android:id="@+id/btn_del_no"
             style="?android:attr/buttonBarButtonStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:onClick="save_no"
+            android:onClick="del_no"
             android:text="@string/diag_no" />
     </TableRow>
 

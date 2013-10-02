@@ -52,9 +52,10 @@
     <string name="understand">了解</string>
     
     <string name="diag_saving">儲存到我的最愛?</string>
+    <string name="diag_delete">確定要刪除嗎?</string>
     <string name="saved">已儲存</string>
-    <string name="diag_saving_yes">Yes</string>
-    <string name="diag_saving_no">No</string>
+    <string name="diag_yes">Yes</string>
+    <string name="diag_no">No</string>
     <string name="file_already_existed">已經存在我的最愛</string>
     
     <string name="realtime_under_construction">即時資訊施工中</string>

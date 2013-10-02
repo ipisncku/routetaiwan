@@ -46,25 +46,51 @@ public class myfavorite extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.my_favorite);
-		Log.i(TAG, "in start projectdir= " + projectdir);
 
 		favorite_routes = new ArrayList<File>();
 		routes = new ArrayList<Route>();
 		File folder = new File(projectdir);
 		if (!folder.exists()) {
-			Log.i(TAG, "make dir!");
 			folder.mkdir();
 		}
 		else {
 			favorite_routes = getListFiles(folder);
 			for(File fd : favorite_routes) {
 				try {
-					Log.i(TAG, "decode file " + fd.getAbsolutePath());
 					String buf = getStringFromFile(fd);
-					Log.i(TAG, buf);
 					Gson gson = new Gson();
-					routes.add(gson.fromJson(buf, Route.class));
-					Log.i(TAG, fd.getAbsolutePath() + " added");
+					Route newroute = gson.fromJson(buf, Route.class);
+					newroute.filename = fd.getAbsolutePath();
+					routes.add(newroute);
+				} catch (Exception e) {
+					Log.e(TAG, "Cannot open file");
+					e.printStackTrace();
+				}
+			}
+			/* Display result */
+			dump_details(routes);
+		}
+	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		
+		favorite_routes = new ArrayList<File>();
+		routes = new ArrayList<Route>();
+		File folder = new File(projectdir);
+		if (!folder.exists()) {
+			folder.mkdir();
+		}
+		else {
+			favorite_routes = getListFiles(folder);
+			for(File fd : favorite_routes) {
+				try {
+					String buf = getStringFromFile(fd);
+					Gson gson = new Gson();
+					Route newroute = gson.fromJson(buf, Route.class);
+					newroute.filename = fd.getAbsolutePath();
+					routes.add(newroute);
 				} catch (Exception e) {
 					Log.e(TAG, "Cannot open file");
 					e.printStackTrace();
@@ -163,6 +189,13 @@ public class myfavorite extends Activity {
 		OnLongClickListener save_to_favorite = new OnLongClickListener() {
 			@Override
 			public boolean onLongClick(View arg0) {
+				/* Pop up a diaglog to ask whether to remove this item */
+				Intent launchpop = new Intent(myfavorite.this, diag_delete.class);
+				Bundle bundle=new Bundle();
+				bundle.putString("filename", routes.get(num).filename);
+				launchpop.putExtras(bundle);
+				
+				startActivity(launchpop);
 				return true;
 			}
 		};
@@ -204,8 +237,6 @@ public class myfavorite extends Activity {
 				arrival_time = routes.get(i).legs[j].arrival_time;
 				departure_time = routes.get(i).legs[j].departure_time;
 				long duration = 0;
-
-				//				routes.get(i).legs[j].mark = new ArrayList<MarkP>();
 
 				if(routes.get(i).legs[j].arrival_time != null && routes.get(i).legs[j].departure_time != null) {
 					duration = arrival_time.value - departure_time.value;
@@ -310,7 +341,6 @@ public class myfavorite extends Activity {
 				inFiles.addAll(getListFiles(file));
 			} else {
 				if(file.getName().endsWith(".json")){
-					Log.i(TAG, "file " + file.getName());
 					inFiles.add(file);
 				}
 			}
@@ -337,6 +367,7 @@ public class myfavorite extends Activity {
 	}
 
 	public class Route {
+		String filename;
 		String summary;
 		String[] warnings;
 		Leg[] legs;
