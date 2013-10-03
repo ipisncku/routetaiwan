@@ -44,7 +44,7 @@
     
     <string name="add_to_departure">設為起點</string>
     <string name="add_to_arrival">設為終點</string>
-    <string name="cancel">清除</string>
+    <string name="cancel">清除結果</string>
     
     <string name="goto_planroute">規劃路徑</string>
     
@@ -59,6 +59,11 @@
     <string name="file_already_existed">已經存在我的最愛</string>
     
     <string name="realtime_under_construction">即時資訊施工中</string>
+    <string name="realtime_info">即時資訊</string>
+    <string name="provide_by_tra">資料由台鐵提供</string>
+    <string name="hsr_status">高鐵目前狀態</string>
+    <string name="hsr_normal">正常運行</string>
+    <string name="hsr_warning">未知或異常狀況</string>
     
     <item type="id" name="tag_zero"></item>
     <item type="id" name="tag_first"></item>

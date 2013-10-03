@@ -472,7 +472,7 @@ public class planroute extends Activity {
 						tr = CreateTableRow(tl, 1.0f, i);
 						if(type.contentEquals("BUS")) {
 							createImageViewbyR(R.drawable.bus, tr, 50, 50);
-							text = new StringBuilder().append(text).append("bus").toString();
+							text = new StringBuilder().append(text).append("bus,").append(step.transit_details.line.short_name).append(step.transit_details.line.agencies[0].name).toString();
 							headsign = new StringBuilder().append("(" + getResources().getString(R.string.go_to)).append(headsign + ")").toString();
 							createTextView(trans + headsign + trans_to + time_taken, tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT | Gravity.CENTER_VERTICAL, text, step.transit_details.departure_stop.name, step.transit_details.arrival_stop.name);
 
@@ -505,6 +505,7 @@ public class planroute extends Activity {
 						else if(type.contentEquals("HEAVY_RAIL")) {
 							if(agencyname.contentEquals("台灣高鐵")) {
 								createImageViewbyR(R.drawable.hsr, tr, 50, 50);
+								text = new StringBuilder().append(text).append("hsr,").append(train_num(step.transit_details.headsign)).toString();
 								dires.routes[i].legs[j].mark.add(new MarkP("thsrc"
 										, getResources().getString(R.string.taketransit) + step.transit_details.line.short_name
 										, step.transit_details.headsign
@@ -512,6 +513,7 @@ public class planroute extends Activity {
 							}
 							else if(agencyname.contentEquals("台灣鐵路管理局")) {
 								createImageViewbyR(R.drawable.train, tr, 50, 50);
+								text = new StringBuilder().append(text).append("tra,").append(train_num(step.transit_details.headsign) + ",").append(step.transit_details.line.short_name).toString();
 								dires.routes[i].legs[j].mark.add(new MarkP("tra"
 										, getResources().getString(R.string.taketransit) + step.transit_details.line.short_name
 										, step.transit_details.headsign
@@ -555,6 +557,11 @@ public class planroute extends Activity {
 		return true;
 	}
 
+	private String train_num(String ori) {
+		// ori example: 往苗栗,車次1183,山線 or 往左營 ,車次151
+		return ori.replaceAll("[^0-9]", "");
+	}
+	
 	private void decode(String result) {
 		try {
 			Gson gson = new Gson();
@@ -804,9 +811,30 @@ public class planroute extends Activity {
 			startActivity(launchpop);
 		}
 		else if(action.regionMatches(0, "transit", 0, 7)) {
+			String[] transit_detail = action.split(",");
+			
 			Intent launchpop = new Intent(this, pop_transit.class);
 			Bundle bundle=new Bundle();
-			bundle.putString("poly", action);
+
+			if(transit_detail[1].contentEquals("tra")) {
+				bundle.putString("type", transit_detail[1]);
+				bundle.putString("line", transit_detail[2]);
+				bundle.putString("class", transit_detail[3]);
+				bundle.putLong("time", System.currentTimeMillis());
+			}
+			else if(transit_detail[1].contentEquals("hsr")) {
+				bundle.putString("type", transit_detail[1]);
+				bundle.putString("line", transit_detail[2]);
+			}
+			else if(transit_detail[1].contentEquals("bus")) {
+				bundle.putString("type", transit_detail[1]);
+				bundle.putString("line", transit_detail[2]);
+				bundle.putString("agency", transit_detail[3]);
+			}
+			else {
+				bundle.putString("type", transit_detail[1]);	// type = null
+			}
+			
 			launchpop.putExtras(bundle);
 
 			startActivity(launchpop);

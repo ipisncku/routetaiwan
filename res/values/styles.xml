@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!--
         Base application theme, dependent on API level. This theme is replaced
@@ -38,5 +38,16 @@
     <style name="CustomButton" parent="android:style/Theme.NoTitleBar">
         <item name="android:buttonStyle">@style/Button</item>
     </style>
+    
+    <style name="SmallBtn" parent="@android:style/Widget.Button.Small">
+        <item name="android:layout_gravity">center</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_centerInParent">true</item>
+        <item name="android:paddingLeft">30dp</item>
+        <item name="android:paddingRight">30dp</item>
+        <item name="android:textSize">16sp</item>
+
+</style>
     
 </resources>

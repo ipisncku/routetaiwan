@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Environment;
@@ -21,6 +22,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
@@ -300,6 +302,7 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 	public void remove_button() {
 		if(button_exist == true) {
 			Button gotoplan = (Button) findViewById(BUTTON_PLAN_ROUTE);
+			gotoplan.setOnClickListener(null);
 			
 			final Animation animTrans = AnimationUtils.loadAnimation(showmap.this, R.anim.anim_translate_out);
 			gotoplan.setAnimation(animTrans);
@@ -320,9 +323,8 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 	}
 
 	// The method that displays the popup.
+	@SuppressWarnings("deprecation")
 	private void showPopup(final Activity context, final LatLng position) {
-		int popupWidth = 250;
-		int popupHeight = 250;
 
 		// Inflate the popup_layout.xml
 		LinearLayout viewGroup = (LinearLayout) context.findViewById(R.id.menu1);
@@ -331,18 +333,14 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 		View layout = layoutInflater.inflate(R.layout.menu_route, viewGroup);
 
 		// Creating the PopupWindow
-		final PopupWindow popup = new PopupWindow(context);
-		popup.setContentView(layout);
-		popup.setWidth(popupWidth);
-		popup.setHeight(popupHeight);
-		popup.setFocusable(true);
+		final PopupWindow popup = new PopupWindow(layout, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
 
 		// Some offset to align the popup a bit to the right, and a bit down, relative to button's position.
 		int OFFSET_X = 30;
-		int OFFSET_Y = 30;
+		int OFFSET_Y = 80;
 
 		// Clear the default translucent background
-		//		popup.setBackgroundDrawable(new BitmapDrawable());
+		popup.setBackgroundDrawable(new BitmapDrawable());
 		popup.setOutsideTouchable(true);
 
 		// Displaying the popup at the specified location, + offsets.
