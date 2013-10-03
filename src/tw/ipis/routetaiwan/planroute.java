@@ -1,6 +1,7 @@
 package tw.ipis.routetaiwan;
 
 import java.io.File;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
@@ -41,16 +42,21 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -61,7 +67,10 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 
 public class planroute extends Activity {
-
+	/* Define area */
+	private static final int PLAN_ROUTE_INSTRUCTION = 0x12340001;
+	private static final int PLAN_ROUTE_VIEW = 0x12340002;
+	
 	//	ProgressBar planning;
 	String TAG = "~~planroute~~";
 	private ProgressBar planning;
@@ -569,10 +578,79 @@ public class planroute extends Activity {
 			Log.i(TAG, "Total routes = " + dires.routes.length);
 			planning.setVisibility(ProgressBar.GONE);
 			dumpdetails(dires);
+			display_help();
 		} catch (Exception e) {
 			planning.setVisibility(ProgressBar.GONE);
 			e.printStackTrace();
 			Toast.makeText(this, getResources().getString(R.string.info_internal_error) , Toast.LENGTH_LONG).show();
+		}
+	}
+	
+	private void display_help() {
+		/* Check if it is the first time to use this app, If yes, show some instruction */
+		File chk_fist_use = new File(Environment.getExternalStorageDirectory() + "/.routetaiwan/.first_planroute");
+		if(chk_fist_use.exists() == false) {
+			try {
+				chk_fist_use.createNewFile();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			View cover = new View(this);
+			cover.setId(PLAN_ROUTE_VIEW);
+			cover.setBackgroundColor(Color.argb(0x80, 0xC, 0xC, 0xC));
+			TextView instruction = new TextView(this);
+			instruction.setId(PLAN_ROUTE_INSTRUCTION);
+			instruction.setText(getResources().getString(R.string.plan_route_instruction));
+			instruction.setTextColor(Color.WHITE);
+			instruction.setTextSize(20);
+			instruction.setGravity(Gravity.CENTER);
+
+			Button ok = new Button(this);
+			ok.setText(getResources().getString(R.string.understand));
+			ok.setGravity(Gravity.CENTER);
+			ok.setTextColor(Color.WHITE);
+			
+			RelativeLayout ll = (RelativeLayout)findViewById(R.id.rl_planroute);
+			RelativeLayout.LayoutParams coverLayoutParameters = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
+			cover.setLayoutParams(coverLayoutParameters);
+			
+			RelativeLayout.LayoutParams textLayoutParameters = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+			textLayoutParameters.addRule(RelativeLayout.CENTER_IN_PARENT);
+			instruction.setLayoutParams(textLayoutParameters);
+
+			RelativeLayout.LayoutParams buttonLayoutParameters = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+			buttonLayoutParameters.addRule(RelativeLayout.BELOW, instruction.getId());
+			buttonLayoutParameters.addRule(RelativeLayout.CENTER_IN_PARENT, instruction.getId());
+			ok.setLayoutParams(buttonLayoutParameters);
+
+			ll.addView(cover);
+			ll.addView(instruction);
+			ll.addView(ok);
+
+			ok.setOnClickListener(new OnClickListener(){  
+				public void onClick(View v) {  
+					View cover = findViewById(PLAN_ROUTE_VIEW);
+					final RelativeLayout ll = (RelativeLayout)findViewById(R.id.rl_planroute);
+					TextView instruction = (TextView) findViewById(PLAN_ROUTE_INSTRUCTION);
+
+					ll.removeView(instruction);
+					ll.removeView(v);
+
+					final Animation animTrans = AnimationUtils.loadAnimation(planroute.this, R.anim.anim_alpha_out);
+					cover.setAnimation(animTrans);
+
+					/* Make the cover fully transparent after 500ms */
+					Handler reset_view = new Handler();
+					reset_view.postDelayed(new Runnable()
+					{
+						public void run()
+						{
+							View cover = findViewById(PLAN_ROUTE_VIEW);
+							ll.removeView(cover);
+						}
+					}, 500);
+				}  
+			});
 		}
 	}
 
