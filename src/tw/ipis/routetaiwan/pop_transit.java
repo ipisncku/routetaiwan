@@ -123,6 +123,9 @@ public class pop_transit extends Activity {
 				String tpe_bus_url = "http://pda.5284.com.tw/MQS/businfo2.jsp?routeId={0}";
 				try {
 					String url = MessageFormat.format(tpe_bus_url, URLEncoder.encode(line, "UTF-8"));
+					/* 設定activity title, ex: 226 即時資訊 */
+					this.setTitle(line + " " + getResources().getString(R.string.realtime_info));
+					
 					create_webview_by_url(url);
 				} catch (UnsupportedEncodingException e) {
 					// TODO 自動產生的 catch 區塊
@@ -148,6 +151,10 @@ public class pop_transit extends Activity {
 				String khh_bus_url = "http://122.146.229.210/bus/pda/businfo.aspx?Routeid={0}&GO_OR_BACK=1&Line=All&lang=Cht";
 				try {
 					String url = MessageFormat.format(khh_bus_url, URLEncoder.encode(line, "UTF-8"));
+					
+					/* 設定activity title, ex: 226 即時資訊 */
+					this.setTitle(line + " " + getResources().getString(R.string.realtime_info));
+					
 					create_webview_by_url(url);
 				} catch (UnsupportedEncodingException e) {
 					// TODO 自動產生的 catch 區塊
