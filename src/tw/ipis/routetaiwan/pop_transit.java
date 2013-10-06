@@ -205,6 +205,7 @@ public class pop_transit extends Activity {
 		bus_taipei.add("中興巴士");
 		bus_taipei.add("大南汽車");
 		bus_taipei.add("欣欣客運");
+		bus_taipei.add("台北客運");
 		
 		/* 高雄公車 客運業者列表 */
 		bus_kaohsiung.add("高雄市公車處");

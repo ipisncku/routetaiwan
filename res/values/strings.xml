@@ -67,6 +67,8 @@
     <string name="hsr_warning">未知或異常狀況</string>
     <string name="network_issue">網路連線異常</string>
     
+    <string name="no_data">沒有資料</string>
+    
     <item type="id" name="tag_zero"></item>
     <item type="id" name="tag_first"></item>
 		<item type="id" name="tag_second"></item>

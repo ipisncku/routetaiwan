@@ -28,6 +28,7 @@ import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -37,6 +38,7 @@ import android.widget.TextView;
 import com.google.gson.Gson;
 
 public class myfavorite extends Activity {
+	TextView textv;
 	List<File> favorite_routes;
 	List<Route> routes;
 	private static final String projectdir = Environment.getExternalStorageDirectory() + "/.routetaiwan";
@@ -55,6 +57,9 @@ public class myfavorite extends Activity {
 		}
 		else {
 			favorite_routes = getListFiles(folder);
+			if(favorite_routes.isEmpty()) {
+				info_empty_folder();
+			}
 			for(File fd : favorite_routes) {
 				try {
 					String buf = getStringFromFile(fd);
@@ -84,6 +89,9 @@ public class myfavorite extends Activity {
 		}
 		else {
 			favorite_routes = getListFiles(folder);
+			if(favorite_routes.isEmpty()) {
+				info_empty_folder();
+			}
 			for(File fd : favorite_routes) {
 				try {
 					String buf = getStringFromFile(fd);
@@ -99,6 +107,24 @@ public class myfavorite extends Activity {
 			/* Display result */
 			dump_details(routes);
 		}
+	}
+	
+	public void info_empty_folder() {
+		LinearLayout ll = (LinearLayout)findViewById(R.id.ll_favorites);
+		
+		if(textv != null)
+			ll.removeView(textv);
+		else
+			textv = null;
+		
+		textv = new TextView(this);
+		textv.setText(getResources().getString(R.string.no_data));
+		textv.setTextColor(Color.BLACK);
+		textv.setTextSize(20);
+		textv.setGravity(Gravity.CENTER);
+		textv.setHorizontallyScrolling(false);
+		
+		ll.addView(textv);
 	}
 
 	public String convertTime(long time){
@@ -280,7 +306,7 @@ public class myfavorite extends Activity {
 						tr = CreateTableRow(tl, 1.0f, i);
 						if(type.contentEquals("BUS")) {
 							createImageViewbyR(R.drawable.bus, tr, 50, 50);
-							text = new StringBuilder().append(text).append("bus").toString();
+							text = new StringBuilder().append(text).append("bus,").append(step.transit_details.line.short_name + ",").append(step.transit_details.line.agencies[0].name).toString();
 							headsign = new StringBuilder().append("(" + getResources().getString(R.string.go_to)).append(headsign + ")").toString();
 							createTextView(trans + headsign + trans_to + time_taken, tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT | Gravity.CENTER_VERTICAL, text, step.transit_details.departure_stop.name, step.transit_details.arrival_stop.name);
 						}
@@ -300,9 +326,11 @@ public class myfavorite extends Activity {
 						else if(type.contentEquals("HEAVY_RAIL")) {
 							if(agencyname.contentEquals("台灣高鐵")) {
 								createImageViewbyR(R.drawable.hsr, tr, 50, 50);
+								text = new StringBuilder().append(text).append("hsr,").append(train_num(step.transit_details.headsign)).toString();
 							}
 							else if(agencyname.contentEquals("台灣鐵路管理局")) {
 								createImageViewbyR(R.drawable.train, tr, 50, 50);
+								text = new StringBuilder().append(text).append("tra,").append(train_num(step.transit_details.headsign) + ",").append(step.transit_details.line.short_name).toString();
 							}
 							else
 								createTextView("車", tr, Color.rgb(0,0,0), 0.1f, Gravity.CENTER, "transit,null", step.transit_details.departure_stop.name, step.transit_details.arrival_stop.name);
@@ -331,6 +359,11 @@ public class myfavorite extends Activity {
 			}
 		}
 		sv.addView(tl);
+	}
+	
+	private String train_num(String ori) {
+		// ori example: 往苗栗,車次1183,山線 or 往左營 ,車次151
+		return ori.replaceAll("[^0-9]", "");
 	}
 
 	private List<File> getListFiles(File parentDir) {
@@ -504,13 +537,34 @@ public class myfavorite extends Activity {
 			bundle.putStringArrayList("descriptions", description);
 			bundle.putStringArrayList("locations", locations);
 			launchpop.putExtras(bundle);
-
+			
 			startActivity(launchpop);
 		}
 		else if(action.regionMatches(0, "transit", 0, 7)) {
+			String[] transit_detail = action.split(",");
+			
 			Intent launchpop = new Intent(this, pop_transit.class);
 			Bundle bundle=new Bundle();
-			bundle.putString("poly", action);
+
+			if(transit_detail[1].contentEquals("tra")) {
+				bundle.putString("type", transit_detail[1]);
+				bundle.putString("line", transit_detail[2]);
+				bundle.putString("class", transit_detail[3]);
+				bundle.putLong("time", System.currentTimeMillis());
+			}
+			else if(transit_detail[1].contentEquals("hsr")) {
+				bundle.putString("type", transit_detail[1]);
+				bundle.putString("line", transit_detail[2]);
+			}
+			else if(transit_detail[1].contentEquals("bus")) {
+				bundle.putString("type", transit_detail[1]);
+				bundle.putString("line", transit_detail[2]);
+				bundle.putString("agency", transit_detail[3]);
+			}
+			else {
+				bundle.putString("type", transit_detail[1]);	// type = null
+			}
+			
 			launchpop.putExtras(bundle);
 
 			startActivity(launchpop);
