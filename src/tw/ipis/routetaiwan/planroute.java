@@ -242,6 +242,7 @@ public class planroute extends Activity {
 
 						response = EntityUtils.toString(entity);
 					} else {
+						Toast.makeText(planroute.this, getResources().getString(R.string.network_issue) , Toast.LENGTH_SHORT).show();
 						Log.e(TAG, "Failed to download file");
 					}
 					return response;
@@ -533,6 +534,7 @@ public class planroute extends Activity {
 							headsign = new StringBuilder().append("(" + headsign + ")").toString();
 							createTextView(trans + headsign + trans_to + time_taken, tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT | Gravity.CENTER_VERTICAL, text, 
 									step.start_location, step.end_location);
+							
 						}
 					}
 					if(k == dires.routes[i].legs[j].steps.length - 1) {
@@ -582,7 +584,8 @@ public class planroute extends Activity {
 		} catch (Exception e) {
 			planning.setVisibility(ProgressBar.GONE);
 			e.printStackTrace();
-			Toast.makeText(this, getResources().getString(R.string.info_internal_error) , Toast.LENGTH_LONG).show();
+//			Toast.makeText(this, getResources().getString(R.string.info_internal_error) , Toast.LENGTH_LONG).show();
+			return;
 		}
 	}
 	

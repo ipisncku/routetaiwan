@@ -1,8 +1,11 @@
 package tw.ipis.routetaiwan;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.text.Format;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 import org.apache.http.HttpEntity;
@@ -21,14 +24,20 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class pop_transit extends Activity {
 	private static String TAG = "--pop_transit--";
 	private ProgressBar process;
+	private ArrayList<String> bus_taipei = new ArrayList<String>();
+	private ArrayList<String> bus_taichung = new ArrayList<String>();
+	private ArrayList<String> bus_kaohsiung = new ArrayList<String>();
+	
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +45,8 @@ public class pop_transit extends Activity {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.pop_transit);
+		
+		bus_agency_classify();
 		
 		Bundle Data = this.getIntent().getExtras();
 		String type = Data.getString("type");
@@ -108,18 +119,106 @@ public class pop_transit extends Activity {
 		/* 其他狀況: 施工中... */
 		else {
 			TextView tv = new TextView(this);
-			tv.setText(getResources().getString(R.string.realtime_under_construction));
-			tv.setTextColor(Color.WHITE);
-			tv.setTextSize(16);
-			tv.setGravity(Gravity.CENTER);
-			tv.setHorizontallyScrolling(false);
-			
-			RelativeLayout.LayoutParams param = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-			param.addRule(RelativeLayout.CENTER_IN_PARENT);
-			tv.setLayoutParams(param);
-			
-			rl.addView(tv);
+			if(check_agency(agency, bus_taipei)) {
+				String tpe_bus_url = "http://pda.5284.com.tw/MQS/businfo2.jsp?routeId={0}";
+				try {
+					String url = MessageFormat.format(tpe_bus_url, URLEncoder.encode(line, "UTF-8"));
+					create_webview_by_url(url);
+				} catch (UnsupportedEncodingException e) {
+					// TODO 自動產生的 catch 區塊
+					e.printStackTrace();
+					Toast.makeText(this, getResources().getString(R.string.info_internal_error) , Toast.LENGTH_LONG).show();
+					finish();
+				}
+			}
+			else if(check_agency(agency, bus_taichung)) {
+				tv.setText("台中公車\n" + getResources().getString(R.string.realtime_under_construction));
+				tv.setTextColor(Color.WHITE);
+				tv.setTextSize(16);
+				tv.setGravity(Gravity.CENTER);
+				tv.setHorizontallyScrolling(false);
+
+				RelativeLayout.LayoutParams param = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+				param.addRule(RelativeLayout.CENTER_IN_PARENT);
+				tv.setLayoutParams(param);
+
+				rl.addView(tv);
+			}
+			else if(check_agency(agency, bus_kaohsiung)) {
+				String khh_bus_url = "http://122.146.229.210/bus/pda/businfo.aspx?Routeid={0}&GO_OR_BACK=1&Line=All&lang=Cht";
+				try {
+					String url = MessageFormat.format(khh_bus_url, URLEncoder.encode(line, "UTF-8"));
+					create_webview_by_url(url);
+				} catch (UnsupportedEncodingException e) {
+					// TODO 自動產生的 catch 區塊
+					e.printStackTrace();
+					Toast.makeText(this, getResources().getString(R.string.info_internal_error) , Toast.LENGTH_LONG).show();
+					finish();
+				}
+			}
+			else if(line.matches("[0-9]{4}")) {
+				tv.setText("公路客運\n" + getResources().getString(R.string.realtime_under_construction));
+				tv.setTextColor(Color.WHITE);
+				tv.setTextSize(16);
+				tv.setGravity(Gravity.CENTER);
+				tv.setHorizontallyScrolling(false);
+
+				RelativeLayout.LayoutParams param = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+				param.addRule(RelativeLayout.CENTER_IN_PARENT);
+				tv.setLayoutParams(param);
+
+				rl.addView(tv);
+			}
+			else {
+				/* 還沒做...QQ */
+				tv.setText(getResources().getString(R.string.realtime_under_construction));
+				tv.setTextColor(Color.WHITE);
+				tv.setTextSize(16);
+				tv.setGravity(Gravity.CENTER);
+				tv.setHorizontallyScrolling(false);
+
+				RelativeLayout.LayoutParams param = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+				param.addRule(RelativeLayout.CENTER_IN_PARENT);
+				tv.setLayoutParams(param);
+
+				rl.addView(tv);
+			}
 		}
+	}
+	
+	private boolean check_agency(String agency, ArrayList<String> bus_provider) {
+		for (int i = 0; i < bus_provider.size(); i++) {
+			if(agency.contentEquals(bus_provider.get(i)))
+				return true;
+		}
+		return false;
+	}
+	
+	private void bus_agency_classify() {
+		/* 台北公車 客運業者列表 */
+		bus_taipei.add("大都會客運");
+		bus_taipei.add("三重客運");
+		bus_taipei.add("首都客運");
+		bus_taipei.add("指南客運");
+		bus_taipei.add("光華巴士");
+		bus_taipei.add("新店客運");
+		bus_taipei.add("中興巴士");
+		bus_taipei.add("大南汽車");
+		bus_taipei.add("欣欣客運");
+		
+		/* 高雄公車 客運業者列表 */
+		bus_kaohsiung.add("高雄市公車處");
+		bus_kaohsiung.add("南台灣客運");
+		bus_kaohsiung.add("義大客運");
+		
+		/* 台中公車 客運業者列表 */
+		bus_taichung.add("中台灣客運");
+		bus_taichung.add("統聯客運");
+		bus_taichung.add("全航客運");
+		bus_taichung.add("台中客運");
+		bus_taichung.add("仁友客運");
+		bus_taichung.add("東南客運");
+		bus_taichung.add("豐榮客運");
 	}
 	
 	public void thsrc_current_status(String result) {
@@ -165,6 +264,13 @@ public class pop_transit extends Activity {
 		WebView wv = new WebView(this);
 		wv.getSettings().setJavaScriptEnabled(true);
 		wv.getSettings().setUseWideViewPort(false);
+		wv.setWebViewClient(new WebViewClient(){
+		    @Override
+		    public boolean shouldOverrideUrlLoading(WebView view, String url){
+		      view.loadUrl(url);
+		      return true;
+		    }
+		});
 		
 		wv.loadUrl(url);
 		
