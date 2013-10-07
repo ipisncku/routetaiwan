@@ -166,7 +166,7 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			@Override
 			public void onCameraChange(CameraPosition arg0) {
 				// Move camera.
-				googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 30));
+				googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 50));
 				// Remove listener to prevent position reset on camera move.
 				googleMap.setOnCameraChangeListener(null);
 			}
@@ -197,7 +197,7 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			@Override
 			public void onCameraChange(CameraPosition arg0) {
 				// Move camera.
-				googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 30));
+				googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 50));
 				// Remove listener to prevent position reset on camera move.
 				googleMap.setOnCameraChangeListener(null);
 			}
