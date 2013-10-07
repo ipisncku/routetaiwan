@@ -338,6 +338,12 @@ public class myfavorite extends Activity {
 							createTextView(trans + headsign + trans_to + time_taken, tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT | Gravity.CENTER_VERTICAL, text, 
 									step.start_location, step.end_location);
 						}
+						else if(type.contentEquals("DRIVING")) {
+							createImageViewbyR(R.drawable.drive, tr, 50, 50);
+							createTextView(new StringBuilder().append(step.html_instructions).append("\n(" + step.distance.text + ", " +step.duration.text + ")").toString()
+									, tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT | Gravity.CENTER_VERTICAL, text, 
+									step.start_location, step.end_location);
+						}
 					}
 					if(k == routes.get(i).legs[j].steps.length - 1) {
 						// Arrived

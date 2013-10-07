@@ -567,6 +567,7 @@ public class planroute extends Activity {
 							createTextView(new StringBuilder().append(step.html_instructions).append("\n(" + step.distance.text + ", " +step.duration.text + ")").toString()
 									, tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT | Gravity.CENTER_VERTICAL, text, 
 									step.start_location, step.end_location);
+							dires.routes[i].legs[j].mark.add(new MarkP("drive", step.html_instructions, step.distance.text, step.start_location));
 						}
 					}
 					if(k == dires.routes[i].legs[j].steps.length - 1) {

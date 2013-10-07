@@ -149,6 +149,8 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 				add_marker(p, R.drawable.map_tra, tl, d);
 			else if (t.contentEquals("end"))
 				add_marker(p, R.drawable.destination, tl, d);
+			else if (t.contentEquals("drive"))
+				add_marker(p, R.drawable.map_drive, tl, d);
 			else
 				add_marker(p, 0, "", "");
 		}
