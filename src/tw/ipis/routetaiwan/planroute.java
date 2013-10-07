@@ -268,6 +268,20 @@ public class planroute extends Activity {
 		Format format = new SimpleDateFormat("HH:mm");
 		return format.format(date).toString();
 	}
+	
+	private TextView createTextView(String content, TableRow parent, int textcolor, float weight, int gravity) {
+		TextView tv = new TextView(this);
+		tv.setText(content);
+		tv.setTextColor(textcolor);
+		tv.setTextSize(16);
+		tv.setHorizontallyScrolling(false);
+		tv.setWidth(0);
+		tv.setGravity(gravity);
+		if(weight != 0)
+			tv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, weight));
+		parent.addView(tv);
+		return tv;
+	}
 
 	private TextView createTextView(String content, TableRow parent, int textcolor, float weight, int gravity, String text, LatLng_s departure, LatLng_s destination) {
 		TextView tv = new TextView(this);
@@ -332,6 +346,18 @@ public class planroute extends Activity {
 		return iv;
 	}
 
+	private TableRow CreateTableRow(TableLayout parent, int color){
+		TableRow tr = new TableRow(this);	// 1st row
+
+		tr.setBackgroundColor(color);
+		tr.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+		tr.setGravity(Gravity.CENTER_VERTICAL);
+		tr.setClickable(true);
+
+		parent.addView(tr);
+		return tr;
+	}
+	
 	private TableRow CreateTableRow(TableLayout parent, float weight, final int num){
 		TableRow tr = new TableRow(this);	// 1st row
 
@@ -568,6 +594,9 @@ public class planroute extends Activity {
 						"all," + dires.routes[i].overview_polyline.points, dires.routes[i].legs[j].mark);
 			}
 		}
+		// 版權宣告
+		createTextView(dires.routes[0].copyrights, CreateTableRow(tl, Color.DKGRAY), Color.WHITE, 1.0f, Gravity.RIGHT);
+		
 		// Add the LinearLayout element to the ScrollView
 		sv.addView(tl);
 
