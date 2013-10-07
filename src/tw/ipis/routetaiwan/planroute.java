@@ -585,8 +585,8 @@ public class planroute extends Activity {
 			dires = gson.fromJson(result,	DirectionResponseObject.class);
 			Log.i(TAG, "Total routes = " + dires.routes.length);
 			planning.setVisibility(ProgressBar.GONE);
-			dumpdetails(dires);
-			display_help();
+			if(dumpdetails(dires) == true);
+				display_help();
 		} catch (Exception e) {
 			planning.setVisibility(ProgressBar.GONE);
 			e.printStackTrace();

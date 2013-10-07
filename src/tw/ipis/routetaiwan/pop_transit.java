@@ -89,19 +89,7 @@ public class pop_transit extends Activity {
 			this.setTitle(car_class + " " + line);
 
 			/* 資料由台鐵提供 */
-			TextView tv = new TextView(this);
-			tv.setText(getResources().getString(R.string.provide_by_tra));
-			tv.setTextColor(Color.BLACK);
-			tv.setTextSize(16);
-			tv.setGravity(Gravity.RIGHT);
-			tv.setHorizontallyScrolling(false);
-
-			RelativeLayout.LayoutParams param = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-			param.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-			param.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-			tv.setLayoutParams(param);
-
-			rl.addView(tv);
+			show_info_provider(R.string.provide_by_tra);
 		}
 		/* 高鐵 */
 		else if(type.contentEquals("hsr")) {
@@ -127,6 +115,9 @@ public class pop_transit extends Activity {
 					this.setTitle(line + " " + getResources().getString(R.string.realtime_info));
 
 					create_webview_by_url(url);
+					
+					/* 資料由5284我愛巴士提供 */
+					show_info_provider(R.string.provide_by_5284);
 				} catch (UnsupportedEncodingException e) {
 					e.printStackTrace();
 					Toast.makeText(this, getResources().getString(R.string.info_internal_error) , Toast.LENGTH_LONG).show();
@@ -142,6 +133,8 @@ public class pop_transit extends Activity {
 					this.setTitle(line + " " + getResources().getString(R.string.realtime_info));
 
 					create_webview_by_url(url);
+					/* 資料由台中市政府提供 */
+					show_info_provider(R.string.provide_by_txg);
 				} catch (UnsupportedEncodingException e) {
 					e.printStackTrace();
 					Toast.makeText(this, getResources().getString(R.string.info_internal_error) , Toast.LENGTH_LONG).show();
@@ -173,8 +166,9 @@ public class pop_transit extends Activity {
 					this.setTitle(line + " " + getResources().getString(R.string.realtime_info));
 
 					create_webview_by_url(url);
+					/* 資料由高雄市政府提供 */
+					show_info_provider(R.string.provide_by_khh);
 				} catch (UnsupportedEncodingException e) {
-					// TODO 自動產生的 catch 區塊
 					e.printStackTrace();
 					Toast.makeText(this, getResources().getString(R.string.info_internal_error) , Toast.LENGTH_LONG).show();
 					finish();
@@ -192,6 +186,8 @@ public class pop_transit extends Activity {
 					this.setTitle(line + " " + getResources().getString(R.string.time_table));
 
 					create_webview_by_url(url);
+					/* 資料由公路總局提供 */
+					show_info_provider(R.string.provide_by_bus);
 				} catch (UnsupportedEncodingException e) {
 					e.printStackTrace();
 					Toast.makeText(this, getResources().getString(R.string.info_internal_error) , Toast.LENGTH_LONG).show();
@@ -200,7 +196,7 @@ public class pop_transit extends Activity {
 			}
 			else {
 				/* 還沒做...QQ */
-				tv.setText(getResources().getString(R.string.realtime_under_construction));
+				tv.setText(getResources().getString(R.string.realtime_under_construction) + "\n路線:" + line + "\n業者:" + agency);
 				tv.setTextColor(Color.WHITE);
 				tv.setTextSize(16);
 				tv.setGravity(Gravity.CENTER);
@@ -213,6 +209,23 @@ public class pop_transit extends Activity {
 				rl.addView(tv);
 			}
 		}
+	}
+	
+	private void show_info_provider(int r_string_id) {
+		RelativeLayout rl = (RelativeLayout)findViewById(R.id.rl_pop_transit);
+		TextView tv = new TextView(this);
+		tv.setText(getResources().getString(r_string_id));
+		tv.setTextColor(Color.BLACK);
+		tv.setTextSize(16);
+		tv.setGravity(Gravity.RIGHT);
+		tv.setHorizontallyScrolling(false);
+
+		RelativeLayout.LayoutParams param = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+		param.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+		param.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+		tv.setLayoutParams(param);
+
+		rl.addView(tv);
 	}
 
 	private boolean check_agency(String agency, ArrayList<bus_provider> provider, String line) {
@@ -243,6 +256,7 @@ public class pop_transit extends Activity {
 		bus_taipei.add(new bus_provider("大南汽車", null));
 		bus_taipei.add(new bus_provider("欣欣客運", null));
 		bus_taipei.add(new bus_provider("台北客運", null));
+		bus_taipei.add(new bus_provider("淡水客運", null));
 
 		/* 高雄公車 客運業者列表 */
 		bus_kaohsiung.add(new bus_provider("高雄市公車處", null));

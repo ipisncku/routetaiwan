@@ -61,7 +61,6 @@
     
     <string name="realtime_under_construction">即時資訊施工中</string>
     <string name="realtime_info">即時資訊</string>
-    <string name="provide_by_tra">資料由台鐵提供</string>
     <string name="hsr_status">高鐵目前狀態</string>
     <string name="hsr_normal">正常運行</string>
     <string name="hsr_warning">未知或異常狀況</string>
@@ -69,6 +68,12 @@
     <string name="time_table">時刻表</string>
     
     <string name="no_data">沒有資料</string>
+    
+    <string name="provide_by_tra">資料由台鐵提供</string>
+    <string name="provide_by_5284">資料由5284我愛巴士提供</string>
+    <string name="provide_by_khh">資料由高雄市政府提供</string>
+    <string name="provide_by_txg">資料由台中市政府提供</string>
+    <string name="provide_by_bus">資料由公路總局提供</string>
     
     <item type="id" name="tag_zero"></item>
     <item type="id" name="tag_first"></item>
