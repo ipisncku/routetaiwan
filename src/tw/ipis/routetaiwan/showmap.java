@@ -3,6 +3,8 @@ package tw.ipis.routetaiwan;
 import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -11,7 +13,10 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -26,6 +31,7 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
@@ -45,6 +51,7 @@ import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -64,6 +71,7 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 	private boolean button_exist = false;
 	MarkerOptions opt_start, opt_destination;
 	Marker start, dest;
+	List<Marker> results;
 	Point p = new Point(0, 0);
 
 	@Override
@@ -71,6 +79,8 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.showmap);
 
+		results = new ArrayList<Marker>();
+		
 		first_read = true;
 		// Getting Google Play availability status
 		int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getBaseContext());
@@ -388,5 +398,74 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			}
 		});
 	}
+	
+	public void google_search(View v) {
+		EditText etLocation = (EditText) findViewById(R.id.search_map);
+		
+		// Getting user input location
+		String location = etLocation.getText().toString();
+		
+		if(location!=null && !location.equals("")){
+			new GeocoderTask().execute(location);
+		}
+	}
 
+	private class GeocoderTask extends AsyncTask<String, Void, List<Address>>{
+
+		@Override
+		protected List<Address> doInBackground(String... locationName) {
+			// Creating an instance of Geocoder class
+			Geocoder geocoder = new Geocoder(getBaseContext());
+			List<Address> addresses = null;
+			
+			try {
+				// Getting a maximum of 3 Address that matches the input text
+				addresses = geocoder.getFromLocationName(locationName[0], 5);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}			
+			return addresses;
+		}
+		
+		
+		@Override
+		protected void onPostExecute(List<Address> addresses) {			
+			
+			if(addresses==null || addresses.size()==0){
+				Toast.makeText(getBaseContext(), "No Location found", Toast.LENGTH_SHORT).show();
+			}
+
+			// Clears all the existing markers on the map
+			for(int i=0; i<results.size(); i++) {
+				results.get(i).remove();
+			}
+
+			if(results.size() > 0)
+				results.clear();
+			
+			final LatLngBounds.Builder builder = new LatLngBounds.Builder();
+			
+			// Adding Markers on Google Map for each matching address
+			for(int i=0;i<addresses.size();i++){				
+
+				Address address = (Address) addresses.get(i);
+
+				// Creating an instance of GeoPoint, to display in Google Map
+				LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
+
+				MarkerOptions markerOptions = new MarkerOptions();
+				markerOptions.position(latLng);
+				markerOptions.title(address.getFeatureName());
+				markerOptions.snippet(address.getLocality());
+
+				results.add(googleMap.addMarker(markerOptions));
+
+				builder.include(latLng);
+				
+				// Locate the first location
+				if(i == addresses.size() - 1)			        	
+					googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 50)); 	
+			}			
+		}		
+	}
 }
