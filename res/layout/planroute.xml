@@ -5,81 +5,113 @@
     android:layout_height="match_parent"
     android:background="@drawable/style_angle" >
 
-    <TextView
-        android:id="@+id/textfrom"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/from"
-        android:layout_alignBottom="@+id/from"
-        android:layout_alignParentLeft="true"
-        android:text="@string/str_from"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="@color/route_edit_fg" />
-
-    <EditText
-        android:id="@+id/from"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:background="#FFFFFF"
-        android:ems="10"
-        android:hint="@string/pos_from"
-        android:inputType="textPostalAddress" />
-    
     <View
-        android:id="@+id/line1"
-        android:layout_width="fill_parent"
-        android:layout_height="5dp"
-        android:layout_below="@+id/from"
+        android:id="@+id/line0"
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:layout_alignParentTop="true"
         android:background="#00000000" />
 
-    <TextView
-        android:id="@+id/textto"
-        android:layout_width="wrap_content"
+    <TableLayout
+        android:id="@+id/tl_planroute"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/to"
-        android:layout_alignBottom="@+id/to"
-        android:layout_alignParentLeft="true"
-        android:text="@string/str_to"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="@color/route_edit_fg" />
+        android:layout_below="@+id/line0" >
 
-    <EditText
-        android:id="@+id/to"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/line1"
-        android:layout_centerHorizontal="true"
-        android:background="#FFFFFF"
-        android:ems="10"
-        android:hint="@string/pos_to"
-        android:inputType="textPostalAddress" />
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
 
-    <View
-        android:id="@+id/line2"
-        android:layout_width="fill_parent"
-        android:layout_height="5dp"
-        android:layout_below="@+id/to"
-        android:background="#00000000" />
+            <TableLayout android:layout_weight="0.85" >
+
+                <TableRow>
+
+                    <TextView
+                        android:id="@+id/textfrom"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0.15"
+                        android:gravity="center"
+                        android:text="@string/str_from"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:textColor="@color/route_edit_fg" />
+
+                    <EditText
+                        android:id="@+id/from"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0.85"
+                        android:background="#FFFFFF"
+                        android:ems="10"
+                        android:hint="@string/pos_from"
+                        android:inputType="textPostalAddress"
+                        android:singleLine="true" />
+                </TableRow>
+
+                <TableRow>
+
+                    <View
+                        android:id="@+id/line1"
+                        android:layout_width="match_parent"
+                        android:layout_height="5dp"
+                        android:background="#00000000" />
+                </TableRow>
+
+                <TableRow>
+
+                    <TextView
+                        android:id="@+id/textto"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0.15"
+                        android:gravity="center"
+                        android:text="@string/str_to"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:textColor="@color/route_edit_fg" />
+
+                    <EditText
+                        android:id="@+id/to"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0.85"
+                        android:background="#FFFFFF"
+                        android:ems="10"
+                        android:hint="@string/pos_to"
+                        android:inputType="textPostalAddress"
+                        android:singleLine="true" />
+                </TableRow>
+            </TableLayout>
+
+            <Button
+                android:id="@+id/button1"
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="0.15"
+                android:onClick="start_planing"
+                android:text="@string/go" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <View
+                android:id="@+id/line2"
+                android:layout_width="match_parent"
+                android:layout_height="3dp"
+                android:background="#00000000" />
+        </TableRow>
+    </TableLayout>
 
     <ScrollView
         android:id="@+id/routes"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_below="@+id/line2"
+        android:layout_below="@+id/tl_planroute"
         android:background="@color/route_show_bg" >
-
     </ScrollView>
-
-    <Button
-        android:id="@+id/button1"
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:onClick="start_planing"
-        android:text="@string/go" />
 
 </RelativeLayout>
