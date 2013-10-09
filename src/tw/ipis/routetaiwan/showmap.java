@@ -30,6 +30,7 @@ import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -405,7 +406,12 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 		// Getting user input location
 		String location = etLocation.getText().toString();
 		
+		InputMethodManager imm = (InputMethodManager)getSystemService(
+				Context.INPUT_METHOD_SERVICE);
+		imm.hideSoftInputFromWindow(etLocation.getWindowToken(), 0);
+		
 		if(location!=null && !location.equals("")){
+			v.setOnClickListener(null);
 			new GeocoderTask().execute(location);
 		}
 	}
@@ -420,7 +426,7 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			
 			try {
 				// Getting a maximum of 3 Address that matches the input text
-				addresses = geocoder.getFromLocationName(locationName[0], 5);
+				addresses = geocoder.getFromLocationName(locationName[0], 8);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}			
@@ -456,16 +462,26 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 				MarkerOptions markerOptions = new MarkerOptions();
 				markerOptions.position(latLng);
 				markerOptions.title(address.getFeatureName());
-				markerOptions.snippet(address.getLocality());
+				markerOptions.snippet(address.getMaxAddressLineIndex() > 0 ? address.getAddressLine(0) : address.getLocality());
 
 				results.add(googleMap.addMarker(markerOptions));
 
 				builder.include(latLng);
 				
 				// Locate the first location
-				if(i == addresses.size() - 1)			        	
-					googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 50)); 	
-			}			
-		}		
+				if(addresses.size() == 1)
+					googleMap.animateCamera( CameraUpdateFactory.newLatLngZoom(latLng, 15));
+				else if(i == addresses.size() - 1)			        	
+					googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 50));
+				
+			}
+			Button search_btn = (Button)findViewById(R.id.search_location);
+			search_btn.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View onclick) {
+					google_search(onclick);
+				}
+			});
+		}	
 	}
 }
