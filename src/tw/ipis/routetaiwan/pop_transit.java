@@ -1,11 +1,19 @@
 package tw.ipis.routetaiwan;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -14,19 +22,28 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.Html;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.TableLayout;
+import android.widget.TableRow;
+import android.widget.TableRow.LayoutParams;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,7 +53,9 @@ public class pop_transit extends Activity {
 	private ArrayList<bus_provider> bus_taipei = new ArrayList<bus_provider>();
 	private ArrayList<bus_provider> bus_taichung = new ArrayList<bus_provider>();
 	private ArrayList<bus_provider> bus_kaohsiung = new ArrayList<bus_provider>();
-
+	String line = null, agency = null, car_class = null;
+	String dept = null;
+	String arr = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -49,12 +68,15 @@ public class pop_transit extends Activity {
 
 		Bundle Data = this.getIntent().getExtras();
 		String type = Data.getString("type");
-		String line = null, agency = null, car_class = null;
+		
 		long time = 0;
 		if(type != null && !type.contentEquals("null")) {
 			line = Data.getString("line");
-			if(type.contentEquals("bus"))
+			if(type.contentEquals("bus")) {
 				agency = Data.getString("agency");
+				dept = Data.getString("dept");
+				arr = Data.getString("arr");
+			}
 			else if(type.contentEquals("tra")) {
 				car_class = Data.getString("class");
 				time = Data.getLong("time");
@@ -114,7 +136,7 @@ public class pop_transit extends Activity {
 					this.setTitle(line + " " + getResources().getString(R.string.realtime_info));
 
 					create_webview_by_url(url);
-					
+
 					/* 資料由5284我愛巴士提供 */
 					show_info_provider(R.string.provide_by_5284);
 				} catch (UnsupportedEncodingException e) {
@@ -156,7 +178,7 @@ public class pop_transit extends Activity {
 					line = "自由幹線";
 				else if(line.contentEquals("旗美快捷"))
 					line = "旗美國道快捷公車";
-				
+
 				String khh_bus_url = "http://122.146.229.210/bus/pda/businfo.aspx?Routeid={0}&GO_OR_BACK=1&Line=All&lang=Cht";
 				try {
 					String url = MessageFormat.format(khh_bus_url, URLEncoder.encode(line, "UTF-8"));
@@ -164,13 +186,83 @@ public class pop_transit extends Activity {
 					/* 設定activity title, ex: 226 即時資訊 */
 					this.setTitle(line + " " + getResources().getString(R.string.realtime_info));
 
-					create_webview_by_url(url);
+//					create_webview_by_url(url);
 					/* 資料由高雄市政府提供 */
-					show_info_provider(R.string.provide_by_khh);
+//					show_info_provider(R.string.provide_by_khh);
 				} catch (UnsupportedEncodingException e) {
 					e.printStackTrace();
 					Toast.makeText(this, getResources().getString(R.string.info_internal_error) , Toast.LENGTH_LONG).show();
 					finish();
+				}
+
+				String xml_bus_route = "http://data.kaohsiung.gov.tw/Opendata/BusXmlGet.aspx?site={0}";
+
+				try {
+					String url = MessageFormat.format(xml_bus_route, URLEncoder.encode(line, "UTF-8"));
+					Log.i(TAG, "url=" + url);
+					bus_timetable task = new bus_timetable(
+							new AnalysisResult() {
+								@Override
+								public void onTaskComplete(String result) {
+									/* 高雄市政府opendata xml */
+									Log.i(TAG, "result=" + result);
+									InputStream is;
+									try {
+										is = new ByteArrayInputStream(result.getBytes("UTF-8"));
+									} catch (UnsupportedEncodingException e) {
+										e.printStackTrace();
+										return;
+									}
+									
+									DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();  
+									DocumentBuilder builder;
+									try {
+										builder = factory.newDocumentBuilder();
+										Document doc = builder.parse(is);
+										
+										doc.getDocumentElement().normalize();  
+										NodeList nlRoot = doc.getElementsByTagName("BusDynInfo");
+										Element eleRoot = (Element)nlRoot.item(0);
+										
+										String update_time = doc.getElementsByTagName("UpdateTime").item(0).getChildNodes().item(0).getNodeValue();
+										
+										Log.i(TAG, "update time " + update_time);
+										
+										NodeList route = eleRoot.getElementsByTagName("EstimateTime");  
+										int routeLen = route.getLength();  
+										List<BusRoute> routes = new ArrayList<BusRoute>();
+										
+										for(int i = 0; i < routeLen; i++) {
+											Element station = (Element) route.item(i);
+											
+											String name = station.getAttribute("StopName");
+											String goback = station.getAttribute("GoBack");
+											String seqnum = station.getAttribute("seqNo");
+											String wait_time = station.getAttribute("Value");
+											String come_time = station.getAttribute("comeTime");
+											String car_id = station.getAttribute("carId");
+											
+											routes.add(new BusRoute(name, Integer.valueOf(goback), 
+													Integer.valueOf(seqnum), wait_time,
+													come_time, car_id));
+										}
+										find_start_dest(routes, dept, arr);
+										create_realtime_table(routes);
+										
+									} catch (ParserConfigurationException e) {
+										e.printStackTrace();
+									} catch (SAXException e) {
+										e.printStackTrace();
+										return;
+									} catch (IOException e) {
+										e.printStackTrace();
+										return;
+									}  
+								}
+							});
+					task.execute(url);
+				} catch (UnsupportedEncodingException e) {
+					e.printStackTrace();
 				}
 			}
 			else if(line.matches("[0-9]{4}")) {
@@ -182,7 +274,7 @@ public class pop_transit extends Activity {
 					String url = MessageFormat.format(bus_url, URLEncoder.encode(line, "UTF-8"), str_date);
 
 					Log.i(TAG, url);
-					
+
 					/* 設定activity title, ex: 9117 時刻表 */
 					this.setTitle(line + " " + getResources().getString(R.string.time_table));
 
@@ -212,6 +304,71 @@ public class pop_transit extends Activity {
 		}
 	}
 	
+	private void find_start_dest(List<BusRoute> routes, String dept, String arr) {
+		BusRoute start = null, end = null;
+		Log.i(TAG, "start=" + dept + ",end=" + arr);
+		for (BusRoute temp : routes) {
+			if(end == null && dept.contains(temp.StopName)) {
+				start = temp;
+			}
+			else if(start != null && arr.contains(temp.StopName)) {
+				end = temp;
+			}
+		}
+		if(start != null) {
+			start.set_start();
+		}
+		if(end != null) {
+			end.set_destination();
+		}
+	}  
+
+	private void create_realtime_table(List<BusRoute> routes) {
+		int maxtime = 999;
+		RelativeLayout rl = (RelativeLayout)findViewById(R.id.rl_pop_transit);
+		View v = new View(this);
+		v.setBackgroundColor(Color.TRANSPARENT);
+		
+		TableLayout tl = new TableLayout(this);
+		tl.setOrientation(TableLayout.VERTICAL);
+		tl.setStretchAllColumns(true);
+		
+		for (BusRoute temp : routes) {
+			TableRow tr = CreateTableRow(tl, temp.GoBack);
+			if(temp.Value.contentEquals("null")) {
+				maxtime = 999;
+				v.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.20f));
+				tr.addView(v);
+			}
+			else if (maxtime < Integer.parseInt(temp.Value)) {
+				maxtime = Integer.parseInt(temp.Value);
+				ImageView iv = new ImageView(this);
+				iv.setImageResource(R.drawable.realtime_bus);
+				iv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.20f));
+				tr.addView(iv);
+			}
+			else {
+				maxtime = Integer.parseInt(temp.Value);
+				v.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.20f));
+				tr.addView(v);
+			}
+			
+			TextView tv = new TextView(this);
+			tv.setText(temp.StopName);
+			tv.setTextColor(Color.BLACK);
+			tv.setTextSize(16);
+			tv.setHorizontallyScrolling(false);
+			tv.setWidth(0);
+			tv.setGravity(Gravity.CENTER);
+			tv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.60f));
+			
+			tr.addView(tv);
+			tl.addView(tr);
+		}
+		rl.addView(tl);
+		show_info_provider(R.string.provide_by_khh);
+	}
+	
 	private void show_info_provider(int r_string_id) {
 		RelativeLayout rl = (RelativeLayout)findViewById(R.id.rl_pop_transit);
 		TextView tv = new TextView(this);
@@ -227,6 +384,21 @@ public class pop_transit extends Activity {
 		tv.setLayoutParams(param);
 
 		rl.addView(tv);
+	}
+	
+	private TableRow CreateTableRow(TableLayout parent, int goback){
+		TableRow tr = new TableRow(this);	// 1st row
+
+		if(goback == 2)
+			tr.setBackgroundColor(Color.WHITE);
+		else
+			tr.setBackgroundColor(Color.LTGRAY);
+		tr.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+		tr.setGravity(Gravity.CENTER_VERTICAL);
+		tr.setClickable(true);
+
+		parent.addView(tr);
+		return tr;
 	}
 
 	private boolean check_agency(String agency, ArrayList<bus_provider> provider, String line) {
@@ -263,7 +435,7 @@ public class pop_transit extends Activity {
 		bus_kaohsiung.add(new bus_provider("高雄市公車處", null));
 		bus_kaohsiung.add(new bus_provider("南台灣客運", null));
 		bus_kaohsiung.add(new bus_provider("義大客運", "850[1-6]|^[0-9]{1,3}|[^0-9][0-9]{1,2}"));
-		bus_kaohsiung.add(new bus_provider("東南客運", "37|62|81|248"));
+		bus_kaohsiung.add(new bus_provider("東南客運", "37|62|81|248|紅27"));
 		bus_kaohsiung.add(new bus_provider("高雄客運", "[0-9]{1,3}|[^0-9].*"));
 
 		/* 台中公車 客運業者列表 */
@@ -332,7 +504,7 @@ public class pop_transit extends Activity {
 				view.loadUrl(url);
 				return true;
 			}
-			
+
 			@Override
 			public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
 				Log.i("WEB_VIEW_TEST", "error code:" + errorCode);
@@ -350,6 +522,49 @@ public class pop_transit extends Activity {
 		rl.addView(wv);
 
 		return true;
+	}
+
+	public interface AnalysisResult {
+		public void onTaskComplete(String p);
+	}
+
+	private class bus_timetable extends AsyncTask<String, Void, String> {
+		private AnalysisResult cb = null;
+		public bus_timetable(AnalysisResult analysisResult) {
+			cb = analysisResult;
+		}
+
+		@Override
+		protected String doInBackground(String... urls) {
+			String response = "";
+			for (String url : urls) {
+				HttpGet httpGet = new HttpGet(url);
+				HttpClient client = new DefaultHttpClient();
+				try {
+					HttpResponse result = client.execute(httpGet);
+					StatusLine statusLine = result.getStatusLine();
+					int statusCode = statusLine.getStatusCode();
+					if (statusCode == 200) {
+						HttpEntity entity = result.getEntity();
+
+						response = EntityUtils.toString(entity);
+					} else {
+						Log.e(TAG, "Failed to download file");
+					}
+					return response;
+				}
+				catch (Exception e) {
+					e.printStackTrace();
+					return "";
+				}
+			}
+			return "";
+		}
+
+		@Override
+		protected void onPostExecute(String result) {
+			cb.onTaskComplete(Html.fromHtml(result).toString());
+		}
 	}
 
 	private class DownloadWebPageTask extends AsyncTask<String, Void, String> {

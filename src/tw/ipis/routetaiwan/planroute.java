@@ -508,7 +508,8 @@ public class planroute extends Activity {
 						tr = CreateTableRow(tl, 1.0f, i);
 						if(type.contentEquals("BUS")) {
 							createImageViewbyR(R.drawable.bus, tr, 50, 50);
-							text = new StringBuilder().append(text).append("bus,").append(step.transit_details.line.short_name + ",").append(step.transit_details.line.agencies[0].name).toString();
+							text = new StringBuilder().append(text).append("bus,").append(step.transit_details.line.short_name + ",").append(step.transit_details.line.agencies[0].name + ",")
+									.append(step.transit_details.departure_stop.name + ",").append(step.transit_details.arrival_stop.name).toString();
 							headsign = new StringBuilder().append("(" + getResources().getString(R.string.go_to)).append(headsign + ")").toString();
 							createTextView(trans + headsign + trans_to + time_taken, tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT | Gravity.CENTER_VERTICAL, text, step.transit_details.departure_stop.name, step.transit_details.arrival_stop.name);
 
@@ -947,6 +948,8 @@ public class planroute extends Activity {
 				bundle.putString("type", transit_detail[1]);
 				bundle.putString("line", transit_detail[2]);
 				bundle.putString("agency", transit_detail[3]);
+				bundle.putString("dept", transit_detail[4]);
+				bundle.putString("arr", transit_detail[5]);
 			}
 			else {
 				bundle.putString("type", transit_detail[1]);	// type = null
