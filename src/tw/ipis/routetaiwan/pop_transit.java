@@ -2,7 +2,6 @@ package tw.ipis.routetaiwan;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.text.Format;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -76,9 +75,9 @@ public class pop_transit extends Activity {
 		/* 台鐵 */
 		/* If type = "tra", then open webview for ex: http://twtraffic.tra.gov.tw/twrail/mobile/TrainDetail.aspx?searchdate=2013/10/03&traincode=117 */
 		if(type.contentEquals("tra")) {
-			Date date = new Date(time);
-			Format format = new SimpleDateFormat("yyyy/MM/dd");
-			String str_date = format.format(date).toString();
+			SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
+			Date date = new Date(System.currentTimeMillis()) ;
+			String str_date = formatter.format(date);
 			String tra_real_time_url = "http://twtraffic.tra.gov.tw/twrail/mobile/TrainDetail.aspx?searchdate={0}&traincode={1}";
 			String url = MessageFormat.format(tra_real_time_url, str_date, line);
 
@@ -175,13 +174,15 @@ public class pop_transit extends Activity {
 				}
 			}
 			else if(line.matches("[0-9]{4}")) {
-				Date date = new Date(time);
-				Format format = new SimpleDateFormat("yyyy/MM/dd");
-				String str_date = format.format(date).toString();
+				SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
+				Date date = new Date(System.currentTimeMillis()) ;
+				String str_date = formatter.format(date);
 				String bus_url = "http://web.taiwanbus.tw/eBUS/subsystem/Timetable/TimeTableAPIByWeek.aspx?inputType=R01&RouteId={0}&RouteBranch=0&SearchDate={1}";
 				try {
 					String url = MessageFormat.format(bus_url, URLEncoder.encode(line, "UTF-8"), str_date);
 
+					Log.i(TAG, url);
+					
 					/* 設定activity title, ex: 9117 時刻表 */
 					this.setTitle(line + " " + getResources().getString(R.string.time_table));
 
@@ -323,12 +324,19 @@ public class pop_transit extends Activity {
 	public boolean create_webview_by_url(String url) {
 		WebView wv = new WebView(this);
 		wv.getSettings().setJavaScriptEnabled(true);
+		wv.getSettings().setLoadWithOverviewMode(true);
 		wv.getSettings().setUseWideViewPort(false);
 		wv.setWebViewClient(new WebViewClient(){
 			@Override
 			public boolean shouldOverrideUrlLoading(WebView view, String url){
 				view.loadUrl(url);
 				return true;
+			}
+			
+			@Override
+			public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+				Log.i("WEB_VIEW_TEST", "error code:" + errorCode);
+				view.reload();
 			}
 		});
 

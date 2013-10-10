@@ -82,15 +82,22 @@
                 </TableRow>
             </TableLayout>
 
-            <Button
+            
+            <ImageButton
                 android:id="@+id/button1"
-                style="?android:attr/buttonStyleSmall"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
+                android:layout_marginBottom="2dp"
+                android:layout_marginLeft="2dp"
+                android:layout_marginRight="2dp"
+                android:layout_marginTop="0dp"
                 android:layout_weight="0.15"
+                android:layout_gravity="center"
+                android:adjustViewBounds="true"
                 android:onClick="start_planing"
-                android:text="@string/go" />
+                android:scaleType="fitCenter"
+                android:src="@drawable/search_btn" />
+            
         </TableRow>
 
         <TableRow

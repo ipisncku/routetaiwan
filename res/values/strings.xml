@@ -69,6 +69,8 @@
     
     <string name="no_data">沒有資料</string>
     
+    <string name="search_google">Search</string>
+    
     <string name="provide_by_tra">資料由台鐵提供</string>
     <string name="provide_by_5284">資料由5284我愛巴士提供</string>
     <string name="provide_by_khh">資料由高雄市政府提供</string>

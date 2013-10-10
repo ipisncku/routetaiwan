@@ -33,6 +33,7 @@ import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
@@ -475,7 +476,7 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 					googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 50));
 				
 			}
-			Button search_btn = (Button)findViewById(R.id.search_location);
+			ImageButton search_btn = (ImageButton)findViewById(R.id.search_location);
 			search_btn.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View onclick) {

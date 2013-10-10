@@ -36,14 +36,19 @@
                 android:ems="10" >
             </EditText>
 
-            <Button
+            <ImageButton
                 android:id="@+id/search_location"
-                style="?android:attr/buttonStyleSmall"
-                android:layout_height="wrap_content"
                 android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="2dp"
+                android:layout_marginLeft="2dp"
+                android:layout_marginRight="2dp"
+                android:layout_marginTop="0dp"
                 android:layout_weight="0.20"
+                android:adjustViewBounds="true"
                 android:onClick="google_search"
-                android:text="Search" />
+                android:scaleType="fitCenter"
+                android:src="@drawable/search_btn" />
 
             <View
                 android:id="@+id/view1"
