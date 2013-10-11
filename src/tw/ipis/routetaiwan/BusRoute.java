@@ -8,7 +8,7 @@ public class BusRoute {
 	String Value;
 	String comeTime;
 	String carId;
-	boolean isStart, isDestination;
+	boolean isStart, isDestination, isCar;
 	
 	public BusRoute(String sn, int gb, int seq, String v, String time, String id) {
 		StopName = sn;
@@ -19,11 +19,15 @@ public class BusRoute {
 		carId = id;
 		isStart = false;
 		isDestination = false;
+		isCar = false;
 	}
 	public void set_start() {
 		isStart = true;
 	}
 	public void set_destination() {
 		isDestination = true;
+	}
+	public void set_car() {
+		isCar = true;
 	}
 }

@@ -35,12 +35,12 @@ import android.os.Bundle;
 import android.text.Html;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TableRow.LayoutParams;
@@ -53,6 +53,7 @@ public class pop_transit extends Activity {
 	private ArrayList<bus_provider> bus_taipei = new ArrayList<bus_provider>();
 	private ArrayList<bus_provider> bus_taichung = new ArrayList<bus_provider>();
 	private ArrayList<bus_provider> bus_kaohsiung = new ArrayList<bus_provider>();
+	private List<TableRow> timetable = new ArrayList<TableRow>();
 	String line = null, agency = null, car_class = null;
 	String dept = null;
 	String arr = null;
@@ -89,7 +90,7 @@ public class pop_transit extends Activity {
 
 		process = new ProgressBar(this, null, android.R.attr.progressBarStyleInverse);
 		process.setIndeterminate(true);
-		RelativeLayout rl = (RelativeLayout)findViewById(R.id.rl_pop_transit);
+		final RelativeLayout rl = (RelativeLayout)findViewById(R.id.rl_pop_transit);
 		RelativeLayout.LayoutParams process_param = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
 		process_param.addRule(RelativeLayout.CENTER_IN_PARENT);
 		process.setLayoutParams(process_param);
@@ -179,88 +180,68 @@ public class pop_transit extends Activity {
 				else if(line.contentEquals("旗美快捷"))
 					line = "旗美國道快捷公車";
 
-				String khh_bus_url = "http://122.146.229.210/bus/pda/businfo.aspx?Routeid={0}&GO_OR_BACK=1&Line=All&lang=Cht";
-				try {
-					String url = MessageFormat.format(khh_bus_url, URLEncoder.encode(line, "UTF-8"));
-
-					/* 設定activity title, ex: 226 即時資訊 */
-					this.setTitle(line + " " + getResources().getString(R.string.realtime_info));
-
+//				String khh_bus_url = "http://122.146.229.210/bus/pda/businfo.aspx?Routeid={0}&GO_OR_BACK=1&Line=All&lang=Cht";
+//				try {
+//					String url = MessageFormat.format(khh_bus_url, URLEncoder.encode(line, "UTF-8"));
+//
+//					/* 設定activity title, ex: 226 即時資訊 */
+//					this.setTitle(line + " " + getResources().getString(R.string.realtime_info));
+//
 //					create_webview_by_url(url);
-					/* 資料由高雄市政府提供 */
+//					/* 資料由高雄市政府提供 */
 //					show_info_provider(R.string.provide_by_khh);
-				} catch (UnsupportedEncodingException e) {
-					e.printStackTrace();
-					Toast.makeText(this, getResources().getString(R.string.info_internal_error) , Toast.LENGTH_LONG).show();
-					finish();
-				}
+//				} catch (UnsupportedEncodingException e) {
+//					e.printStackTrace();
+//					Toast.makeText(this, getResources().getString(R.string.info_internal_error) , Toast.LENGTH_LONG).show();
+//					finish();
+//				}
 
 				String xml_bus_route = "http://data.kaohsiung.gov.tw/Opendata/BusXmlGet.aspx?site={0}";
-
+				
+				/* 設定activity title, ex: 226 即時資訊 */
+				this.setTitle(line + " " + getResources().getString(R.string.realtime_info));
+				
 				try {
-					String url = MessageFormat.format(xml_bus_route, URLEncoder.encode(line, "UTF-8"));
+					final String url = MessageFormat.format(xml_bus_route, URLEncoder.encode(line, "UTF-8"));
 					Log.i(TAG, "url=" + url);
-					bus_timetable task = new bus_timetable(
-							new AnalysisResult() {
-								@Override
-								public void onTaskComplete(String result) {
-									/* 高雄市政府opendata xml */
-									Log.i(TAG, "result=" + result);
-									InputStream is;
-									try {
-										is = new ByteArrayInputStream(result.getBytes("UTF-8"));
-									} catch (UnsupportedEncodingException e) {
-										e.printStackTrace();
-										return;
-									}
-									
-									DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();  
-									DocumentBuilder builder;
-									try {
-										builder = factory.newDocumentBuilder();
-										Document doc = builder.parse(is);
-										
-										doc.getDocumentElement().normalize();  
-										NodeList nlRoot = doc.getElementsByTagName("BusDynInfo");
-										Element eleRoot = (Element)nlRoot.item(0);
-										
-										String update_time = doc.getElementsByTagName("UpdateTime").item(0).getChildNodes().item(0).getNodeValue();
-										
-										Log.i(TAG, "update time " + update_time);
-										
-										NodeList route = eleRoot.getElementsByTagName("EstimateTime");  
-										int routeLen = route.getLength();  
-										List<BusRoute> routes = new ArrayList<BusRoute>();
-										
-										for(int i = 0; i < routeLen; i++) {
-											Element station = (Element) route.item(i);
-											
-											String name = station.getAttribute("StopName");
-											String goback = station.getAttribute("GoBack");
-											String seqnum = station.getAttribute("seqNo");
-											String wait_time = station.getAttribute("Value");
-											String come_time = station.getAttribute("comeTime");
-											String car_id = station.getAttribute("carId");
-											
-											routes.add(new BusRoute(name, Integer.valueOf(goback), 
-													Integer.valueOf(seqnum), wait_time,
-													come_time, car_id));
-										}
-										find_start_dest(routes, dept, arr);
-										create_realtime_table(routes);
-										
-									} catch (ParserConfigurationException e) {
-										e.printStackTrace();
-									} catch (SAXException e) {
-										e.printStackTrace();
-										return;
-									} catch (IOException e) {
-										e.printStackTrace();
-										return;
-									}  
+					
+					rl.removeAllViews();
+					
+					rl.addView(process);
+
+					ScrollView sv = new ScrollView(this);
+					sv.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+					rl.addView(sv);
+					
+					final TableLayout tl = new TableLayout(this);
+					tl.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+					tl.setOrientation(TableLayout.VERTICAL);
+
+					sv.addView(tl);
+					
+					/* Update every 30 seconds */
+					Thread timer = new Thread() {
+						public void run () {
+							while(true) {
+								bus_timetable task = new bus_timetable(
+										new AnalysisResult() {
+											@Override
+											public void onTaskComplete(String result) {
+												khh_bus_xml(result, tl);
+											}
+										});
+								task.execute(url);
+								try {
+									Thread.sleep(30000);
+									task.cancel(true);
+								} catch (InterruptedException e) {
+									task.cancel(true);
+									e.printStackTrace();
 								}
-							});
-					task.execute(url);
+							}
+						}
+					};
+					timer.start();
 				} catch (UnsupportedEncodingException e) {
 					e.printStackTrace();
 				}
@@ -304,10 +285,82 @@ public class pop_transit extends Activity {
 		}
 	}
 	
+	private void khh_bus_xml(String result, TableLayout tl) {
+		/* 高雄市政府opendata xml */
+		RelativeLayout rl = (RelativeLayout)findViewById(R.id.rl_pop_transit);
+		InputStream is;
+		try {
+			is = new ByteArrayInputStream(result.getBytes("UTF-8"));
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+			return;
+		}
+		
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();  
+		DocumentBuilder builder;
+		try {
+			builder = factory.newDocumentBuilder();
+			Document doc = builder.parse(is);
+			
+			doc.getDocumentElement().normalize();  
+			NodeList nlRoot = doc.getElementsByTagName("BusDynInfo");
+			Element eleRoot = (Element)nlRoot.item(0);
+			
+			String update_time = doc.getElementsByTagName("UpdateTime").item(0).getChildNodes().item(0).getNodeValue();
+			
+			Log.i(TAG, "update time " + update_time);
+			
+			NodeList route = eleRoot.getElementsByTagName("EstimateTime");  
+			int routeLen = route.getLength();  
+			List<BusRoute> routes = new ArrayList<BusRoute>();
+			
+			for(int i = 0; i < routeLen; i++) {
+				Element station = (Element) route.item(i);
+				
+				String name = station.getAttribute("StopName");
+				String goback = station.getAttribute("GoBack");
+				String seqnum = station.getAttribute("seqNo");
+				String wait_time = station.getAttribute("Value");
+				String come_time = station.getAttribute("comeTime");
+				String car_id = station.getAttribute("carId");
+				
+				routes.add(new BusRoute(name, Integer.valueOf(goback), 
+						Integer.valueOf(seqnum), wait_time,
+						come_time, car_id));
+			}
+			rl.removeView(process);
+			find_start_dest(routes, dept, arr);
+			create_realtime_table(routes, tl);
+			
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
+		} catch (SAXException e) {
+			e.printStackTrace();
+			return;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return;
+		}  
+	}
+	
 	private void find_start_dest(List<BusRoute> routes, String dept, String arr) {
 		BusRoute start = null, end = null;
+		int maxtime = 999;
+		
 		Log.i(TAG, "start=" + dept + ",end=" + arr);
 		for (BusRoute temp : routes) {
+			/* Check for where the buses are */
+			if(temp.Value.contentEquals("null"))
+				maxtime = 999;
+			else {
+				int wait_time = Integer.parseInt(temp.Value);
+				if(wait_time < maxtime) {
+					temp.set_car();
+				}
+				maxtime = wait_time;
+			}
+				
+			/* Check for deptarture/arrival stops */
 			if(end == null && dept.contains(temp.StopName)) {
 				start = temp;
 			}
@@ -323,50 +376,98 @@ public class pop_transit extends Activity {
 		}
 	}  
 
-	private void create_realtime_table(List<BusRoute> routes) {
-		int maxtime = 999;
-		RelativeLayout rl = (RelativeLayout)findViewById(R.id.rl_pop_transit);
-		View v = new View(this);
-		v.setBackgroundColor(Color.TRANSPARENT);
-		
-		TableLayout tl = new TableLayout(this);
-		tl.setOrientation(TableLayout.VERTICAL);
-		tl.setStretchAllColumns(true);
-		
-		for (BusRoute temp : routes) {
-			TableRow tr = CreateTableRow(tl, temp.GoBack);
-			if(temp.Value.contentEquals("null")) {
-				maxtime = 999;
-				v.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.20f));
-				tr.addView(v);
-			}
-			else if (maxtime < Integer.parseInt(temp.Value)) {
-				maxtime = Integer.parseInt(temp.Value);
+	private void create_realtime_table(List<BusRoute> routes, TableLayout tl) {
+		/* 公車即時資訊欄位 
+		 *  | 起訖站icon | 站名 | 到站時間 | 車子icon | */
+		if(timetable.isEmpty()) {
+			TableRow tr = null;
+			for(int i = 0; i<routes.size(); i++) {
+				tr = CreateTableRow(tl);
+				//  起訖站icon
 				ImageView iv = new ImageView(this);
-				iv.setImageResource(R.drawable.realtime_bus);
-				iv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.20f));
+				iv.setBackgroundColor(Color.TRANSPARENT);
+				iv.setMaxHeight(30);
+				iv.setMaxWidth(30);
+				iv.setAdjustViewBounds(true);
+				iv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.05f));
 				tr.addView(iv);
+			
+				// 站名
+				TextView tv = new TextView(this);
+				tv.setTextColor(Color.BLACK);
+				tv.setTextSize(16);
+				tv.setHorizontallyScrolling(false);
+				tv.setWidth(0);
+				tv.setGravity(Gravity.CENTER);
+				tv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.60f));
+				tr.addView(tv);
+			
+				// 到站時間
+				tv = new TextView(this);
+				tv.setTextColor(Color.BLACK);
+				tv.setTextSize(16);
+				tv.setHorizontallyScrolling(false);
+				tv.setWidth(0);
+				tv.setGravity(Gravity.CENTER);
+				tv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.30f));
+				tr.addView(tv);
+				
+				// 車子icon
+				iv = new ImageView(this);
+				iv.setBackgroundColor(Color.TRANSPARENT);
+				iv.setMaxHeight(30);
+				iv.setMaxWidth(30);
+				iv.setAdjustViewBounds(true);
+				iv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.05f));
+				tr.addView(iv);
+				
+				timetable.add(tr);
+			}
+		}
+		
+		for (int i = 0; i<routes.size(); i++) {
+			BusRoute temp = routes.get(i);
+			TableRow tr = timetable.get(i);
+			
+			if(temp.GoBack % 2 == 0)
+				tr.setBackgroundColor(Color.WHITE);
+			else
+				tr.setBackgroundColor(Color.LTGRAY);
+			
+			/* 起訖站icon */
+			if(temp.isStart || temp.isDestination) {
+				ImageView iv = (ImageView) tr.getChildAt(0);
+				iv.setImageResource(temp.isStart ? R.drawable.start : R.drawable.destination);
 			}
 			else {
-				maxtime = Integer.parseInt(temp.Value);
-				v.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.20f));
-				tr.addView(v);
+				/* Empty view */
+				ImageView iv = (ImageView) tr.getChildAt(0);
+				iv.setImageResource(0);
 			}
 			
-			TextView tv = new TextView(this);
+			/* 站名 */
+			TextView tv = (TextView) tr.getChildAt(1);
 			tv.setText(temp.StopName);
-			tv.setTextColor(Color.BLACK);
-			tv.setTextSize(16);
-			tv.setHorizontallyScrolling(false);
-			tv.setWidth(0);
-			tv.setGravity(Gravity.CENTER);
-			tv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.60f));
 			
-			tr.addView(tv);
-			tl.addView(tr);
+			/* 到站時間 */
+			tv = (TextView) tr.getChildAt(2);
+			if(temp.Value.contentEquals("0"))
+				tv.setText(getResources().getString(R.string.arriving));
+			else
+				tv.setText(temp.Value.contentEquals("null") ? temp.comeTime : temp.Value + getResources().getString(R.string.minute));
+			
+			/* 車子icon */
+			if(temp.isCar) {
+				ImageView iv = (ImageView) tr.getChildAt(3);
+				iv.setImageResource(R.drawable.realtime_bus);
+			}
+			else {
+				/* Empty view */
+				ImageView iv = (ImageView) tr.getChildAt(3);
+				iv.setImageResource(0);
+			}
 		}
-		rl.addView(tl);
-		show_info_provider(R.string.provide_by_khh);
+		tl.invalidate();
 	}
 	
 	private void show_info_provider(int r_string_id) {
@@ -386,16 +487,13 @@ public class pop_transit extends Activity {
 		rl.addView(tv);
 	}
 	
-	private TableRow CreateTableRow(TableLayout parent, int goback){
-		TableRow tr = new TableRow(this);	// 1st row
+	private TableRow CreateTableRow(TableLayout parent){
+		TableRow tr = new TableRow(this);
 
-		if(goback == 2)
-			tr.setBackgroundColor(Color.WHITE);
-		else
-			tr.setBackgroundColor(Color.LTGRAY);
-		tr.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+		TableLayout.LayoutParams params = new TableLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+		params.setMargins(2, 2, 2, 2);
+		tr.setLayoutParams(params);
 		tr.setGravity(Gravity.CENTER_VERTICAL);
-		tr.setClickable(true);
 
 		parent.addView(tr);
 		return tr;

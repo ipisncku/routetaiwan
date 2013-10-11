@@ -61,6 +61,7 @@
     
     <string name="realtime_under_construction">即時資訊施工中</string>
     <string name="realtime_info">即時資訊</string>
+    <string name="arriving">進站中</string>
     <string name="hsr_status">高鐵目前狀態</string>
     <string name="hsr_normal">正常運行</string>
     <string name="hsr_warning">未知或異常狀況</string>
