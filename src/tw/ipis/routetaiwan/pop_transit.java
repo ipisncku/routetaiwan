@@ -179,6 +179,8 @@ public class pop_transit extends Activity {
 					line = "自由幹線";
 				else if(line.contentEquals("旗美快捷"))
 					line = "旗美國道快捷公車";
+				else if(line.contains("五福幹線"))
+					line = "五福幹線";
 
 //				String khh_bus_url = "http://122.146.229.210/bus/pda/businfo.aspx?Routeid={0}&GO_OR_BACK=1&Line=All&lang=Cht";
 //				try {
@@ -313,6 +315,16 @@ public class pop_transit extends Activity {
 			
 			NodeList route = eleRoot.getElementsByTagName("EstimateTime");  
 			int routeLen = route.getLength();  
+			if(routeLen == 0) {
+				TextView textv = new TextView(this);
+				textv.setText(getResources().getString(R.string.no_data));
+				textv.setTextColor(Color.BLACK);
+				textv.setTextSize(20);
+				textv.setGravity(Gravity.CENTER);
+				textv.setHorizontallyScrolling(false);
+				
+				rl.addView(textv);
+			}
 			List<BusRoute> routes = new ArrayList<BusRoute>();
 			
 			for(int i = 0; i < routeLen; i++) {
@@ -543,7 +555,7 @@ public class pop_transit extends Activity {
 		bus_kaohsiung.add(new bus_provider("高雄市公車處", null));
 		bus_kaohsiung.add(new bus_provider("南台灣客運", null));
 		bus_kaohsiung.add(new bus_provider("義大客運", "850[1-6]|^[0-9]{1,3}|[^0-9][0-9]{1,2}"));
-		bus_kaohsiung.add(new bus_provider("東南客運", "37|62|81|248|紅27"));
+		bus_kaohsiung.add(new bus_provider("東南客運", "37|62|81|248|紅1|紅6|紅7|紅10|紅12|紅16|紅18|紅20|紅27|橘1|橘20"));
 		bus_kaohsiung.add(new bus_provider("高雄客運", "[0-9]{1,3}|[^0-9].*"));
 
 		/* 台中公車 客運業者列表 */

@@ -64,15 +64,15 @@
         <activity android:name="tw.ipis.routetaiwan.diag_delete"
             android:theme="@style/ThemeWithCorners" ></activity>
         
-        <meta-data
-            android:name="com.google.android.maps.v2.API_KEY"
-            android:value="AIzaSyCvAhif0LFc0kDcFrC7gtYKW88922EpTRc"/>
-        
         <!-- debug key
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
+            android:value="AIzaSyCvAhif0LFc0kDcFrC7gtYKW88922EpTRc"/>
+			-->
+        
+        <meta-data
+            android:name="com.google.android.maps.v2.API_KEY"
             android:value="AIzaSyC-V89bdpb8epZ42zW3skFlKHcu1hh4t7k"/>
-            -->
         
     </application>
 
