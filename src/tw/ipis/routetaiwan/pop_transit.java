@@ -70,6 +70,7 @@ public class pop_transit extends Activity {
 		Bundle Data = this.getIntent().getExtras();
 		String type = Data.getString("type");
 		
+		@SuppressWarnings("unused")
 		long time = 0;
 		if(type != null && !type.contentEquals("null")) {
 			line = Data.getString("line");
@@ -209,7 +210,7 @@ public class pop_transit extends Activity {
 					
 					rl.addView(process);
 
-					ScrollView sv = new ScrollView(this);
+					final ScrollView sv = new ScrollView(this);
 					sv.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 					rl.addView(sv);
 					
@@ -227,7 +228,7 @@ public class pop_transit extends Activity {
 										new AnalysisResult() {
 											@Override
 											public void onTaskComplete(String result) {
-												khh_bus_xml(result, tl);
+												khh_bus_xml(result, tl, sv);
 											}
 										});
 								task.execute(url);
@@ -285,7 +286,7 @@ public class pop_transit extends Activity {
 		}
 	}
 	
-	private void khh_bus_xml(String result, TableLayout tl) {
+	private void khh_bus_xml(String result, TableLayout tl, ScrollView sv) {
 		/* 高雄市政府opendata xml */
 		RelativeLayout rl = (RelativeLayout)findViewById(R.id.rl_pop_transit);
 		InputStream is;
@@ -330,7 +331,7 @@ public class pop_transit extends Activity {
 			}
 			rl.removeView(process);
 			find_start_dest(routes, dept, arr);
-			create_realtime_table(routes, tl);
+			create_realtime_table(routes, tl, sv);
 			
 		} catch (ParserConfigurationException e) {
 			e.printStackTrace();
@@ -347,7 +348,6 @@ public class pop_transit extends Activity {
 		BusRoute start = null, end = null;
 		int maxtime = 999;
 		
-		Log.i(TAG, "start=" + dept + ",end=" + arr);
 		for (BusRoute temp : routes) {
 			/* Check for where the buses are */
 			if(temp.Value.contentEquals("null"))
@@ -376,10 +376,12 @@ public class pop_transit extends Activity {
 		}
 	}  
 
-	private void create_realtime_table(List<BusRoute> routes, TableLayout tl) {
+	private void create_realtime_table(List<BusRoute> routes, TableLayout tl, final ScrollView sv) {
+		boolean first_read = false;
 		/* 公車即時資訊欄位 
 		 *  | 起訖站icon | 站名 | 到站時間 | 車子icon | */
 		if(timetable.isEmpty()) {
+			first_read = true;
 			TableRow tr = null;
 			for(int i = 0; i<routes.size(); i++) {
 				tr = CreateTableRow(tl);
@@ -427,7 +429,7 @@ public class pop_transit extends Activity {
 		
 		for (int i = 0; i<routes.size(); i++) {
 			BusRoute temp = routes.get(i);
-			TableRow tr = timetable.get(i);
+			final TableRow tr = timetable.get(i);
 			
 			if(temp.GoBack % 2 == 0)
 				tr.setBackgroundColor(Color.WHITE);
@@ -438,6 +440,14 @@ public class pop_transit extends Activity {
 			if(temp.isStart || temp.isDestination) {
 				ImageView iv = (ImageView) tr.getChildAt(0);
 				iv.setImageResource(temp.isStart ? R.drawable.start : R.drawable.destination);
+				if(first_read && temp.isStart) {
+					sv.post(new Runnable() {
+					    @Override
+					    public void run() {
+					    	sv.smoothScrollTo(0, tr.getTop());
+					    } 
+					});
+				}
 			}
 			else {
 				/* Empty view */

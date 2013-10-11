@@ -89,6 +89,9 @@ public class planroute extends Activity {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.planroute);
+		
+		RelativeLayout ll = (RelativeLayout)findViewById(R.id.rl_planroute);
+		ll.setBackgroundResource(R.drawable.style_angle);
 
 		ConnectivityManager connMgr = (ConnectivityManager) 
 		getSystemService(Context.CONNECTIVITY_SERVICE);
