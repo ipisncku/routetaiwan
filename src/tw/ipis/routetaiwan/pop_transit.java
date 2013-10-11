@@ -32,7 +32,6 @@ import android.app.Activity;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.text.Html;
 import android.util.Log;
 import android.view.Gravity;
 import android.webkit.WebView;
@@ -197,7 +196,7 @@ public class pop_transit extends Activity {
 //					finish();
 //				}
 
-				String xml_bus_route = "http://data.kaohsiung.gov.tw/Opendata/BusXmlGet.aspx?site={0}";
+				String xml_bus_route = "http://122.146.229.210/xmlbus2/GetEstimateTime.xml?routeIds={0}";
 				
 				/* 設定activity title, ex: 226 即時資訊 */
 				this.setTitle(line + " " + getResources().getString(R.string.realtime_info));
@@ -290,6 +289,7 @@ public class pop_transit extends Activity {
 		/* 高雄市政府opendata xml */
 		RelativeLayout rl = (RelativeLayout)findViewById(R.id.rl_pop_transit);
 		InputStream is;
+		
 		try {
 			is = new ByteArrayInputStream(result.getBytes("UTF-8"));
 		} catch (UnsupportedEncodingException e) {
@@ -671,7 +671,8 @@ public class pop_transit extends Activity {
 
 		@Override
 		protected void onPostExecute(String result) {
-			cb.onTaskComplete(Html.fromHtml(result).toString());
+//			cb.onTaskComplete(Html.fromHtml(result).toString());
+			cb.onTaskComplete(result);
 		}
 	}
 
