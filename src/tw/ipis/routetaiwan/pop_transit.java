@@ -131,6 +131,15 @@ public class pop_transit extends Activity {
 		else {
 			TextView tv = new TextView(this);
 			if(check_agency(agency, bus_taipei, line)) {
+				SimpleDateFormat formatter = new SimpleDateFormat("H");
+				Date date = new Date(System.currentTimeMillis()) ;
+				String str_now = formatter.format(date);
+				int now = Integer.parseInt(str_now);
+				
+				if(now < 20 && now > 6 && line.contentEquals("橘18")) {
+					line = "橘18福隆路";		// 為了較好的效能..
+				}
+				
 				String tpe_bus_url = "http://pda.5284.com.tw/MQS/businfo2.jsp?routeId={0}";
 				try {
 					String url = MessageFormat.format(tpe_bus_url, URLEncoder.encode(line, "UTF-8"));
@@ -180,6 +189,8 @@ public class pop_transit extends Activity {
 					line = "自由幹線";
 				else if(line.contentEquals("旗美快捷"))
 					line = "旗美國道快捷公車";
+				else if(line.contentEquals("旗山快捷"))
+					line = "旗山國道快捷公車";
 				else if(line.contains("五福幹線"))
 					line = "五福幹線";
 
@@ -562,7 +573,7 @@ public class pop_transit extends Activity {
 		bus_kaohsiung.add(new bus_provider("南台灣客運", null));
 		bus_kaohsiung.add(new bus_provider("義大客運", "850[1-6]|^[0-9]{1,3}|[^0-9][0-9]{1,2}"));
 		bus_kaohsiung.add(new bus_provider("東南客運", "37|62|81|248|紅1|紅6|紅7|紅10|紅12|紅16|紅18|紅20|紅27|橘1|橘20"));
-		bus_kaohsiung.add(new bus_provider("高雄客運", "[0-9]{1,3}|[^0-9].*"));
+		bus_kaohsiung.add(new bus_provider("高雄客運", "[0-9]{1,3}|[^0-9].*|80[0-4][0-9]"));
 
 		/* 台中公車 客運業者列表 */
 		/* ref: http://citybus.taichung.gov.tw/pda/aspx/businfomation/choiceRoad.aspx?lang=CHT */
