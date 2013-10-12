@@ -18,6 +18,7 @@ import tw.ipis.routetaiwan.myfavorite.Route.Leg.Step.Poly;
 import tw.ipis.routetaiwan.myfavorite.Route.Leg.Step.ValueText;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Environment;
@@ -108,6 +109,11 @@ public class myfavorite extends Activity {
 			dump_details(routes);
 		}
 	}
+	
+	@Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+    }
 	
 	public void info_empty_folder() {
 		LinearLayout ll = (LinearLayout)findViewById(R.id.ll_favorites);

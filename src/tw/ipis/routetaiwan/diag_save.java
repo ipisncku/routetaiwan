@@ -4,6 +4,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import android.app.Activity;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -23,6 +24,11 @@ public class diag_save extends Activity {
 		content = Data.getString("content");
 		
 	}
+	
+	@Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+    }
 	
 	public void save_yes(View v) {
 		try {

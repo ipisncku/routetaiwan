@@ -31,6 +31,7 @@ import tw.ipis.routetaiwan.planroute.DirectionResponseObject.Route.Leg.Step.Valu
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.location.Criteria;
 import android.location.GpsStatus;
@@ -136,6 +137,11 @@ public class planroute extends Activity {
 			task.cancel(true);
 		super.onStop();
 	}
+	
+	@Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+    }
 
 	public void start_planing(View v) {
 		if(task != null && task.getStatus() != DownloadWebPageTask.Status.FINISHED)

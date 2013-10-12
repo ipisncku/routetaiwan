@@ -5,12 +5,16 @@ import java.io.File;
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.Menu;
 import android.view.View;
+import android.widget.TextView;
 
 public class MainActivity extends Activity {
+	
+private String version = "0.9.01";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -21,6 +25,10 @@ public class MainActivity extends Activity {
 		if (!folder.exists()) {
 			folder.mkdir();
 		}
+		
+		/* 設定版本號 */
+		TextView ver = (TextView)findViewById(R.id.ver);
+		ver.setText(getResources().getString(R.string.version) + ":" + version);
 		
 		/* Create shortcut on desktop */
 		Intent shortcutIntent;
@@ -42,6 +50,12 @@ public class MainActivity extends Activity {
 		putShortCutIntent.setAction("com.android.launcher.action.INSTALL_SHORTCUT");
 		sendBroadcast(putShortCutIntent);
 	}
+	
+	@Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+    }
+	
 	public void my_favorite(View v) {
 		Intent myfavorite = new Intent(this, myfavorite.class);
 		startActivity(myfavorite);

@@ -5,6 +5,7 @@ import java.util.List;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
@@ -114,6 +115,11 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 		super.onDestroy();
 	}
 
+	@Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+    }
+	
 	// input string should be "LAT,LNG"
 	private LatLng decode_latlng(String str) {
 		String location[] = str.split(",", 2);

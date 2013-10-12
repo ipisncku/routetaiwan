@@ -66,5 +66,14 @@
             android:onClick="my_favorite"
             android:text="@string/my_favorite" />
     </RelativeLayout>
+    
+    <TextView
+        android:id="@+id/ver"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="right|bottom"
+        android:layout_gravity="right|bottom"
+        android:layout_weight="0"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
 
 </LinearLayout>

@@ -10,6 +10,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
@@ -239,6 +240,11 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 		first_read = true;
 	}
 
+	@Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+    }
+	
 	LocationListener locationListener1 = new LocationListener(){
 		@Override
 		public void onLocationChanged(Location location) {

@@ -3,6 +3,7 @@ package tw.ipis.routetaiwan;
 import java.io.File;
 
 import android.app.Activity;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.View;
 
@@ -18,6 +19,11 @@ public class diag_delete extends Activity {
 		Bundle Data = this.getIntent().getExtras();
 		filename = Data.getString("filename");
 	}
+	
+	@Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+    }
 	
 	public void del_yes(View v) {
 		File file = new File(filename);
