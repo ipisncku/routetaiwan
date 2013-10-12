@@ -14,7 +14,7 @@ import android.widget.TextView;
 
 public class MainActivity extends Activity {
 	
-private String version = "0.9.01";
+private String version = "0.9.02";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
