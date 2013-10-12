@@ -556,17 +556,17 @@ public class pop_transit extends Activity {
 
 	private void bus_agency_classify() {
 		/* 台北公車 客運業者列表 */
-		bus_taipei.add(new bus_provider("大都會客運",  "[0-9]{3}|[^0-9][0-9]{1,3}|[0-9]{1,3}[^0-9]"));	 /* 三碼數字公車, 紅32, 306區, 31區*/ 
-		bus_taipei.add(new bus_provider("三重客運", "[0-9]{3}|[^0-9][0-9]{1,3}|[0-9]{3}[^0-9]"));
-		bus_taipei.add(new bus_provider("首都客運", "[0-9]{3}|[^0-9][0-9]{1,3}|[0-9]{3}[^0-9]"));
-		bus_taipei.add(new bus_provider("指南客運", "[0-9]{3}|[^0-9][0-9]{1,3}|[0-9]{3}[^0-9]"));
-		bus_taipei.add(new bus_provider("光華巴士", "[0-9]{3}|[^0-9][0-9]{1,3}|[0-9]{3}[^0-9]"));
-		bus_taipei.add(new bus_provider("新店客運", "[0-9]{3}|[^0-9][0-9]{1,3}|[0-9]{3}[^0-9]"));
-		bus_taipei.add(new bus_provider("中興巴士", "[0-9]{3}|[^0-9][0-9]{1,3}|[0-9]{3}[^0-9]"));
-		bus_taipei.add(new bus_provider("大南汽車", "[0-9]{3}|[^0-9][0-9]{1,3}|[0-9]{3}[^0-9]"));
-		bus_taipei.add(new bus_provider("欣欣客運", "[0-9]{3}|[^0-9][0-9]{1,3}|[0-9]{3}[^0-9]"));
-		bus_taipei.add(new bus_provider("台北客運", "[0-9]{3}|[^0-9][0-9]{1,3}|[0-9]{3}[^0-9]"));
-		bus_taipei.add(new bus_provider("淡水客運", "[0-9]{3}|[^0-9][0-9]{1,3}|[0-9]{3}[^0-9]"));
+		bus_taipei.add(new bus_provider("大都會客運",  "[0-9]{1,3}|[^0-9][0-9]{1,3}|[0-9]{1,3}[^0-9]"));	 /* 三碼數字公車, 紅32, 306區, 31區*/ 
+		bus_taipei.add(new bus_provider("三重客運", "[0-9]{1,3}|[^0-9][0-9]{1,3}|[0-9]{1,3}[^0-9]"));
+		bus_taipei.add(new bus_provider("首都客運", "[0-9]{1,3}|[^0-9][0-9]{1,3}|[0-9]{1,3}[^0-9]"));
+		bus_taipei.add(new bus_provider("指南客運", "[0-9]{1,3}|[^0-9][0-9]{1,3}|[0-9]{1,3}[^0-9]"));
+		bus_taipei.add(new bus_provider("光華巴士", "[0-9]{1,3}|[^0-9][0-9]{1,3}|[0-9]{1,3}[^0-9]"));
+		bus_taipei.add(new bus_provider("新店客運", "[0-9]{1,3}|[^0-9][0-9]{1,3}|[0-9]{1,3}[^0-9]"));
+		bus_taipei.add(new bus_provider("中興巴士", "[0-9]{1,3}|[^0-9][0-9]{1,3}|[0-9]{1,3}[^0-9]"));
+		bus_taipei.add(new bus_provider("大南汽車", "[0-9]{1,3}|[^0-9][0-9]{1,3}|[0-9]{1,3}[^0-9]"));
+		bus_taipei.add(new bus_provider("欣欣客運", "[0-9]{1,3}|[^0-9][0-9]{1,3}|[0-9]{1,3}[^0-9]"));
+		bus_taipei.add(new bus_provider("台北客運", "[0-9]{1,3}|[^0-9][0-9]{1,3}|[0-9]{1,3}[^0-9]"));
+		bus_taipei.add(new bus_provider("淡水客運", "[0-9]{1,3}|[^0-9][0-9]{1,3}|[0-9]{1,3}[^0-9]"));
 
 		/* 高雄公車 客運業者列表 */
 		bus_kaohsiung.add(new bus_provider("高雄市公車處", null));
