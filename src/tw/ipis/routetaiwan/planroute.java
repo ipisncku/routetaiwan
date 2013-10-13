@@ -453,7 +453,26 @@ public class planroute extends Activity {
 			Toast.makeText(this, getResources().getString(R.string.info_no_result) , Toast.LENGTH_LONG).show();
 			return false;
 		}
+		
+		/* 顯示Google版權 */
+		RelativeLayout rl = (RelativeLayout)findViewById(R.id.rl_planroute);
+		
+		TextView tv = new TextView(this);
+		tv.setText(dires.routes[0].copyrights);
+		tv.setTextColor(Color.WHITE);
+		tv.setBackgroundColor(Color.DKGRAY);
+		tv.setTextSize(16);
+		tv.setGravity(Gravity.RIGHT);
+		tv.setHorizontallyScrolling(false);
 
+		RelativeLayout.LayoutParams param = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+		param.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+		param.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+		tv.setLayoutParams(param);
+
+		rl.addView(tv);
+		
+		
 		// Add text
 		for (int i = 0; i < dires.routes.length; i++) {
 			int transit = 0;
@@ -606,8 +625,8 @@ public class planroute extends Activity {
 						"all," + dires.routes[i].overview_polyline.points, dires.routes[i].legs[j].mark);
 			}
 		}
-		// 版權宣告
-		createTextView(dires.routes[0].copyrights, CreateTableRow(tl, Color.DKGRAY), Color.WHITE, 1.0f, Gravity.RIGHT);
+		// 空白行
+		createTextView("", CreateTableRow(tl, Color.TRANSPARENT), Color.TRANSPARENT, 1.0f, Gravity.RIGHT);
 		
 		// Add the LinearLayout element to the ScrollView
 		sv.addView(tl);
