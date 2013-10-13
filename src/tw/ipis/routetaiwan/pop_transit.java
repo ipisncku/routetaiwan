@@ -132,7 +132,7 @@ public class pop_transit extends Activity {
 		}
 		/* 公車 客運 */
 		else {
-			TextView tv = new TextView(this);
+			
 			if(check_agency(agency, bus_taipei, line, name)) {
 				SimpleDateFormat formatter = new SimpleDateFormat("H");
 				Date date = new Date(System.currentTimeMillis()) ;
@@ -206,14 +206,65 @@ public class pop_transit extends Activity {
 				}
 			}
 			else if(check_agency(agency, bus_taichung, line, name)) {
-				String txg_bus_url = "http://citybus.taichung.gov.tw/pda/aspx/businfomation/roadname_roadline.aspx?ChoiceRoute=0&line={0}&lang=CHT&goback=1&route={0}";
+				String txg_bus_url = "http://citybus.taichung.gov.tw/pda/aspx/businfomation/roadname_roadline.aspx?ChoiceRoute=0&line={0}&lang=CHT&goback={1}&route={0}";
 				try {
-					String url = MessageFormat.format(txg_bus_url, URLEncoder.encode(line, "UTF-8"));
+					final String url_go = MessageFormat.format(txg_bus_url, URLEncoder.encode(line, "UTF-8"), "1");
+					final String url_bk = MessageFormat.format(txg_bus_url, URLEncoder.encode(line, "UTF-8"), "2");
 
 					/* 設定activity title, ex: 226 即時資訊 */
 					this.setTitle(line + " " + getResources().getString(R.string.realtime_info));
 
-					create_webview_by_url(url);
+					//					create_webview_by_url(url);
+					
+					Log.i(TAG, url_go);
+					
+					rl.removeAllViews();
+
+					rl.addView(process);
+
+					final ScrollView sv = new ScrollView(this);
+					sv.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+					rl.addView(sv);
+
+					final TableLayout tl = new TableLayout(this);
+					tl.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+					tl.setOrientation(TableLayout.VERTICAL);
+
+					sv.addView(tl);
+					
+					/* Update every 30 seconds */
+					Thread timer = new Thread() {
+						public void run () {
+							while(true) {
+								TXN_BUS_PARSER task = new TXN_BUS_PARSER(new AnalysisResult() {
+									@Override
+									public void parsexml(String result) {
+										return;
+									}
+
+									@Override
+									public void parsed(List<BusRoute> routes) {
+										rl.removeView(process);
+										
+										find_start_dest(routes, dept, arr);
+										create_realtime_table(routes, tl, sv);
+										return;
+									}
+								});
+								task.execute(url_go, url_bk);
+								try {
+									Thread.sleep(30000);
+									task.cancel(true);
+								} catch (InterruptedException e) {
+									task.cancel(true);
+									e.printStackTrace();
+								}
+							}
+						}
+					};
+					timer.start();
+					
+					
 					/* 資料由台中市政府提供 */
 					show_info_provider(R.string.provide_by_txg);
 				} catch (UnsupportedEncodingException e) {
@@ -328,6 +379,7 @@ public class pop_transit extends Activity {
 			/* 其他狀況: 施工中... */
 			else {
 				/* 還沒做...QQ */
+				TextView tv = new TextView(this);
 				tv.setText(getResources().getString(R.string.realtime_under_construction) + "\n路線:" + line + "\n業者:" + agency);
 				tv.setTextColor(Color.WHITE);
 				tv.setTextSize(16);
@@ -420,6 +472,9 @@ public class pop_transit extends Activity {
 	private void find_start_dest(List<BusRoute> routes, String dept, String arr) {
 		BusRoute start = null, end = null;
 		int maxtime = 999;
+		
+		dept = dept.replace("台中", "臺中");
+		arr = arr.replace("台中", "臺中");
 
 		for (BusRoute temp : routes) {
 			/* Check for where the buses are */
@@ -432,7 +487,7 @@ public class pop_transit extends Activity {
 				}
 				maxtime = wait_time;
 			}
-
+			
 			/* Check for departure/arrival stops */
 			if(end == null && ( dept.contains(temp.StopName) || temp.StopName.contains(dept) )) {
 				start = temp;
@@ -654,7 +709,7 @@ public class pop_transit extends Activity {
 			iv.setId(0x12345001);
 			iv.setImageBitmap(null);
 
-			iv.setAdjustViewBounds(true);
+			iv.setAdjustViewBounds(false);
 			RelativeLayout.LayoutParams ivparam = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
 			ivparam.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
 			iv.setLayoutParams(ivparam);
@@ -795,7 +850,7 @@ public class pop_transit extends Activity {
 						else
 							wait_time = "null";
 						
-						routes.add(new BusRoute(tds.get(0).text(), 0, 
+						routes.add(new BusRoute(tds.get(0).text(), 1, 
 								0, wait_time, "未發車", ""));
 
 					}
@@ -804,7 +859,6 @@ public class pop_transit extends Activity {
 					for (org.jsoup.nodes.Element tr : trs) {
 						String wait_time = null, pure_text = null;
 						Elements tds = tr.select("td");
-//						Log.i(TAG, tds.get(0).text() + " " + tds.get(1).text());
 
 						pure_text = tds.get(1).text().replaceAll("[0-9A-Za-z]{2,3}-[0-9A-Za-z]{2,3} ", "");
 
@@ -817,10 +871,70 @@ public class pop_transit extends Activity {
 						else
 							wait_time = "null";
 						
-						routes.add(new BusRoute(tds.get(0).text(), 1, 
+						routes.add(new BusRoute(tds.get(0).text(), 2, 
 								0, wait_time, "未發車", ""));
 					}
 
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			return routes;
+		}
+
+		@Override
+		protected void onPostExecute(List<BusRoute> routes) {
+			cb.parsed(routes);
+		}
+	}
+	
+	private class TXN_BUS_PARSER extends AsyncTask<String, Void, List<BusRoute>> {
+		private AnalysisResult cb = null;
+		public TXN_BUS_PARSER(AnalysisResult analysisResult) {
+			cb = analysisResult;
+		}
+
+		@Override
+		protected List<BusRoute> doInBackground(String... urls) {
+			List<BusRoute> routes = new ArrayList<BusRoute>();
+			for (String url : urls) {
+				try {
+					org.jsoup.nodes.Document doc;
+					boolean go = true;
+
+					doc = Jsoup.connect(url).userAgent("Mozilla").get();
+
+					if(url.contains("goback=1"))
+						go = true;
+					else
+						go = false;
+					
+					Elements trs = doc.select("td#ddlName");
+					for (org.jsoup.nodes.Element tr : trs) {
+						String wait_time = "null", time_come = "未發車";
+						Elements tds = tr.select("td");
+						
+						String[] detail = tds.get(0).text().split(" ");
+						
+						// example: 1 臺中站 1829 21:00 (站序 站牌名稱 站牌編號 預估到站)
+						for(int i = 4; i+3 < detail.length; i+=4) {
+							if(detail[i+3].matches("[0-9]{1,2}:[0-9]{2}")) {
+								time_come = detail[i+3];
+							}
+							else if (detail[i+3].matches("[0-9]+分")) {
+								wait_time = detail[i+3].replaceAll("分", "");
+							}
+							else if (detail[i+3].contentEquals("即將到站")) {
+								wait_time = "1";
+							}
+							else if (detail[i+3].contentEquals("進站中")) {
+								wait_time = "0";
+							}
+							
+							routes.add(new BusRoute(detail[i+1], go ? 1 : 2, 
+									0, wait_time, time_come, ""));
+						}
+					}
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
