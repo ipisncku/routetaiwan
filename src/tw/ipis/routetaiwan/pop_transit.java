@@ -60,6 +60,7 @@ public class pop_transit extends Activity {
 	String dept = null;
 	String arr = null;
 	String name = null;
+	private int announcement = 0x12365401;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -500,8 +501,6 @@ public class pop_transit extends Activity {
 			start.set_start();
 			end.set_destination();
 		}
-		else 
-			Toast.makeText(this, getResources().getString(R.string.error_find_start_dest) , Toast.LENGTH_LONG).show();
 	}  
 
 	private void create_realtime_table(List<BusRoute> routes, TableLayout tl, final ScrollView sv) {
@@ -620,6 +619,7 @@ public class pop_transit extends Activity {
 		RelativeLayout rl = (RelativeLayout)findViewById(R.id.rl_pop_transit);
 		
 		TextView tv = new TextView(this);
+		tv.setId(announcement);
 		tv.setText(getResources().getString(r_string_id));
 		tv.setTextColor(Color.WHITE);
 		tv.setBackgroundColor(Color.DKGRAY);
