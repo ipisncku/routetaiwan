@@ -76,6 +76,7 @@
     <string name="provide_by_khh">資料由高雄市政府提供</string>
     <string name="provide_by_txg">資料由台中市政府提供</string>
     <string name="provide_by_bus">資料由公路總局提供</string>
+    <string name="error_find_start_dest">無法標記起訖點</string>
     
     <item type="id" name="tag_zero"></item>
     <item type="id" name="tag_first"></item>
