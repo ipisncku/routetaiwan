@@ -181,6 +181,7 @@ public class pop_transit extends Activity {
 									public void parsed(List<BusRoute> routes) {
 										rl.removeView(process);
 										
+										Log.i(TAG, "抓資料囉.....");
 										find_start_dest(routes, dept, arr);
 										create_realtime_table(routes, tl, sv);
 										return;
@@ -401,12 +402,6 @@ public class pop_transit extends Activity {
 	protected void onStop() {
 		running = false;
 		super.onStop();
-	}
-	
-	@Override
-	protected void onResume() {
-		running = true;
-		super.onResume();
 	}
 
 	@Override
