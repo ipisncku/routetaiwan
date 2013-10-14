@@ -61,6 +61,7 @@ public class pop_transit extends Activity {
 	String arr = null;
 	String name = null;
 	private int announcement = 0x12365401;
+	boolean running = true;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -169,7 +170,7 @@ public class pop_transit extends Activity {
 					/* Update every 30 seconds */
 					Thread timer = new Thread() {
 						public void run () {
-							while(true) {
+							while(running) {
 								TPE_BUS_PARSER task = new TPE_BUS_PARSER(new AnalysisResult() {
 									@Override
 									public void parsexml(String result) {
@@ -236,7 +237,7 @@ public class pop_transit extends Activity {
 					/* Update every 30 seconds */
 					Thread timer = new Thread() {
 						public void run () {
-							while(true) {
+							while(running) {
 								TXN_BUS_PARSER task = new TXN_BUS_PARSER(new AnalysisResult() {
 									@Override
 									public void parsexml(String result) {
@@ -326,7 +327,7 @@ public class pop_transit extends Activity {
 					/* Update every 30 seconds */
 					Thread timer = new Thread() {
 						public void run () {
-							while(true) {
+							while(running) {
 								bus_timetable task = new bus_timetable(
 										new AnalysisResult() {
 											@Override
@@ -394,6 +395,18 @@ public class pop_transit extends Activity {
 				rl.addView(tv);
 			}
 		}
+	}
+	
+	@Override
+	protected void onStop() {
+		running = false;
+		super.onStop();
+	}
+	
+	@Override
+	protected void onResume() {
+		running = true;
+		super.onResume();
 	}
 
 	@Override
