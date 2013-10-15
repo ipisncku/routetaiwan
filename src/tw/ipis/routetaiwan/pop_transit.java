@@ -115,7 +115,6 @@ public class pop_transit extends Activity {
 			String tra_real_time_url = "http://twtraffic.tra.gov.tw/twrail/mobile/TrainDetail.aspx?searchdate={0}&traincode={1}";
 			String url = MessageFormat.format(tra_real_time_url, str_date, line);
 
-			Log.i(TAG, url);
 			create_webview_by_url(url);
 
 			/* 設定activity title, ex: 自強 123 */
@@ -126,8 +125,6 @@ public class pop_transit extends Activity {
 		}
 		/* 高鐵 */
 		else if(type.contentEquals("hsr")) {
-			Log.i(TAG, "hsr");
-
 			rl.addView(process);
 
 			/* 設定activity title, ex: 自強 123 */
@@ -217,8 +214,6 @@ public class pop_transit extends Activity {
 
 					//					create_webview_by_url(url);
 					
-					Log.i(TAG, url_go);
-					
 					rl.removeAllViews();
 
 					rl.addView(process);
@@ -298,8 +293,6 @@ public class pop_transit extends Activity {
 
 				try {
 					final String url = MessageFormat.format(xml_bus_route, URLEncoder.encode(line, "UTF-8"));
-					Log.i(TAG, "url=" + url);
-
 					rl.removeAllViews();
 
 					rl.addView(process);
@@ -320,7 +313,7 @@ public class pop_transit extends Activity {
 					/* Update every 30 seconds */
 					runtask = new Runnable() {
 						public void run () {
-							bus_timetable task = new bus_timetable(
+							KHH_BUS_PARSER task = new KHH_BUS_PARSER(
 									new AnalysisResult() {
 										@Override
 										public void parsexml(String result) {
@@ -351,8 +344,6 @@ public class pop_transit extends Activity {
 				String bus_url = "http://web.taiwanbus.tw/eBUS/subsystem/Timetable/TimeTableAPIByWeek.aspx?inputType=R01&RouteId={0}&RouteBranch=0&SearchDate={1}";
 				try {
 					String url = MessageFormat.format(bus_url, URLEncoder.encode(line, "UTF-8"), str_date);
-
-					Log.i(TAG, url);
 
 					/* 設定activity title, ex: 9117 時刻表 */
 					this.setTitle(line + " " + getResources().getString(R.string.time_table));
@@ -427,8 +418,6 @@ public class pop_transit extends Activity {
 			Element eleRoot = (Element)nlRoot.item(0);
 
 			String update_time = doc.getElementsByTagName("UpdateTime").item(0).getChildNodes().item(0).getNodeValue();
-
-			Log.i(TAG, "update time " + update_time);
 
 			NodeList route = eleRoot.getElementsByTagName("EstimateTime");  
 			int routeLen = route.getLength();  
@@ -799,9 +788,9 @@ public class pop_transit extends Activity {
 		public void parsed(List<BusRoute> routes);
 	}
 
-	private class bus_timetable extends AsyncTask<String, Void, String> {
+	private class KHH_BUS_PARSER extends AsyncTask<String, Void, String> {
 		private AnalysisResult cb = null;
-		public bus_timetable(AnalysisResult analysisResult) {
+		public KHH_BUS_PARSER(AnalysisResult analysisResult) {
 			cb = analysisResult;
 		}
 
@@ -858,7 +847,6 @@ public class pop_transit extends Activity {
 					for (org.jsoup.nodes.Element tr : trs) {
 						String wait_time = null, pure_text = null;
 						Elements tds = tr.select("td");
-//						Log.i(TAG, tds.get(0).text() + "," + tds.get(1).text());
 
 						pure_text = tds.get(1).text().replaceAll("[0-9A-Z]{2,3}-[0-9A-Z]{2,3} ", "");
 
