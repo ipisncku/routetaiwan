@@ -63,7 +63,7 @@ public class pop_transit extends Activity {
 	String arr = null;
 	String name = null;
 	private int announcement = 0x12365401;
-	boolean running = true;
+	boolean err_tag_fail = false;
 	final Handler handler = new Handler();
 	Runnable runtask;
 
@@ -504,6 +504,10 @@ public class pop_transit extends Activity {
 			start.set_start();
 			end.set_destination();
 		}
+		else if(timetable.isEmpty()) {
+			Log.w(TAG, "無法標記起訖點");
+			err_tag_fail=true;
+		}
 	}  
 
 	private void create_realtime_table(List<BusRoute> routes, TableLayout tl, final ScrollView sv) {
@@ -616,6 +620,8 @@ public class pop_transit extends Activity {
 			}
 		}
 		tl.invalidate();
+		if(first_read && err_tag_fail)
+			Toast.makeText(this, getResources().getString(R.string.error_find_start_dest) , Toast.LENGTH_LONG).show();
 	}
 
 	private void show_info_provider(int r_string_id) {
