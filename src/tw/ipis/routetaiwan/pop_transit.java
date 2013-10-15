@@ -341,7 +341,7 @@ public class pop_transit extends Activity {
 				SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
 				Date date = new Date(System.currentTimeMillis()) ;
 				String str_date = formatter.format(date);
-				String bus_url = "http://web.taiwanbus.tw/eBUS/subsystem/Timetable/TimeTableAPIByWeek.aspx?inputType=R01&RouteId={0}&RouteBranch=0&SearchDate={1}";
+				String bus_url = "http://web.taiwanbus.tw/eBUS/subsystem/Timetable/TimeTableAPIByWeek.aspx?RouteId={0}&RouteBranch=0&SearchDate={1}";
 				try {
 					String url = MessageFormat.format(bus_url, URLEncoder.encode(line, "UTF-8"), str_date);
 
