@@ -35,6 +35,7 @@ import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Gravity;
 import android.webkit.WebView;
@@ -52,6 +53,7 @@ import android.widget.Toast;
 public class pop_transit extends Activity {
 	private static String TAG = "--pop_transit--";
 	private ProgressBar process;
+	private ProgressBar loading;
 	private ArrayList<bus_provider> bus_taipei = new ArrayList<bus_provider>();
 	private ArrayList<bus_provider> bus_taichung = new ArrayList<bus_provider>();
 	private ArrayList<bus_provider> bus_kaohsiung = new ArrayList<bus_provider>();
@@ -62,6 +64,8 @@ public class pop_transit extends Activity {
 	String name = null;
 	private int announcement = 0x12365401;
 	boolean running = true;
+	final Handler handler = new Handler();
+	Runnable runtask;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -167,40 +171,35 @@ public class pop_transit extends Activity {
 
 					sv.addView(tl);
 					
-					/* Update every 30 seconds */
-					Thread timer = new Thread() {
-						public void run () {
-							while(running) {
-								TPE_BUS_PARSER task = new TPE_BUS_PARSER(new AnalysisResult() {
-									@Override
-									public void parsexml(String result) {
-										return;
-									}
-
-									@Override
-									public void parsed(List<BusRoute> routes) {
-										rl.removeView(process);
-										
-										find_start_dest(routes, dept, arr);
-										create_realtime_table(routes, tl, sv);
-										return;
-									}
-								});
-								task.execute(url);
-								try {
-									Thread.sleep(30000);
-									task.cancel(true);
-								} catch (InterruptedException e) {
-									task.cancel(true);
-									e.printStackTrace();
-								}
-							}
-						}
-					};
-					timer.start();
-
 					/* 資料由5284我愛巴士提供 */
 					show_info_provider(R.string.provide_by_5284);
+					
+					/* Update every 30 seconds */
+					runtask = new Runnable() {
+						public void run () {
+							TPE_BUS_PARSER task = new TPE_BUS_PARSER(new AnalysisResult() {
+								@Override
+								public void parsexml(String result) {
+									return;
+								}
+
+								@Override
+								public void parsed(List<BusRoute> routes) {
+									rl.removeView(process);
+
+									find_start_dest(routes, dept, arr);
+									create_realtime_table(routes, tl, sv);
+									loading.setVisibility(ProgressBar.INVISIBLE);
+									return;
+								}
+							});
+							loading.setVisibility(ProgressBar.VISIBLE);
+							task.execute(url);
+							handler.postDelayed(this, 30000);
+						}
+					};
+					handler.post(runtask);
+					
 				} catch (UnsupportedEncodingException e) {
 					e.printStackTrace();
 					Toast.makeText(this, getResources().getString(R.string.info_internal_error) , Toast.LENGTH_LONG).show();
@@ -234,41 +233,35 @@ public class pop_transit extends Activity {
 
 					sv.addView(tl);
 					
-					/* Update every 30 seconds */
-					Thread timer = new Thread() {
-						public void run () {
-							while(running) {
-								TXN_BUS_PARSER task = new TXN_BUS_PARSER(new AnalysisResult() {
-									@Override
-									public void parsexml(String result) {
-										return;
-									}
-
-									@Override
-									public void parsed(List<BusRoute> routes) {
-										rl.removeView(process);
-										
-										find_start_dest(routes, dept, arr);
-										create_realtime_table(routes, tl, sv);
-										return;
-									}
-								});
-								task.execute(url_go, url_bk);
-								try {
-									Thread.sleep(30000);
-									task.cancel(true);
-								} catch (InterruptedException e) {
-									task.cancel(true);
-									e.printStackTrace();
-								}
-							}
-						}
-					};
-					timer.start();
-					
-					
 					/* 資料由台中市政府提供 */
 					show_info_provider(R.string.provide_by_txg);
+					
+					/* Update every 30 seconds */
+					runtask = new Runnable() {
+						public void run () {
+							TXN_BUS_PARSER task = new TXN_BUS_PARSER(new AnalysisResult() {
+								@Override
+								public void parsexml(String result) {
+									return;
+								}
+
+								@Override
+								public void parsed(List<BusRoute> routes) {
+									rl.removeView(process);
+
+									find_start_dest(routes, dept, arr);
+									create_realtime_table(routes, tl, sv);
+									loading.setVisibility(ProgressBar.INVISIBLE);
+									return;
+								}
+							});
+							task.execute(url_go, url_bk);
+							loading.setVisibility(ProgressBar.VISIBLE);
+							handler.postDelayed(this, 30000);
+						}
+					};
+					handler.post(runtask);
+					
 				} catch (UnsupportedEncodingException e) {
 					e.printStackTrace();
 					Toast.makeText(this, getResources().getString(R.string.info_internal_error) , Toast.LENGTH_LONG).show();
@@ -323,35 +316,30 @@ public class pop_transit extends Activity {
 					
 					/* 資料由高雄市政府提供 */
 					show_info_provider(R.string.provide_by_khh);
-
+					
 					/* Update every 30 seconds */
-					Thread timer = new Thread() {
+					runtask = new Runnable() {
 						public void run () {
-							while(running) {
-								bus_timetable task = new bus_timetable(
-										new AnalysisResult() {
-											@Override
-											public void parsexml(String result) {
-												khh_bus_xml(result, tl, sv);
-											}
+							bus_timetable task = new bus_timetable(
+									new AnalysisResult() {
+										@Override
+										public void parsexml(String result) {
+											khh_bus_xml(result, tl, sv);
+											loading.setVisibility(ProgressBar.INVISIBLE);
+										}
 
-											@Override
-											public void parsed(List<BusRoute> routes) {
-												return;
-											}
-										});
-								task.execute(url);
-								try {
-									Thread.sleep(30000);
-									task.cancel(true);
-								} catch (InterruptedException e) {
-									task.cancel(true);
-									e.printStackTrace();
-								}
-							}
+										@Override
+										public void parsed(List<BusRoute> routes) {
+											return;
+										}
+									});
+							task.execute(url);
+							loading.setVisibility(ProgressBar.VISIBLE);
+							handler.postDelayed(this, 30000);
 						}
 					};
-					timer.start();
+					handler.post(runtask);
+					
 				} catch (UnsupportedEncodingException e) {
 					e.printStackTrace();
 				}
@@ -398,8 +386,16 @@ public class pop_transit extends Activity {
 	}
 	
 	@Override
+	protected void onResume() {
+		if(runtask != null) 
+			handler.post(runtask);
+		super.onResume();
+	}
+	
+	@Override
 	protected void onStop() {
-		running = false;
+		if(runtask != null)
+			handler.removeCallbacks(runtask);
 		super.onStop();
 	}
 
@@ -640,6 +636,15 @@ public class pop_transit extends Activity {
 		tv.setLayoutParams(param);
 
 		rl.addView(tv);
+		
+		loading = new ProgressBar(this, null, android.R.attr.progressBarStyleSmall);
+		loading.setIndeterminate(true);
+		RelativeLayout.LayoutParams loading_param = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+		loading_param.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+		loading_param.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+		loading.setLayoutParams(loading_param);
+		
+		rl.addView(loading);
 	}
 
 	private TableRow CreateTableRow(TableLayout parent){
