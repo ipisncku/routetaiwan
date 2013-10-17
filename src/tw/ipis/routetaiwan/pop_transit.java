@@ -58,6 +58,8 @@ public class pop_transit extends Activity {
 	private ArrayList<bus_provider> bus_taichung = new ArrayList<bus_provider>();
 	private ArrayList<bus_provider> bus_kaohsiung = new ArrayList<bus_provider>();
 	private List<TableRow> timetable = new ArrayList<TableRow>();
+	private List<String> original_sta = new ArrayList<String>();
+	private List<String> after_sta = new ArrayList<String>();
 	String line = null, agency = null, car_class = null;
 	String dept = null;
 	String arr = null;
@@ -74,8 +76,6 @@ public class pop_transit extends Activity {
 
 		setContentView(R.layout.pop_transit);
 
-		bus_agency_classify();
-
 		Bundle Data = this.getIntent().getExtras();
 		String type = Data.getString("type");
 
@@ -84,6 +84,10 @@ public class pop_transit extends Activity {
 		if(type != null && !type.contentEquals("null")) {
 			line = Data.getString("line");
 			if(type.contentEquals("bus")) {
+				
+				bus_agency_classify();
+				station_name_replace();
+				
 				agency = Data.getString("agency");
 				dept = Data.getString("dept");
 				arr = Data.getString("arr");
@@ -466,8 +470,8 @@ public class pop_transit extends Activity {
 		BusRoute start = null, end = null;
 		int maxtime = 999;
 		
-		dept = dept.replace("台中", "臺中");
-		arr = arr.replace("台中", "臺中");
+		dept = string_replace(dept);
+		arr = string_replace(arr);
 
 		for (BusRoute temp : routes) {
 			/* Check for where the buses are */
@@ -687,6 +691,7 @@ public class pop_transit extends Activity {
 		bus_taipei.add(new bus_provider("欣欣客運", "[0-9]{1,3}|[^0-9][0-9]{1,3}[^0-9]?|[0-9]{1,3}[^0-9]|[^0-9]+|市民小巴[0-9]+"));
 		bus_taipei.add(new bus_provider("台北客運", "[0-9]{1,3}|[^0-9][0-9]{1,3}[^0-9]?|[0-9]{1,3}[^0-9]|[^0-9]+|市民小巴[0-9]+"));
 		bus_taipei.add(new bus_provider("淡水客運", "[0-9]{1,3}|[^0-9][0-9]{1,3}[^0-9]?|[0-9]{1,3}[^0-9]|[^0-9]+|市民小巴[0-9]+"));
+		bus_taipei.add(new bus_provider("新北客運", "[0-9]{1,3}|[^0-9][0-9]{1,3}[^0-9]?|[0-9]{1,3}[^0-9]|[^0-9]+|市民小巴[0-9]+"));
 		bus_taipei.add(new bus_provider("基隆客運", "78[7-9]]|79[01]|808|82[5-9]|846|88[6-8]|891|藍41"));
 		bus_taipei.add(new bus_provider("東南客運", "小[1235][^0-9]?|小1[012][^0-9]?|棕5|棕10|綠11|藍5[01]|紅29|3[27][^0-9]?|207|29[78][^0-9]?|55[25]|612[^0-9]?"));
 
@@ -711,6 +716,21 @@ public class pop_transit extends Activity {
 		bus_taichung.add(new bus_provider("豐榮客運", "[0-9]{1,3}"));
 		bus_taichung.add(new bus_provider("苗栗客運", null));
 		bus_taichung.add(new bus_provider("中台灣客運", null));
+	}
+	
+	private void station_name_replace() {
+		original_sta.add("台中"); after_sta.add("臺中");
+		original_sta.add("(松壽路)"); after_sta.add("(松壽)");
+		original_sta.add("(松仁路)"); after_sta.add("(松仁)");
+	}
+	
+	private String string_replace(String station) {
+		for(int i = 0; i < original_sta.size(); i++) {
+			if(station.contains(original_sta.get(i))) {
+				return station.replace(original_sta.get(i), after_sta.get(i));
+			}
+		}
+		return station;
 	}
 
 	public void thsrc_current_status(String result) {

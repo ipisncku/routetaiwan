@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="tw.ipis.routetaiwan"
     android:versionCode="1"
-    android:versionName="1.0" >
+    android:versionName="0.9.06" >
 
     <uses-sdk
         android:minSdkVersion="15"
@@ -72,16 +72,16 @@
             android:configChanges="orientation|screenSize"
             android:theme="@style/ThemeWithCorners" ></activity>
         
-        <!-- debug key
+        
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="AIzaSyCvAhif0LFc0kDcFrC7gtYKW88922EpTRc"/>
-			-->
-        
+			
+        <!-- debug key
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="AIzaSyC-V89bdpb8epZ42zW3skFlKHcu1hh4t7k"/>
-        
+        -->
     </application>
 
 </manifest>

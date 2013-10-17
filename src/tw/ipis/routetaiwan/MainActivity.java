@@ -28,7 +28,12 @@ private String version = "0.9.05";
 		
 		/* 設定版本號 */
 		TextView ver = (TextView)findViewById(R.id.ver);
-		ver.setText(getResources().getString(R.string.version) + ":" + version);
+		try {
+			ver.setText(getResources().getString(R.string.version) + ":" + this.getPackageManager()
+				    .getPackageInfo(this.getPackageName(), 0).versionName);
+		} catch (Exception e) {
+			ver.setText(getResources().getString(R.string.version) + ":" + version);
+		} 
 		
 		/* Create shortcut on desktop */
 		Intent shortcutIntent;
