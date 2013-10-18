@@ -7,21 +7,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
 import android.location.Address;
+import android.location.Criteria;
 import android.location.Geocoder;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.provider.Settings;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -65,7 +71,7 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 	private static final int TEXT_INSTRUCTION = 0x12300001;
 	private static final int BUTTON_PLAN_ROUTE = 0x12300002;
 	/* Define area end */
-	
+
 	private static final String TAG = "~~showmap~~";
 	GoogleMap googleMap;
 	private LocationClient locationclient;
@@ -82,8 +88,34 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.showmap);
 
+		LocationManager locationMgr = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+		//1.選擇最佳提供器
+		Criteria criteria = new Criteria();
+		criteria.setAccuracy(Criteria.ACCURACY_FINE);
+		criteria.setAltitudeRequired(false);
+		criteria.setBearingRequired(false);
+		criteria.setCostAllowed(true);
+		criteria.setPowerRequirement(Criteria.POWER_LOW);
+
+		if (locationMgr.getBestProvider(criteria, true) == null ) {
+			AlertDialog.Builder dialog = new AlertDialog.Builder(new ContextThemeWrapper(this, R.style.ThemeWithCorners));
+			dialog.setTitle(getResources().getString(R.string.no_loc_provider));
+			dialog.setMessage(getResources().getString(R.string.no_loc_provider_msg));
+			dialog.setPositiveButton(getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int id) {
+					startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+				}
+			});
+			dialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int id) {
+					// do nothing
+				}
+			});
+			dialog.show();
+		}
 		results = new ArrayList<Marker>();
-		
+
 		first_read = true;
 		// Getting Google Play availability status
 		int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getBaseContext());
@@ -101,7 +133,7 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			/* Check if it is the first time to use this app, If yes, show some instruction */
 			File chk_fist_use = new File(Environment.getExternalStorageDirectory() + "/.routetaiwan/.first_showmap");
 			if(chk_fist_use.exists() == false) {
-				
+
 				try {
 					chk_fist_use.createNewFile();
 				} catch (IOException e) {
@@ -120,7 +152,7 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 				ok.setText(getResources().getString(R.string.understand));
 				ok.setGravity(Gravity.CENTER);
 				ok.setTextColor(Color.WHITE);
-				
+
 				RelativeLayout ll = (RelativeLayout)findViewById(R.id.rl_showmap);
 				RelativeLayout.LayoutParams textLayoutParameters = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
 				textLayoutParameters.addRule(RelativeLayout.CENTER_IN_PARENT);
@@ -176,6 +208,13 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			googleMap.setMyLocationEnabled(true);
 
 			googleMap.getUiSettings().setCompassEnabled(true);
+			
+			CameraPosition camPosition = new CameraPosition.Builder()
+			.target(new LatLng(23.583234, 120.582598))
+			.zoom(7)
+			.build();
+
+			googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(camPosition));
 
 			cover.setOnTouchListener(new OnTouchListener() {
 				@Override
@@ -241,10 +280,10 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 	}
 
 	@Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-    }
-	
+	public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+	}
+
 	LocationListener locationListener1 = new LocationListener(){
 		@Override
 		public void onLocationChanged(Location location) {
@@ -254,23 +293,24 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 
 	public void focus_on_me(Location location) {
 
-		// Getting latitude of the current location
-		double latitude = location.getLatitude();
+		if(location != null){
+			// Getting latitude of the current location
+			double latitude = location.getLatitude();
 
-		// Getting longitude of the current location
-		double longitude = location.getLongitude();
+			// Getting longitude of the current location
+			double longitude = location.getLongitude();
 
 
-		if(first_read) {
-			CameraPosition camPosition = new CameraPosition.Builder()
-			.target(new LatLng(latitude, longitude))
-			.zoom(16)
-			.build();
+			if(first_read) {
+				CameraPosition camPosition = new CameraPosition.Builder()
+				.target(new LatLng(latitude, longitude))
+				.zoom(16)
+				.build();
 
-			googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(camPosition));
-			first_read = false;
+				googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(camPosition));
+				first_read = false;
+			}
 		}
-
 	}
 
 	@Override
@@ -316,12 +356,12 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			});
 		}
 	}
-	
+
 	public void remove_button() {
 		if(button_exist == true) {
 			Button gotoplan = (Button) findViewById(BUTTON_PLAN_ROUTE);
 			gotoplan.setOnClickListener(null);
-			
+
 			final Animation animTrans = AnimationUtils.loadAnimation(showmap.this, R.anim.anim_translate_out);
 			gotoplan.setAnimation(animTrans);
 
@@ -347,7 +387,7 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 		// Inflate the popup_layout.xml
 		LinearLayout viewGroup = (LinearLayout) context.findViewById(R.id.menu1);
 		LayoutInflater layoutInflater = (LayoutInflater) context
-		.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		View layout = layoutInflater.inflate(R.layout.menu_route, viewGroup);
 
 		// Creating the PopupWindow
@@ -406,17 +446,17 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			}
 		});
 	}
-	
+
 	public void google_search(View v) {
 		EditText etLocation = (EditText) findViewById(R.id.search_map);
-		
+
 		// Getting user input location
 		String location = etLocation.getText().toString();
-		
+
 		InputMethodManager imm = (InputMethodManager)getSystemService(
 				Context.INPUT_METHOD_SERVICE);
 		imm.hideSoftInputFromWindow(etLocation.getWindowToken(), 0);
-		
+
 		if(location!=null && !location.equals("")){
 			v.setOnClickListener(null);
 			new GeocoderTask().execute(location);
@@ -430,7 +470,7 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			// Creating an instance of Geocoder class
 			Geocoder geocoder = new Geocoder(getBaseContext());
 			List<Address> addresses = null;
-			
+
 			try {
 				// Getting a maximum of 3 Address that matches the input text
 				addresses = geocoder.getFromLocationName(locationName[0], 8);
@@ -439,11 +479,11 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			}			
 			return addresses;
 		}
-		
-		
+
+
 		@Override
 		protected void onPostExecute(List<Address> addresses) {			
-			
+
 			if(addresses==null || addresses.size()==0){
 				Toast.makeText(getBaseContext(), "No Location found", Toast.LENGTH_SHORT).show();
 			}
@@ -455,9 +495,9 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 
 			if(results.size() > 0)
 				results.clear();
-			
+
 			final LatLngBounds.Builder builder = new LatLngBounds.Builder();
-			
+
 			// Adding Markers on Google Map for each matching address
 			for(int i=0;i<addresses.size();i++){				
 
@@ -474,13 +514,13 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 				results.add(googleMap.addMarker(markerOptions));
 
 				builder.include(latLng);
-				
+
 				// Locate the first location
 				if(addresses.size() == 1)
 					googleMap.animateCamera( CameraUpdateFactory.newLatLngZoom(latLng, 15));
 				else if(i == addresses.size() - 1)			        	
 					googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 50));
-				
+
 			}
 			ImageButton search_btn = (ImageButton)findViewById(R.id.search_location);
 			search_btn.setOnClickListener(new OnClickListener() {

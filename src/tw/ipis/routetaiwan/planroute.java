@@ -47,6 +47,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -144,7 +145,7 @@ public class planroute extends Activity {
 			return true;
 		}
 		else {
-			AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+			AlertDialog.Builder dialog = new AlertDialog.Builder(new ContextThemeWrapper(this, R.style.ThemeWithCorners));
 			dialog.setTitle(getResources().getString(R.string.no_network));
 			dialog.setMessage(getResources().getString(R.string.no_loc_provider_msg));
 			dialog.setPositiveButton(getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {
@@ -178,7 +179,7 @@ public class planroute extends Activity {
 				/* Fixed wifi定位功能沒開時造成的crash */
 				if(currentloc == null) {
 					planning.setVisibility(ProgressBar.INVISIBLE);
-					AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+					AlertDialog.Builder dialog = new AlertDialog.Builder(new ContextThemeWrapper(this, R.style.ThemeWithCorners));
 					dialog.setTitle(getResources().getString(R.string.no_loc_provider));
 					dialog.setMessage(getResources().getString(R.string.no_loc_provider_msg));
 					dialog.setPositiveButton(getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {
@@ -195,6 +196,8 @@ public class planroute extends Activity {
 				}
 				else if (currentloc.getProvider().contentEquals("network"))
 					Getroute();
+				else
+					Toast.makeText(this, getResources().getString(R.string.info_positioning_by_gps) , Toast.LENGTH_SHORT).show();
 			}
 			else 
 				Getroute();
@@ -247,7 +250,7 @@ public class planroute extends Activity {
 		
 		if(flag) {
 			planning.setVisibility(ProgressBar.INVISIBLE);
-			AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+			AlertDialog.Builder dialog = new AlertDialog.Builder(new ContextThemeWrapper(this, R.style.ThemeWithCorners));
 			dialog.setTitle(getResources().getString(R.string.error));
 			dialog.setMessage(getResources().getString(R.string.not_in_tw));
 			dialog.setPositiveButton(getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {
@@ -310,7 +313,7 @@ public class planroute extends Activity {
 	private class DownloadWebPageTask extends AsyncTask<String, Void, String> {
 		@Override
 		protected String doInBackground(String... urls) {
-			String response = "";
+			String response = null;
 			for (String url : urls) {
 				HttpGet httpGet = new HttpGet(url);
 				httpGet.addHeader("accept", "application/json");
@@ -341,7 +344,8 @@ public class planroute extends Activity {
 
 		@Override
 		protected void onPostExecute(String result) {
-			decode(result);
+			if(result != null)
+				decode(result);
 		}
 	}
 
@@ -861,8 +865,10 @@ public class planroute extends Activity {
 	LocationListener locationListener = new LocationListener(){
 		@Override
 		public void onLocationChanged(Location location) {
-			if (isrequested)
+			if (isrequested) {
+				Toast.makeText(planroute.this, getResources().getString(R.string.info_gps_fixed) , Toast.LENGTH_SHORT).show();
 				Getroute();
+			}
 		}
 
 		@Override
