@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.http.HttpEntity;
@@ -29,7 +28,9 @@ import tw.ipis.routetaiwan.planroute.DirectionResponseObject.Route.Leg.Step;
 import tw.ipis.routetaiwan.planroute.DirectionResponseObject.Route.Leg.Step.Poly;
 import tw.ipis.routetaiwan.planroute.DirectionResponseObject.Route.Leg.Step.ValueText;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
@@ -44,6 +45,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -94,18 +96,8 @@ public class planroute extends Activity {
 		RelativeLayout ll = (RelativeLayout)findViewById(R.id.rl_planroute);
 		ll.setBackgroundResource(R.drawable.style_angle);
 
-		ConnectivityManager connMgr = (ConnectivityManager) 
-		getSystemService(Context.CONNECTIVITY_SERVICE);
-		NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-		if (networkInfo != null && networkInfo.isConnected()) {
-			Toast.makeText(this, getResources().getString(R.string.info_network_using) + networkInfo.getTypeName() , Toast.LENGTH_SHORT).show();
-		}
-		else {
-			Toast.makeText(this, getResources().getString(R.string.warninig_no_network) , Toast.LENGTH_LONG).show();
-		}
-
 		start_positioning();
-		
+
 		/* Intent from showmap class */
 		Bundle Data = this.getIntent().getExtras();
 		if(Data != null) {
@@ -126,7 +118,6 @@ public class planroute extends Activity {
 	protected void onResume() {
 
 		super.onResume();
-
 		start_positioning();
 	}
 
@@ -142,19 +133,72 @@ public class planroute extends Activity {
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
     }
+	
+	/* Fixed 網路功能沒開時造成的crash */
+	public boolean check_network() {
+		ConnectivityManager connMgr = (ConnectivityManager) 
+		getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+		if (networkInfo != null && networkInfo.isConnected()) {
+			Toast.makeText(this, getResources().getString(R.string.info_network_using) + networkInfo.getTypeName() , Toast.LENGTH_SHORT).show();
+			return true;
+		}
+		else {
+			AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+			dialog.setTitle(getResources().getString(R.string.no_network));
+			dialog.setMessage(getResources().getString(R.string.no_loc_provider_msg));
+			dialog.setPositiveButton(getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int id) {
+					startActivity(new Intent(Settings.ACTION_WIRELESS_SETTINGS));
+				}
+			});
+			dialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int id) {
+					// do nothing
+				}
+			});
+			dialog.show();
+			return false;
+		}
+	}
 
 	public void start_planing(View v) {
-		if(task != null && task.getStatus() != DownloadWebPageTask.Status.FINISHED)
-			task.cancel(true);
-		foreground_cosmetic();
+		if(check_network()) {
+			if(task != null && task.getStatus() != DownloadWebPageTask.Status.FINISHED)
+				task.cancel(true);
+			foreground_cosmetic();
 
-		isrequested = true;
+			isrequested = true;
 
-		from = (EditText)findViewById(R.id.from);
-		String start = from.getText().toString();	// Get user input "From"
-		Location currentloc = GetCurrentPosition();
-		if (!start.isEmpty() || currentloc.getProvider().contentEquals("network")) // Wait for positioning
-			Getroute();
+			from = (EditText)findViewById(R.id.from);
+			String start = from.getText().toString();	// Get user input "From"
+			Location currentloc = GetCurrentPosition();
+
+			if(start.isEmpty()) {
+				/* Fixed wifi定位功能沒開時造成的crash */
+				if(currentloc == null) {
+					planning.setVisibility(ProgressBar.INVISIBLE);
+					AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+					dialog.setTitle(getResources().getString(R.string.no_loc_provider));
+					dialog.setMessage(getResources().getString(R.string.no_loc_provider_msg));
+					dialog.setPositiveButton(getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int id) {
+							startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+						}
+					});
+					dialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int id) {
+							// do nothing
+						}
+					});
+					dialog.show();
+				}
+				else if (currentloc.getProvider().contentEquals("network"))
+					Getroute();
+			}
+			else 
+				Getroute();
+		}
 	}
 
 	public void start_positioning() {
@@ -188,6 +232,33 @@ public class planroute extends Activity {
 
 		planning.setVisibility(ProgressBar.VISIBLE);
 	}
+	
+	public boolean current_not_in_taiwan(Location curr) {
+		double lat = curr.getLatitude();
+		double lon = curr.getLongitude();
+		boolean flag = false;
+		
+		if(lon > 122 || lon < 120)
+			flag = true;
+		else if (lat > 25.5 || lat < 21.9)
+			flag = true;
+		else
+			return false;
+		
+		if(flag) {
+			planning.setVisibility(ProgressBar.INVISIBLE);
+			AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+			dialog.setTitle(getResources().getString(R.string.error));
+			dialog.setMessage(getResources().getString(R.string.not_in_tw));
+			dialog.setPositiveButton(getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int id) {
+					startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+				}
+			});
+			dialog.show();
+		}
+		return flag;
+	}
 
 	public void Getroute() {
 		String request = "";
@@ -199,8 +270,8 @@ public class planroute extends Activity {
 
 		isrequested = false;
 
-		if(Locale.getDefault().getDisplayLanguage().contentEquals("中文"))
-			Mapapi = new StringBuilder().append(Mapapi).append("&language=zh-tw").toString();
+//		if(Locale.getDefault().getDisplayLanguage().contentEquals("中文"))
+		Mapapi = new StringBuilder().append(Mapapi).append("&language=zh-tw").toString();
 
 		long now = System.currentTimeMillis() / 1000;
 		if(destination.isEmpty())
@@ -209,6 +280,9 @@ public class planroute extends Activity {
 		try {
 			if (start.isEmpty()) {
 				Location current = GetCurrentPosition();
+				if(current_not_in_taiwan(current))
+					return;
+				
 				String curr = current.getLatitude() + "," + current.getLongitude();
 				request = MessageFormat.format(Mapapi, URLEncoder.encode(curr, "UTF-8"), 
 						URLEncoder.encode(destination, "UTF-8"), URLEncoder.encode(new Long(now).toString(), "UTF-8"), 

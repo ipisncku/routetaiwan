@@ -25,7 +25,6 @@
     <string name="hour">小時</string>
     <string name="minute">分</string>
     <string name="to">到</string>
-    <string name="warninig_no_network">無法使用網路</string>
     <string name="warning_no_loc_provider">無法定位, 請開啟GPS或網路</string>
     <string name="info_network_using">網路服務: </string>
     <string name="info_positioning_by_gps">使用GPS定位中</string>
@@ -69,14 +68,21 @@
     <string name="time_table">時刻表</string>
     
     <string name="no_data">沒有資料</string>
+    <string name="no_loc_provider">WiFi定位服務未開啟</string>
+    <string name="no_loc_provider_msg">按"確定"前往設定頁面</string>
+    <string name="no_network">無法使用網路</string>
+    <string name="error">錯誤</string>
+    <string name="not_in_tw">查詢的位置不在台灣，目前僅支援台灣本島</string>
+    <string name="ok">確定</string>
+    <string name="cancel">取消</string>
     
     <string name="search_google">Search</string>
     
-    <string name="provide_by_tra">資料由台鐵提供</string>
-    <string name="provide_by_5284">資料由5284我愛巴士提供</string>
-    <string name="provide_by_khh">資料由高雄市政府提供</string>
-    <string name="provide_by_txg">資料由台中市政府提供</string>
-    <string name="provide_by_bus">資料由公路總局提供</string>
+    <string name="provide_by_tra">資料來源: 台灣鐵路局</string>
+    <string name="provide_by_5284">資料來源: 5284我愛巴士</string>
+    <string name="provide_by_khh">資料來源: 高雄市政府</string>
+    <string name="provide_by_txg">資料來源: 台中市政府</string>
+    <string name="provide_by_bus">資料來源: 公路總局</string>
     <string name="error_find_start_dest">無法標記起訖點</string>
     
     <item type="id" name="tag_zero"></item>

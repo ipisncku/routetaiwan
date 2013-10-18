@@ -50,7 +50,7 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			Toast.makeText(this, "Google play service unavailable", Toast.LENGTH_LONG).show();
 		}else {    // Google Play Services are available
 			Log.d(TAG, "Google play service available");
-
+			
 			// Getting reference to the SupportMapFragment of activity_main.xml
 			MapFragment fm = ((MapFragment)getFragmentManager().findFragmentById(R.id.smallmap));
 
