@@ -51,7 +51,7 @@ private String version = "0.9.05";
 		// Sets the custom shortcut's title
 		putShortCutIntent.putExtra(Intent.EXTRA_SHORTCUT_NAME, getResources().getString(R.string.app_name));
 		putShortCutIntent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE,Intent.ShortcutIconResource.fromContext(
-				this, R.drawable.routetaiwan));
+				this, R.drawable.routetw_logo_v2));
 		putShortCutIntent.setAction("com.android.launcher.action.INSTALL_SHORTCUT");
 		sendBroadcast(putShortCutIntent);
 	}

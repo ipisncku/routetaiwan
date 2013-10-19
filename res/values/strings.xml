@@ -11,8 +11,8 @@
     <string name="hello_world">Hello world!</string>
     <string name="showmap2">觀看地圖</string>
     <string name="your_pos">Your Position: </string>
-    <string name="pos_from">現在位置</string>
-    <string name="pos_to">Taipei 101</string>
+    <string name="pos_from"><i>現在位置</i></string>
+    <string name="pos_to"><i>Taipei 101</i></string>
     <string name="str_from">起點</string>
     <string name="str_to">終點</string>
     <string name="go">Go</string>
@@ -69,8 +69,8 @@
     <string name="time_table">時刻表</string>
     
     <string name="no_data">沒有資料</string>
-    <string name="no_loc_provider">WiFi定位服務未開啟</string>
-    <string name="no_loc_provider_msg">按\"確定\"前往設定頁面</string>
+    <string name="no_loc_provider">WiFi/GPS定位服務未開啟</string>
+    <string name="no_loc_provider_msg">至少需要一項定位服務\n按\"確定\"前往設定頁面</string>
     <string name="no_network">無法使用網路</string>
     <string name="error">錯誤</string>
     <string name="not_in_tw">查詢的位置不在台灣，目前僅支援台灣本島</string>

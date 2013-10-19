@@ -206,7 +206,7 @@ public class planroute extends Activity {
 	}
 
 	public void start_positioning() {
-		String locprovider = 	initLocationProvider();
+		String locprovider = initLocationProvider();
 		if(locprovider == null) {
 			Toast.makeText(this, getResources().getString(R.string.warning_no_loc_provider) , Toast.LENGTH_LONG).show();
 			return;

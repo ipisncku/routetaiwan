@@ -43,6 +43,7 @@
                         android:background="#FFFFFF"
                         android:ems="10"
                         android:hint="@string/pos_from"
+                        android:textColorHint="#c3c3c3"
                         android:inputType="textPostalAddress"
                         android:singleLine="true" />
                 </TableRow>
@@ -76,6 +77,7 @@
                         android:background="#FFFFFF"
                         android:ems="10"
                         android:hint="@string/pos_to"
+                        android:textColorHint="#c3c3c3"
                         android:inputType="textPostalAddress"
                         android:singleLine="true" />
                 </TableRow>
