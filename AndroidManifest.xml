@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="tw.ipis.routetaiwan"
-    android:versionCode="3"
-    android:versionName="0.9.07" >
+    android:versionCode="4"
+    android:versionName="0.9.08b" >
 
     <uses-sdk
         android:minSdkVersion="15"
@@ -58,7 +58,7 @@
         
         <activity android:name="tw.ipis.routetaiwan.pop_map"
             android:configChanges="orientation|screenSize"
-            android:theme="@style/ThemeWithCorners" ></activity>
+            android:theme="@style/ThemeWithCorners_noTitle" ></activity>
         
         <activity android:name="tw.ipis.routetaiwan.pop_transit"
             android:configChanges="orientation|screenSize"
@@ -66,11 +66,11 @@
         
         <activity android:name="tw.ipis.routetaiwan.diag_save"
             android:configChanges="orientation|screenSize"
-            android:theme="@style/ThemeWithCorners" ></activity>
+            android:theme="@style/ThemeWithCorners_noTitle" ></activity>
         
         <activity android:name="tw.ipis.routetaiwan.diag_delete"
             android:configChanges="orientation|screenSize"
-            android:theme="@style/ThemeWithCorners" ></activity>
+            android:theme="@style/ThemeWithCorners_noTitle" ></activity>
         
         
         <meta-data

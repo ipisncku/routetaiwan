@@ -15,11 +15,18 @@
     <!-- Application theme. -->
     <style name="AppTheme" parent="AppBaseTheme">
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
+        <item name="android:windowNoTitle">true</item>
     </style>
 
     <style name="ThemeWithCorners" parent="android:Theme.Dialog">
         <item name="android:windowBackground">@drawable/style_popup</item>
     </style>
+    
+    <style name="ThemeWithCorners_noTitle" parent="android:Theme.Dialog">
+        <item name="android:windowBackground">@drawable/style_popup</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
+    
 
     <style name="Button" parent="@android:style/Widget.Button">
         <item name="android:gravity">center_vertical|center_horizontal</item>

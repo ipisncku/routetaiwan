@@ -176,8 +176,9 @@ public class planroute extends Activity {
 			Location currentloc = GetCurrentPosition();
 
 			if(start.isEmpty()) {
-				/* Fixed wifi定位功能沒開時造成的crash */
-				if(currentloc == null) {
+				if(provider != null && provider.contentEquals(LocationManager.GPS_PROVIDER))
+					Toast.makeText(this, getResources().getString(R.string.info_positioning_by_gps) , Toast.LENGTH_SHORT).show();
+				else if(currentloc == null) {	/* Fixed wifi定位功能沒開時造成的crash */
 					planning.setVisibility(ProgressBar.INVISIBLE);
 					AlertDialog.Builder dialog = new AlertDialog.Builder(new ContextThemeWrapper(this, R.style.ThemeWithCorners));
 					dialog.setTitle(getResources().getString(R.string.no_loc_provider));
@@ -194,7 +195,7 @@ public class planroute extends Activity {
 					});
 					dialog.show();
 				}
-				else if (currentloc.getProvider().contentEquals("network"))
+				else if (currentloc.getProvider().contentEquals(LocationManager.NETWORK_PROVIDER))
 					Getroute();
 				else
 					Toast.makeText(this, getResources().getString(R.string.info_positioning_by_gps) , Toast.LENGTH_SHORT).show();
