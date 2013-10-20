@@ -12,6 +12,6 @@
         android:bottom="10dp"
         android:left="6dp"
         android:right="6dp"
-        android:top="1dp" />
+        android:top="10dp" />
 
 </shape>
