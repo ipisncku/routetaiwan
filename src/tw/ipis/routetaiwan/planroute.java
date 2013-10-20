@@ -74,6 +74,7 @@ public class planroute extends Activity {
 	/* Define area */
 	private static final int PLAN_ROUTE_INSTRUCTION = 0x12340001;
 	private static final int PLAN_ROUTE_VIEW = 0x12340002;
+	private static final int PLAN_ROUTE_HELP_IMAGE = 0x12340003;
 	
 	//	ProgressBar planning;
 	String TAG = "~~planroute~~";
@@ -736,7 +737,7 @@ public class planroute extends Activity {
 	
 	private void display_help() {
 		/* Check if it is the first time to use this app, If yes, show some instruction */
-		File chk_fist_use = new File(Environment.getExternalStorageDirectory() + "/.routetaiwan/.first_planroute");
+		File chk_fist_use = new File(Environment.getExternalStorageDirectory() + "/.routetaiwan/.first_planroute2");
 		if(chk_fist_use.exists() == false) {
 			try {
 				chk_fist_use.createNewFile();
@@ -745,7 +746,16 @@ public class planroute extends Activity {
 			}
 			View cover = new View(this);
 			cover.setId(PLAN_ROUTE_VIEW);
-			cover.setBackgroundColor(Color.argb(0x80, 0xC, 0xC, 0xC));
+			cover.setBackgroundColor(Color.argb(0x70, 0xA, 0xA, 0xA));
+			cover.setClickable(true);
+			cover.setFocusable(true);
+			
+			final ImageView image = new ImageView(this);
+			image.setId(PLAN_ROUTE_HELP_IMAGE);
+			image.setImageResource(R.drawable.planroute_help);
+			image.setAdjustViewBounds(true);
+			image.setBackgroundColor(Color.TRANSPARENT);
+			
 			TextView instruction = new TextView(this);
 			instruction.setId(PLAN_ROUTE_INSTRUCTION);
 			instruction.setText(getResources().getString(R.string.plan_route_instruction));
@@ -762,8 +772,14 @@ public class planroute extends Activity {
 			RelativeLayout.LayoutParams coverLayoutParameters = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
 			cover.setLayoutParams(coverLayoutParameters);
 			
+			RelativeLayout.LayoutParams imageLayoutParameters = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+			imageLayoutParameters.addRule(RelativeLayout.CENTER_HORIZONTAL);
+			imageLayoutParameters.setMargins(0, 120, 0, 0);
+			image.setLayoutParams(imageLayoutParameters);
+			
 			RelativeLayout.LayoutParams textLayoutParameters = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-			textLayoutParameters.addRule(RelativeLayout.CENTER_IN_PARENT);
+			textLayoutParameters.addRule(RelativeLayout.BELOW, image.getId());
+			textLayoutParameters.addRule(RelativeLayout.CENTER_IN_PARENT, image.getId());
 			instruction.setLayoutParams(textLayoutParameters);
 
 			RelativeLayout.LayoutParams buttonLayoutParameters = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
@@ -772,6 +788,7 @@ public class planroute extends Activity {
 			ok.setLayoutParams(buttonLayoutParameters);
 
 			ll.addView(cover);
+			ll.addView(image);
 			ll.addView(instruction);
 			ll.addView(ok);
 
@@ -781,6 +798,7 @@ public class planroute extends Activity {
 					final RelativeLayout ll = (RelativeLayout)findViewById(R.id.rl_planroute);
 					TextView instruction = (TextView) findViewById(PLAN_ROUTE_INSTRUCTION);
 
+					ll.removeView(image);
 					ll.removeView(instruction);
 					ll.removeView(v);
 

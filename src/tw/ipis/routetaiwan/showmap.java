@@ -484,10 +484,6 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 		@Override
 		protected void onPostExecute(List<Address> addresses) {
 
-			if(addresses==null || addresses.size()==0){
-				Toast.makeText(getBaseContext(), getResources().getString(R.string.info_no_result), Toast.LENGTH_SHORT).show();
-			}
-
 			// Clears all the existing markers on the map
 			for(int i=0; i<results.size(); i++) {
 				results.get(i).remove();
@@ -496,48 +492,54 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			if(results.size() > 0)
 				results.clear();
 
-			final LatLngBounds.Builder builder = new LatLngBounds.Builder();
 
-			// Adding Markers on Google Map for each matching address
-			for(int i=0;i<addresses.size();i++){
-
-				Address address = (Address) addresses.get(i);
-
-				// Creating an instance of GeoPoint, to display in Google Map
-				LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
-				
-				if(pos_not_in_taiwan(latLng))
-					continue;
-
-				MarkerOptions markerOptions = new MarkerOptions();
-				markerOptions.position(latLng);
-				markerOptions.title(address.getFeatureName());
-				markerOptions.snippet(address.getMaxAddressLineIndex() > 0 ? address.getAddressLine(0) : address.getLocality());
-
-				Marker marker = googleMap.addMarker(markerOptions);
-				if(i == 0)
-					marker.showInfoWindow();
-				
-				results.add(marker);
-
-				builder.include(latLng);
-			}
-			
-			if(results.size() == 1)
-				googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(results.get(0).getPosition(), 15));
-			else if(results.size() > 1)
-				googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 80));
-			else
+			if(addresses==null || addresses.size()==0){
 				Toast.makeText(getBaseContext(), getResources().getString(R.string.info_no_result), Toast.LENGTH_SHORT).show();
-			
-			ImageButton search_btn = (ImageButton)findViewById(R.id.search_location);
-			search_btn.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View onclick) {
-					google_search(onclick);
+			}
+			else {
+				final LatLngBounds.Builder builder = new LatLngBounds.Builder();
+
+				// Adding Markers on Google Map for each matching address
+				for(int i=0;i<addresses.size();i++){
+
+					Address address = (Address) addresses.get(i);
+
+					// Creating an instance of GeoPoint, to display in Google Map
+					LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
+
+					if(pos_not_in_taiwan(latLng))
+						continue;
+
+					MarkerOptions markerOptions = new MarkerOptions();
+					markerOptions.position(latLng);
+					markerOptions.title(address.getFeatureName());
+					markerOptions.snippet(address.getMaxAddressLineIndex() > 0 ? address.getAddressLine(0) : address.getLocality());
+
+					Marker marker = googleMap.addMarker(markerOptions);
+					if(i == 0)
+						marker.showInfoWindow();
+
+					results.add(marker);
+
+					builder.include(latLng);
 				}
-			});
-		}	
+
+				if(results.size() == 1)
+					googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(results.get(0).getPosition(), 15));
+				else if(results.size() > 1)
+					googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 80));
+				else
+					Toast.makeText(getBaseContext(), getResources().getString(R.string.info_no_result), Toast.LENGTH_SHORT).show();
+
+				ImageButton search_btn = (ImageButton)findViewById(R.id.search_location);
+				search_btn.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View onclick) {
+						google_search(onclick);
+					}
+				});
+			}	
+		}
 	}
 	
 	public boolean pos_not_in_taiwan(LatLng pos) {
