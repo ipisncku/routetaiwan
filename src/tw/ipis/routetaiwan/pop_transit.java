@@ -701,7 +701,7 @@ public class pop_transit extends Activity {
 		bus_kaohsiung.add(new bus_provider("南台灣客運", null));
 		bus_kaohsiung.add(new bus_provider("義大客運", "850[1-6]|^[0-9]{1,3}|[^0-9][0-9]{1,2}"));
 		bus_kaohsiung.add(new bus_provider("東南客運", "37|62|81|248|紅[167]|紅1[0268]|紅2[07]|橘1|橘20"));
-		bus_kaohsiung.add(new bus_provider("高雄客運", "[0-9]{1,3}|[^0-9].*|80[0-4][0-9]"));
+		bus_kaohsiung.add(new bus_provider("高雄客運", "5|2[34]|60|87|9[78]|[^0-9].*|80[0-4][0-9]|[紅橘][0-9]{1,2}[A-B]?"));
 
 		/* 台中公車 客運業者列表 */
 		/* ref: http://citybus.taichung.gov.tw/pda/aspx/businfomation/choiceRoad.aspx?lang=CHT */
