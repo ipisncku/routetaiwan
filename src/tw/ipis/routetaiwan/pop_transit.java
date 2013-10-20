@@ -5,11 +5,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.text.DateFormat;
 import java.text.MessageFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -68,6 +74,7 @@ public class pop_transit extends Activity {
 	boolean err_tag_fail = false;
 	final Handler handler = new Handler();
 	Runnable runtask;
+	private String[] hsr_stations = {"台北站", "板橋站", "桃園站", "新竹站", "台中站", "嘉義站", "台南站", "左營站"};
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -96,6 +103,11 @@ public class pop_transit extends Activity {
 			else if(type.contentEquals("tra")) {
 				car_class = Data.getString("class");
 				time = Data.getLong("time");
+			}
+			else if(type.contentEquals("hsr")) {
+				time = Data.getLong("time");
+				dept = Data.getString("dept");
+				arr = Data.getString("arr");
 			}
 		}
 		else {
@@ -129,13 +141,86 @@ public class pop_transit extends Activity {
 		}
 		/* 高鐵 */
 		else if(type.contentEquals("hsr")) {
+			SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
+			long millis = time * 1000;
+			Date date = new Date(millis) ;
+			String str_date = formatter.format(date);
+			String hsr_real_time_url = "http://www.thsrc.com.tw/tw/TimeTable/DailyTimeTable/{0}";
+			String url = MessageFormat.format(hsr_real_time_url, str_date);
+			Log.i(TAG, String.format("hsr url=%s", url));
+			
 			rl.addView(process);
 
 			/* 設定activity title, ex: 自強 123 */
 			this.setTitle(getResources().getString(R.string.hsr_status));
+			
+			SimpleDateFormat sdf = new SimpleDateFormat("hh:mm", Locale.TAIWAN);
+			String formattedDate = sdf.format(date);
+			
+			int current_min = string_2_minutes_of_day(formattedDate);
+//			Log.i(TAG, String.format("date=%s, min=%d", formattedDate, current_min));
+			dept = dept.replaceAll("高鐵", "");
+			arr = arr.replaceAll("高鐵", "");
+			
+//			Log.i(TAG, String.format("%s %d", dept, Arrays.asList(hsr_stations).indexOf(dept)));
+//			Log.i(TAG, String.format("%s %d", arr, Arrays.asList(hsr_stations).indexOf(arr)));
+			
+			boolean southbound = Arrays.asList(hsr_stations).indexOf(dept) < Arrays.asList(hsr_stations).indexOf(arr) ? true : false;  
 
+			/* 先畫好Layout... */
+			ImageView iv = new ImageView(this);
+			iv.setId(0x12345001);
+			iv.setImageBitmap(null);
+
+			iv.setAdjustViewBounds(false);
+			RelativeLayout.LayoutParams ivparam = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+			ivparam.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+			ivparam.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+			iv.setLayoutParams(ivparam);
+
+			TextView tv = new TextView(this);
+			tv.setId(0x12345002);
+			tv.setText(getResources().getString(R.string.hsr_normal));
+			tv.setTextColor(Color.WHITE);
+			tv.setTextSize(20);
+			tv.setGravity(Gravity.CENTER);
+			tv.setHorizontallyScrolling(false);
+			RelativeLayout.LayoutParams tvparam = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+			tvparam.addRule(RelativeLayout.RIGHT_OF, iv.getId());
+			tv.setLayoutParams(tvparam);
+			
+			rl.addView(iv);
+			rl.addView(tv);
+			
+			ScrollView sv = new ScrollView(this);
+			RelativeLayout.LayoutParams svparam = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+			svparam.addRule(RelativeLayout.BELOW, iv.getId());
+			sv.setLayoutParams(svparam);
+			rl.addView(sv);
+			
+			TableLayout tl = new TableLayout(this);
+			tl.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+			tl.setOrientation(TableLayout.VERTICAL);
+
+			sv.addView(tl);
+			
+			/* End of 畫Layout */
+			
 			DownloadWebPageTask task = new DownloadWebPageTask();
 			task.execute(new String[] {"http://www.thsrc.com.tw/tw/Operation"});
+			
+			HSR_TIMETABLE_PARSER timetable = new HSR_TIMETABLE_PARSER (new AnalysisResult() {
+				@Override
+				public void parsexml(String result) {
+					return;
+				}
+
+				@Override
+				public void parsed(List<BusRoute> routes) {
+					return;
+				}
+			});
+			timetable.execute(url);
 		}
 		/* 公車 客運 */
 		else {
@@ -738,26 +823,10 @@ public class pop_transit extends Activity {
 	}
 
 	public void thsrc_current_status(String result) {
+		ImageView iv = (ImageView)findViewById(0x12345001);
+		TextView tv = (TextView)findViewById(0x12345001);
+		
 		if(result != null) {
-			ImageView iv = new ImageView(this);
-			iv.setId(0x12345001);
-			iv.setImageBitmap(null);
-
-			iv.setAdjustViewBounds(false);
-			RelativeLayout.LayoutParams ivparam = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-			ivparam.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-			iv.setLayoutParams(ivparam);
-
-			TextView tv = new TextView(this);
-			tv.setText(getResources().getString(R.string.hsr_normal));
-			tv.setTextColor(Color.WHITE);
-			tv.setTextSize(20);
-			tv.setGravity(Gravity.CENTER);
-			tv.setHorizontallyScrolling(false);
-			RelativeLayout.LayoutParams tvparam = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-			tvparam.addRule(RelativeLayout.RIGHT_OF, iv.getId());
-			tvparam.addRule(RelativeLayout.CENTER_VERTICAL);
-			tv.setLayoutParams(tvparam);
 			if(result.contains("show_ok")) {
 				/* 正常運行 */
 				iv.setImageResource(R.drawable.allok);
@@ -770,8 +839,6 @@ public class pop_transit extends Activity {
 			}
 			RelativeLayout rl = (RelativeLayout)findViewById(R.id.rl_pop_transit);
 			rl.removeView(process);
-			rl.addView(iv);
-			rl.addView(tv);
 		}
 	}
 
@@ -806,10 +873,83 @@ public class pop_transit extends Activity {
 
 		return true;
 	}
+	
+	/* time format sould be HH:MM */
+	private int string_2_minutes_of_day(String time) {
+		if(time.isEmpty())
+			return -1;
+		String[] hhmm = time.split(":");
+		int hh = Integer.parseInt(hhmm[0]);
+		int mm = Integer.parseInt(hhmm[1]);
+		Log.i(TAG, String.format("%02d:%02d", hh, mm));
+		return hh * 60 + mm;
+	}
 
 	public interface AnalysisResult {
 		public void parsexml(String p);
 		public void parsed(List<BusRoute> routes);
+	}
+	
+	private class HSR_TIMETABLE_PARSER extends AsyncTask<String, Void, List<HSRTrains>> {
+		private AnalysisResult cb = null;
+		public HSR_TIMETABLE_PARSER(AnalysisResult analysisResult) {
+			cb = analysisResult;
+		}
+
+		@Override
+		protected List<HSRTrains> doInBackground(String... urls) {
+			List<HSRTrains> timetable = new ArrayList<HSRTrains>();
+			for (String url : urls) {
+				try {
+					org.jsoup.nodes.Document doc;
+
+					doc = Jsoup.connect(url).userAgent("Mozilla").get();
+
+					Elements bounds = doc.select("div.text_orange1");
+					
+					Elements tables = doc.select("table[bgcolor=#CCCCCC]");
+//					for (org.jsoup.nodes.Element bound : tables) {
+					for(int i = 0; i < tables.size(); i++) {
+						org.jsoup.nodes.Element bound = tables.get(i);
+						String str_bound = bounds.get(i).text();
+						Log.i(TAG, str_bound);
+						Elements trains = bound.select("tr[bgcolor]");
+						Log.w(TAG, String.format("found %d train", trains.size()));
+						for (org.jsoup.nodes.Element train : trains) {
+							String id = train.select("td.text_orange_link").get(0).text();	// 車次
+							String taipei = train.select("td[title=台北站]").get(0).text();
+							String banqiao = train.select("td[title=板橋站]").get(0).text();
+							String taoyuang = train.select("td[title=桃園站]").get(0).text();
+							String taichung = train.select("td[title=台中站]").get(0).text();
+							String chiayi = train.select("td[title=嘉義站]").get(0).text();
+							String tainan = train.select("td[title=台南站]").get(0).text();
+							String zuoying = train.select("td[title=左營站]").get(0).text();
+							
+//							Log.i(TAG, String.format("id:%s, %s|%s|%s|%s|%s|%s|%s", id, taipei, banqiao, taoyuang, taichung, chiayi, tainan, zuoying));
+							HSRTrains newtrain = new HSRTrains(str_bound.contentEquals("南下列車")
+									, id
+									, string_2_minutes_of_day(taipei)
+									, string_2_minutes_of_day(banqiao)
+									, string_2_minutes_of_day(taoyuang)
+									, string_2_minutes_of_day(taichung)
+									, string_2_minutes_of_day(chiayi)
+									, string_2_minutes_of_day(tainan)
+									, string_2_minutes_of_day(zuoying));
+							timetable.add(newtrain);
+						}
+
+					}
+
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			return timetable;
+		}
+
+		@Override
+		protected void onPostExecute(List<HSRTrains> timetable) {
+		}
 	}
 
 	private class KHH_BUS_PARSER extends AsyncTask<String, Void, String> {

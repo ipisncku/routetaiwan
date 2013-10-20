@@ -651,7 +651,10 @@ public class planroute extends Activity {
 						else if(type.contentEquals("HEAVY_RAIL")) {
 							if(agencyname.contentEquals("台灣高鐵")) {
 								createImageViewbyR(R.drawable.hsr, tr, 50, 50);
-								text = new StringBuilder().append(text).append("hsr,").append(train_num(step.transit_details.headsign)).toString();
+								text = new StringBuilder().append(text).append("hsr,").append(train_num(step.transit_details.headsign)+",")
+										.append(step.transit_details.departure_time.value+",")
+										.append(step.transit_details.departure_stop.name+",")
+										.append(step.transit_details.arrival_stop.name).toString();
 								dires.routes[i].legs[j].mark.add(new MarkP("thsrc"
 										, getResources().getString(R.string.taketransit) + step.transit_details.line.short_name
 										, step.transit_details.headsign
@@ -1071,6 +1074,9 @@ public class planroute extends Activity {
 			else if(transit_detail[1].contentEquals("hsr")) {
 				bundle.putString("type", transit_detail[1]);
 				bundle.putString("line", transit_detail[2]);
+				bundle.putLong("time", Long.parseLong(transit_detail[3]));
+				bundle.putString("dept", transit_detail[4]);
+				bundle.putString("arr", transit_detail[5]);
 			}
 			else if(transit_detail[1].contentEquals("bus")) {
 				bundle.putString("type", transit_detail[1]);
