@@ -24,6 +24,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
@@ -138,27 +139,34 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			String t = types.get(i);
 			String tl = title.get(i);
 			String d = descriptions.get(i);
+			boolean disaplayed = false;
+			Marker marker;
 
 //			if (t.contentEquals("start"))
 //				add_marker(p, R.drawable.start, tl, d);
 			if (t.contentEquals("walk"))
-				add_marker(p, R.drawable.map_walk, tl, d);
+				marker = add_marker(p, R.drawable.map_walk, tl, d);
 			else if (t.contentEquals("bus"))
-				add_marker(p, R.drawable.map_bus, tl, d);
+				marker = add_marker(p, R.drawable.map_bus, tl, d);
 			else if (t.contentEquals("trtc"))
-				add_marker(p, R.drawable.map_trtc, tl, d);
+				marker = add_marker(p, R.drawable.map_trtc, tl, d);
 			else if (t.contentEquals("krtc"))
-				add_marker(p, R.drawable.map_krtc, tl, d);
+				marker = add_marker(p, R.drawable.map_krtc, tl, d);
 			else if (t.contentEquals("thsrc"))
-				add_marker(p, R.drawable.map_thsrc, tl, d);
+				marker = add_marker(p, R.drawable.map_thsrc, tl, d);
 			else if (t.contentEquals("tra"))
-				add_marker(p, R.drawable.map_tra, tl, d);
+				marker = add_marker(p, R.drawable.map_tra, tl, d);
 			else if (t.contentEquals("end"))
-				add_marker(p, R.drawable.destination, tl, d);
+				marker = add_marker(p, R.drawable.destination, tl, d);
 			else if (t.contentEquals("drive"))
-				add_marker(p, R.drawable.map_drive, tl, d);
+				marker = add_marker(p, R.drawable.map_drive, tl, d);
 			else
-				add_marker(p, 0, "", "");
+				marker = add_marker(p, 0, "", "");
+			
+			if(disaplayed == false && marker != null) {
+				marker.showInfoWindow();
+				disaplayed = true;
+			}
 		}
 
 		final LatLngBounds.Builder builder = new LatLngBounds.Builder();
@@ -223,7 +231,7 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 		}
 	}
 
-	public void add_marker(LatLng _point, int icon, String title, String description) {
+	public Marker add_marker(LatLng _point, int icon, String title, String description) {
 
 		MarkerOptions markerOpt = new MarkerOptions();
 		markerOpt.position(_point);
@@ -231,8 +239,9 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			markerOpt.icon(BitmapDescriptorFactory.fromResource(icon));
 			markerOpt.title(title);
 			markerOpt.snippet(description);
-			googleMap.addMarker(markerOpt);
+			return googleMap.addMarker(markerOpt);
 		}
+		return null;
 	}
 
 	public void focus_on_me(LatLng location) {
