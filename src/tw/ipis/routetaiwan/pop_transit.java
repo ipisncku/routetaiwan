@@ -994,17 +994,17 @@ public class pop_transit extends Activity {
 		/* 台中公車 客運業者列表 */
 		/* ref: http://citybus.taichung.gov.tw/pda/aspx/businfomation/choiceRoad.aspx?lang=CHT */
 		bus_taichung.add(new bus_provider("豐原客運", "650[68]|6595|[0-9]{1,3}"));
-		bus_taichung.add(new bus_provider("台中客運", null));
-		bus_taichung.add(new bus_provider("仁友客運", null));
+		bus_taichung.add(new bus_provider("台中客運", "[0-9]{1,3}|9區|6871|6899"));
+		bus_taichung.add(new bus_provider("仁友客運", "[0-9]{1,3}|6235"));
 		bus_taichung.add(new bus_provider("統聯客運", "[0-9]{1,3}"));
-		bus_taichung.add(new bus_provider("巨業交通", null));
-		bus_taichung.add(new bus_provider("全航客運", null));
-		bus_taichung.add(new bus_provider("彰化客運", null));
-		bus_taichung.add(new bus_provider("和欣客運", null));
+		bus_taichung.add(new bus_provider("巨業交通", "[0-9]{1,3}|68繞|168區[12]|169區"));
+		bus_taichung.add(new bus_provider("全航客運", "[0-9]{1,3}|58區[12]"));
+		bus_taichung.add(new bus_provider("彰化客運", "52|99"));
+		bus_taichung.add(new bus_provider("和欣客運", "16[01]"));
 		bus_taichung.add(new bus_provider("東南客運", "7|17|67|98"));
 		bus_taichung.add(new bus_provider("豐榮客運", "[0-9]{1,3}"));
-		bus_taichung.add(new bus_provider("苗栗客運", null));
-		bus_taichung.add(new bus_provider("中台灣客運", null));
+		bus_taichung.add(new bus_provider("苗栗客運", "181"));
+		bus_taichung.add(new bus_provider("中台灣客運", "[0-9]{1,3}"));
 	}
 	
 	private void station_name_replace() {
@@ -1302,6 +1302,9 @@ public class pop_transit extends Activity {
 							}
 							else if (detail[i+3].contentEquals("進站中")) {
 								wait_time = "0";
+							}
+							else {
+								wait_time = "null";
 							}
 							
 							routes.add(new BusRoute(detail[i+1], go ? 1 : 2, 
