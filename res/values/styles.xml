@@ -27,6 +27,12 @@
         <item name="android:windowNoTitle">true</item>
     </style>
     
+    <style name="ThemeWithCorners_noTitle_ICS" parent="android:Theme.Dialog">
+        <item name="android:backgroundDimEnabled">false</item>
+        <item name="android:windowBackground">@drawable/style_popup</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
+    
 
     <style name="Button" parent="@android:style/Widget.Button">
         <item name="android:gravity">center_vertical|center_horizontal</item>

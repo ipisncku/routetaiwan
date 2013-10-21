@@ -8,6 +8,7 @@ import android.app.Dialog;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
@@ -38,6 +39,10 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		/* 4.0.3 換成另外一個theme */
+		if (Build.VERSION.SDK_INT == Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+			setTheme(R.style.ThemeWithCorners_noTitle_ICS);
+		}
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.pop_map);
 
