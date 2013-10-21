@@ -218,7 +218,7 @@ public class pop_transit extends Activity {
 			rl.addView(tl);
 			
 			tr = CreateTableRow(tl);
-			tr.setBackgroundColor(Color.LTGRAY);
+			tr.setBackgroundColor(Color.BLACK);
 			/* 建議icon */
 			iv = new ImageView(this);
 			iv.setImageResource(R.drawable.marker);
@@ -233,7 +233,7 @@ public class pop_transit extends Activity {
 			/* 車次 */
 			tv = new TextView(this);
 			tv.setText(getResources().getString(R.string.train_id));
-			tv.setTextColor(Color.BLACK);
+			tv.setTextColor(Color.WHITE);
 			tv.setTextSize(16);
 			tv.setHorizontallyScrolling(false);
 			tv.setWidth(0);
@@ -244,7 +244,7 @@ public class pop_transit extends Activity {
 			/* xx站出發時間 */
 			tv = new TextView(this);
 			tv.setText(dept);
-			tv.setTextColor(Color.BLACK);
+			tv.setTextColor(Color.WHITE);
 			tv.setTextSize(16);
 			tv.setHorizontallyScrolling(false);
 			tv.setWidth(0);
@@ -255,7 +255,7 @@ public class pop_transit extends Activity {
 			/* xx站抵達時間 */
 			tv = new TextView(this);
 			tv.setText(arr);
-			tv.setTextColor(Color.BLACK);
+			tv.setTextColor(Color.WHITE);
 			tv.setTextSize(16);
 			tv.setHorizontallyScrolling(false);
 			tv.setWidth(0);
@@ -266,7 +266,7 @@ public class pop_transit extends Activity {
 			/* 行駛時間 */
 			tv = new TextView(this);
 			tv.setText(getResources().getString(R.string.trival_time));
-			tv.setTextColor(Color.BLACK);
+			tv.setTextColor(Color.WHITE);
 			tv.setTextSize(16);
 			tv.setHorizontallyScrolling(false);
 			tv.setWidth(0);
@@ -309,6 +309,7 @@ public class pop_transit extends Activity {
 					rl.removeView(process);
 					
 					boolean selected = false;
+					int color = Color.WHITE;
 					/* 時刻表捲單 */
 					TableLayout tl = new TableLayout(pop_transit.this);
 					tl.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
@@ -327,7 +328,8 @@ public class pop_transit extends Activity {
 							continue;
 						
 						final TableRow tr = CreateTableRow(tl);
-						tr.setBackgroundColor(Color.WHITE);
+						tr.setBackgroundColor(color);
+						color = (color == Color.LTGRAY) ? Color.WHITE : Color.LTGRAY;
 						
 						/* 建議icon */
 						ImageView iv = new ImageView(pop_transit.this);
