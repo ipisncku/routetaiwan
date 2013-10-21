@@ -68,6 +68,12 @@
     <string name="network_issue">網路連線異常</string>
     <string name="time_table">時刻表</string>
     
+    <string name="estimate">預計</string>
+    <string name="departure_time">出發時間</string>
+    <string name="arrival_time">抵達時間</string>
+    <string name="trival_time">行駛時間</string>
+    <string name="train_id">車次</string>
+    
     <string name="no_data">沒有資料</string>
     <string name="no_loc_provider">WiFi/GPS定位服務未開啟</string>
     <string name="no_loc_provider_msg">至少需要一項定位服務\n按\"確定\"前往設定頁面</string>
