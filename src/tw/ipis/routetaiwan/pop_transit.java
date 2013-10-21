@@ -139,6 +139,7 @@ public class pop_transit extends Activity {
 
 			/* 資料由台鐵提供 */
 			show_info_provider(R.string.provide_by_tra);
+			loading.setVisibility(ProgressBar.INVISIBLE);
 		}
 		/* 高鐵 */
 		else if(type.contentEquals("hsr")) {
@@ -282,6 +283,9 @@ public class pop_transit extends Activity {
 			sv.setLayoutParams(svparam);
 			rl.addView(sv);
 			
+			/* 資料由台灣高鐵提供 */
+			show_info_provider(R.string.provide_by_thsr);
+			
 			process_param = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
 			process_param.addRule(RelativeLayout.BELOW, ID_HSR_TIME_TABLE_TITLE);
 			process_param.addRule(RelativeLayout.CENTER_HORIZONTAL);
@@ -396,7 +400,13 @@ public class pop_transit extends Activity {
 						tv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.30f));
 						tr.addView(tv);
 					}
+					/* 最後的空白行 */
+					TableRow tr = CreateTableRow(tl);
+					tr.addView(new TextView(pop_transit.this));
+					tr.setBackgroundColor(color);
 					sv.addView(tl);
+					
+					loading.setVisibility(ProgressBar.INVISIBLE);
 				}
 			});
 			timetable.execute(url);
@@ -632,6 +642,7 @@ public class pop_transit extends Activity {
 					create_webview_by_url(url);
 					/* 資料由公路總局提供 */
 					show_info_provider(R.string.provide_by_bus);
+					loading.setVisibility(ProgressBar.INVISIBLE);
 				} catch (UnsupportedEncodingException e) {
 					e.printStackTrace();
 					Toast.makeText(this, getResources().getString(R.string.info_internal_error) , Toast.LENGTH_LONG).show();
