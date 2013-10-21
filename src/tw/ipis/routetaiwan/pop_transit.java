@@ -197,9 +197,10 @@ public class pop_transit extends Activity {
 			/* 預計xx站出發時間 HH:MM */
 			tv = new TextView(this);
 			tv.setId(ID_HSR_TIME_DEPART);
-			tv.setText(getResources().getString(R.string.estimate) + dept + getResources().getString(R.string.departure_time) + " " + formattedDate);
+			SimpleDateFormat boarding_time = new SimpleDateFormat("MM/dd HH:mm", Locale.TAIWAN);
+			tv.setText(getResources().getString(R.string.estimate) + dept + getResources().getString(R.string.departure_time) + ": " + boarding_time.format(date));
 			tv.setTextColor(Color.WHITE);
-			tv.setTextSize(18);
+			tv.setTextSize(16);
 			tv.setGravity(Gravity.LEFT);
 			RelativeLayout.LayoutParams tvparam = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
 			tvparam.addRule(RelativeLayout.BELOW, ID_HSR_STATUS_TABLE);
