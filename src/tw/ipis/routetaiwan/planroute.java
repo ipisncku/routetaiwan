@@ -490,9 +490,9 @@ public class planroute extends Activity {
 		};
 
 		if(num % 2 == 0)
-			tr.setBackgroundColor(Color.WHITE);
+			tr.setBackgroundResource(R.drawable.seletor_white);
 		else
-			tr.setBackgroundColor(Color.LTGRAY);
+			tr.setBackgroundResource(R.drawable.seletor_ltgray);
 		if(weight != 0)
 			tr.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, weight));
 		else

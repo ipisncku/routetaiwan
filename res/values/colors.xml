@@ -3,4 +3,6 @@
     <color name="route_edit_bg">#ff7800</color>
     <color name="route_edit_fg">#535253</color>
     <color name="route_show_bg">#FFFFFF</color>
+    <color name="ltgray">#CCCCCC</color>
+    <color name="white">#FFFFFF</color>
 </resources>
