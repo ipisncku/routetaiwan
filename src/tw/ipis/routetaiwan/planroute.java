@@ -576,7 +576,7 @@ public class planroute extends Activity {
 					dires.routes[i].legs[j].departure_time.value = System.currentTimeMillis() / 1000;
 				}
 
-				TableRow transit_times = CreateTableRow(tl, 0, i);	// 2nd row, leave it for later use
+//				TableRow transit_times = CreateTableRow(tl, 0, i);	// 2nd row, leave it for later use
 
 				tr = CreateTableRow(tl, 1.0f, i);
 				createImageViewbyR(R.drawable.start, tr, 50, 50);
@@ -694,8 +694,8 @@ public class planroute extends Activity {
 					}
 				}
 				String str = getResources().getString(R.string.transit) + ": " + transit + "x";
-				createTextView(str, transit_times, Color.rgb(0,0,0), 1.0f, Gravity.LEFT | Gravity.CENTER_VERTICAL, "all," + dires.routes[i].overview_polyline.points, 
-						dires.routes[i].legs[j].mark);
+//				createTextView(str, transit_times, Color.rgb(0,0,0), 1.0f, Gravity.LEFT | Gravity.CENTER_VERTICAL, "all," + dires.routes[i].overview_polyline.points, 
+//						dires.routes[i].legs[j].mark);
 				// Set time row
 				if(pure_walk_flag == true) {
 					dires.routes[i].legs[j].arrival_time.value = dires.routes[i].legs[j].departure_time.value + duration;
@@ -703,7 +703,10 @@ public class planroute extends Activity {
 				
 				String dur = String.format(" (%d" + getResources().getString(R.string.hour) + "%d" + getResources().getString(R.string.minute) + ")",
 						TimeUnit.SECONDS.toHours(duration), TimeUnit.SECONDS.toMinutes(duration % 3600));
-				title = new StringBuilder().append(convertTime(dires.routes[i].legs[j].departure_time.value)).append(" - ").append(convertTime(dires.routes[i].legs[j].arrival_time.value)).append(dur).toString();
+				title = new StringBuilder().append(convertTime(dires.routes[i].legs[j].departure_time.value)).append(" - ")
+										.append(convertTime(dires.routes[i].legs[j].arrival_time.value))
+										.append(dur)
+										.append("\n" + str).toString();
 				createTextView(title, time_row, Color.rgb(0,0,0), 1.0f, Gravity.LEFT | Gravity.CENTER_VERTICAL,
 						"all," + dires.routes[i].overview_polyline.points, dires.routes[i].legs[j].mark);
 			}

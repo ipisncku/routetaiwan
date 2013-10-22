@@ -233,9 +233,9 @@ public class myfavorite extends Activity {
 		};
 
 		if(num % 2 == 0)
-			tr.setBackgroundColor(Color.WHITE);
+			tr.setBackgroundResource(R.drawable.seletor_white);
 		else
-			tr.setBackgroundColor(Color.LTGRAY);
+			tr.setBackgroundResource(R.drawable.seletor_ltgray);
 		if(weight != 0)
 			tr.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, weight));
 		else
@@ -279,7 +279,7 @@ public class myfavorite extends Activity {
 					departure_time.value = System.currentTimeMillis() / 1000;
 				}
 
-				TableRow transit_times = CreateTableRow(tl, 0, i);	// 2nd row, leave it for later use
+//				TableRow transit_times = CreateTableRow(tl, 0, i);	// 2nd row, leave it for later use
 
 				tr = CreateTableRow(tl, 1.0f, i);
 				createImageViewbyR(R.drawable.start, tr, 50, 50);
@@ -365,12 +365,15 @@ public class myfavorite extends Activity {
 					}
 				}
 				String str = getResources().getString(R.string.transit) + ": " + transit + "x";
-				createTextView(str, transit_times, Color.rgb(0,0,0), 1.0f, Gravity.LEFT | Gravity.CENTER_VERTICAL, "all," + routes.get(i).overview_polyline.points, 
-						routes.get(i).legs[j].mark);
+//				createTextView(str, transit_times, Color.rgb(0,0,0), 1.0f, Gravity.LEFT | Gravity.CENTER_VERTICAL, "all," + routes.get(i).overview_polyline.points, 
+//						routes.get(i).legs[j].mark);
 
 				String dur = String.format(" (%d" + getResources().getString(R.string.hour) + "%d" + getResources().getString(R.string.minute) + ")",
 						TimeUnit.SECONDS.toHours(duration), TimeUnit.SECONDS.toMinutes(duration % 3600));
-				title = new StringBuilder().append(convertTime(departure_time.value)).append(" - ").append(convertTime(arrival_time.value)).append(dur).toString();
+				title = new StringBuilder().append(convertTime(departure_time.value)).append(" - ")
+										.append(convertTime(arrival_time.value))
+										.append(dur)
+										.append("\n" + str).toString();
 				createTextView(title, time_row, Color.rgb(0,0,0), 1.0f, Gravity.LEFT | Gravity.CENTER_VERTICAL,
 						"all," + routes.get(i).overview_polyline.points, routes.get(i).legs[j].mark);
 			}
