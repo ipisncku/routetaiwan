@@ -74,7 +74,11 @@ private String version = "0.9.05";
 	public void plan_route(View v) {
 		Intent route = new Intent(this, planroute.class);
 		startActivity(route);
-
+	}
+	
+	public void fav_points(View v) {
+		Intent route = new Intent(this, favorite_points.class);
+		startActivity(route);
 	}
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {

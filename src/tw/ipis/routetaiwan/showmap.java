@@ -78,8 +78,8 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 	private LocationRequest locationrequest;
 	private boolean first_read = true;
 	private boolean button_exist = false;
-	MarkerOptions opt_start, opt_destination;
-	Marker start, dest;
+	MarkerOptions opt_start, opt_destination, opt_temp;
+	Marker start, dest, temp;
 	List<Marker> results;
 	Point p = new Point(0, 0);
 
@@ -193,7 +193,8 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			}
 
 			opt_start = new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.start));
-			opt_destination  = new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.destination));
+			opt_destination = new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.destination));
+			opt_temp = new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.marker));
 
 			locationclient = new LocationClient(this,this,this);
 			locationclient.connect();
@@ -229,7 +230,10 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			googleMap.setOnMapLongClickListener(new OnMapLongClickListener() {
 				@Override
 				public void onMapLongClick(LatLng position) {
-					Log.i(TAG, "lat=" + position.latitude + ",lnt=" + position.longitude);
+					opt_temp.position(position);
+					if(temp != null)
+						temp.remove();
+					temp = googleMap.addMarker(opt_temp);
 					showPopup(showmap.this, position);
 				}
 			});
@@ -411,6 +415,7 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			public void onClick(View v) {
 				if(start != null)
 					start.remove();
+				temp.remove();
 				opt_start.position(position);
 				start = googleMap.addMarker(opt_start);
 				popup.dismiss();
@@ -425,12 +430,23 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			public void onClick(View v) {
 				if(dest != null)
 					dest.remove();
+				temp.remove();
 				opt_destination.position(position);
 				dest = googleMap.addMarker(opt_destination);
 				popup.dismiss();
 				create_button();
 			}
 		});
+		
+		Button send_friend = (Button) layout.findViewById(R.id.send_friend);
+		send_friend.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				popup.dismiss();
+			}
+		});
+		
 		// Getting a reference to Close button, and close the popup when clicked.
 		Button clearall = (Button) layout.findViewById(R.id.close);
 		clearall.setOnClickListener(new OnClickListener() {
@@ -441,6 +457,7 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 					start.remove();
 				if(dest != null)
 					dest.remove();
+				temp.remove();
 				remove_button();
 				popup.dismiss();
 			}

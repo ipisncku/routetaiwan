@@ -67,6 +67,25 @@
             android:text="@string/my_favorite" />
     </RelativeLayout>
     
+    <RelativeLayout
+        android:id="@+id/rl4"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:layout_weight="1"
+        android:orientation="vertical" >
+
+        <Button
+            style="@style/Button"
+            android:id="@+id/but_fav_points"
+            android:drawableLeft="@drawable/fav_points"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:onClick="fav_points"
+            android:text="@string/fav_points" />
+    </RelativeLayout>
+    
     <TextView
         android:id="@+id/ver"
         android:layout_width="wrap_content"
