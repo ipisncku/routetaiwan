@@ -1,7 +1,11 @@
 package tw.ipis.routetaiwan;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -82,6 +86,7 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 	Marker start, dest, temp;
 	List<Marker> results;
 	Point p = new Point(0, 0);
+	private static final String projectdir = Environment.getExternalStorageDirectory() + "/.routetaiwan/";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -383,6 +388,59 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			}, 500);
 		}
 	}
+	
+	public static String getMD5EncryptedString(String encTarget){
+		MessageDigest mdEnc = null;
+		try {
+			mdEnc = MessageDigest.getInstance("MD5");
+		} catch (NoSuchAlgorithmException e) {
+			System.out.println("Exception while encrypting to md5");
+			e.printStackTrace();
+		} // Encryption algorithm
+		mdEnc.update(encTarget.getBytes(), 0, encTarget.length());
+		String md5 = new BigInteger(1, mdEnc.digest()).toString(16) ;
+		return md5;
+	}
+	
+	public void save2fav() {
+		AlertDialog.Builder dialog = new AlertDialog.Builder(new ContextThemeWrapper(this, R.style.ThemeWithCorners));
+		dialog.setTitle(getResources().getString(R.string.edit_title));
+		final EditText editText = new EditText(this);
+		dialog.setView(editText);
+		dialog.setPositiveButton(getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int id) {
+				String fav_description = editText.getText().toString();
+				String fav_point = String.format("%s,%s,%s", fav_description.isEmpty() ? 
+						getResources().getString(R.string.fav_points) : fav_description, 
+						new DecimalFormat("###.######").format(temp.getPosition().latitude), new DecimalFormat("###.######").format(temp.getPosition().longitude));
+				String filename = projectdir + getMD5EncryptedString(fav_point) + ".point";
+				
+				File file = new File(filename);
+				if (!file.exists()) {
+					FileWriter writer;
+					try {
+						writer = new FileWriter(filename);
+						writer.write(fav_description);
+						writer.close();
+						Toast.makeText(showmap.this, getResources().getString(R.string.saved) , Toast.LENGTH_SHORT).show();
+					} catch (IOException e) {
+						e.printStackTrace();
+						Toast.makeText(showmap.this, getResources().getString(R.string.info_internal_error) , Toast.LENGTH_SHORT).show();
+					}
+				}
+				else {
+					Toast.makeText(showmap.this, getResources().getString(R.string.file_already_existed) , Toast.LENGTH_SHORT).show();
+				}
+			}
+		});
+		dialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int id) {
+				// do nothing
+				temp.remove();
+			}
+		});
+		dialog.show();
+	}
 
 	// The method that displays the popup.
 	@SuppressWarnings("deprecation")
@@ -404,6 +462,7 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 		// Clear the default translucent background
 		popup.setBackgroundDrawable(new BitmapDrawable());
 		popup.setOutsideTouchable(true);
+		popup.setAnimationStyle(R.style.PopupWindowAnimation);
 
 		// Displaying the popup at the specified location, + offsets.
 		popup.showAtLocation(layout, Gravity.NO_GRAVITY, p.x + OFFSET_X, p.y + OFFSET_Y);
@@ -420,6 +479,7 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 				start = googleMap.addMarker(opt_start);
 				popup.dismiss();
 				create_button();
+				v.setOnClickListener(null);
 			}
 		});
 
@@ -435,6 +495,7 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 				dest = googleMap.addMarker(opt_destination);
 				popup.dismiss();
 				create_button();
+				v.setOnClickListener(null);
 			}
 		});
 		
@@ -444,6 +505,18 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			@Override
 			public void onClick(View v) {
 				popup.dismiss();
+				v.setOnClickListener(null);
+			}
+		});
+		
+		Button save_point = (Button) layout.findViewById(R.id.save);
+		save_point.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				save2fav();
+				popup.dismiss();
+				v.setOnClickListener(null);
 			}
 		});
 		
@@ -460,6 +533,7 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 				temp.remove();
 				remove_button();
 				popup.dismiss();
+				v.setOnClickListener(null);
 			}
 		});
 	}

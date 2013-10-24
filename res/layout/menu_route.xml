@@ -3,67 +3,62 @@
     android:id="@+id/menu1"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#CCC"
+    android:background="#800C0C0C"
     android:orientation="vertical" >
 
-    <RelativeLayout
+    <TableLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
         android:layout_weight="1"
+        android:background="#CCC"
         android:orientation="vertical" >
 
-        <Button
-            android:id="@+id/add_to_departure"
-            style="@style/SmallBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:text="@string/add_to_departure" />
-    </RelativeLayout>
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical" >
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:orientation="vertical" >
+            <Button
+                android:id="@+id/add_to_departure"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:drawableTop="@drawable/start"
+                android:text="@string/add_to_departure" />
 
-        <Button
-            android:id="@+id/add_to_arrival"
-            style="@style/SmallBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:text="@string/add_to_arrival" />
-    </RelativeLayout>
+            <Button
+                android:id="@+id/add_to_arrival"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:drawableTop="@drawable/destination"
+                android:text="@string/add_to_arrival" />
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:orientation="vertical" >
+            <Button
+                android:id="@+id/send_friend"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:drawableTop="@drawable/friend"
+                android:text="@string/send_friend" />
+            
+            <Button
+                android:id="@+id/save"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:drawableTop="@drawable/favorite_32"
+                android:text="@string/save_result" />
 
-        <Button
-            android:id="@+id/send_friend"
-            style="@style/SmallBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:text="@string/send_friend" />
-    </RelativeLayout>
-    
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:orientation="vertical" >
-
-        <Button
-            android:id="@+id/close"
-            style="@style/SmallBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:text="@string/cancel_result" />
-    </RelativeLayout>
+            <Button
+                android:id="@+id/close"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:drawableTop="@drawable/clean"
+                android:text="@string/cancel_result" />
+        </TableRow>
+    </TableLayout>
 
 </LinearLayout>
