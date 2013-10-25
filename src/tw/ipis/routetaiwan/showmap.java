@@ -343,7 +343,7 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			// Setting the parameters on the Button
 			gotoplan.setLayoutParams(buttonLayoutParameters); 
 			ll.addView(gotoplan);
-			final Animation animTrans = AnimationUtils.loadAnimation(this, R.anim.anim_translate);
+			final Animation animTrans = AnimationUtils.loadAnimation(this, R.anim.anim_translate_y);
 			gotoplan.startAnimation(animTrans);
 
 			button_exist = true;
@@ -371,7 +371,7 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			Button gotoplan = (Button) findViewById(BUTTON_PLAN_ROUTE);
 			gotoplan.setOnClickListener(null);
 
-			final Animation animTrans = AnimationUtils.loadAnimation(showmap.this, R.anim.anim_translate_out);
+			final Animation animTrans = AnimationUtils.loadAnimation(showmap.this, R.anim.anim_translate_y_out);
 			gotoplan.setAnimation(animTrans);
 
 			/* Make the cover fully transparent after 500ms */
