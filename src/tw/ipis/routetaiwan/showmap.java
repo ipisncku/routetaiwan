@@ -457,7 +457,7 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 
 		// Some offset to align the popup a bit to the right, and a bit down, relative to button's position.
 		int OFFSET_X = 30;
-		int OFFSET_Y = 80;
+		int OFFSET_Y = 10;
 
 		// Clear the default translucent background
 		popup.setBackgroundDrawable(new BitmapDrawable());
