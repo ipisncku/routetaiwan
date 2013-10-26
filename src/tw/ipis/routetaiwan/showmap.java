@@ -456,6 +456,18 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 		});
 		dialog.show();
 	}
+	
+	public void send_sms() {
+		/* Pop-up a dialog to ask for permission */
+		Intent launchpop = new Intent(this, sms_send.class);
+//		Bundle bundle=new Bundle();
+		
+//		bundle.putString("filename", filename);
+//		bundle.putString("content", json);
+//		launchpop.putExtras(bundle);
+
+		startActivity(launchpop);
+	}
 
 	// The method that displays the popup.
 	@SuppressWarnings("deprecation")
@@ -520,6 +532,7 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			@Override
 			public void onClick(View v) {
 				popup.dismiss();
+				send_sms();
 				v.setOnClickListener(null);
 			}
 		});

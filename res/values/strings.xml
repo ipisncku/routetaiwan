@@ -54,6 +54,8 @@
     
     <string name="sendfrom">來自</string>
     
+    <string name="name_or_number">輸入名字或電話號碼</string>
+    
     <string name="instruction">長按地圖可以設定起/終點\n進行路徑規劃</string>
     <string name="plan_route_instruction">點選各細項可以看詳細解說\n長按結果可以儲存路徑</string>
     <string name="understand">了解</string>
@@ -61,8 +63,8 @@
     <string name="diag_saving">儲存此路徑?</string>
     <string name="diag_delete">確定要刪除嗎?</string>
     <string name="saved">已儲存</string>
-    <string name="diag_yes">Yes</string>
-    <string name="diag_no">No</string>
+    <string name="diag_yes">確定</string>
+    <string name="diag_no">取消</string>
     <string name="file_already_existed">路徑已經存在</string>
     
     <string name="realtime_under_construction">即時資訊施工中</string>
