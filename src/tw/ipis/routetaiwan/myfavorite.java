@@ -40,6 +40,7 @@ import com.google.gson.Gson;
 
 public class myfavorite extends Activity {
 	TextView textv;
+	ImageView empty;
 	List<File> favorite_routes;
 	List<Route> routes;
 	private static final String projectdir = Environment.getExternalStorageDirectory() + "/.routetaiwan";
@@ -118,10 +119,22 @@ public class myfavorite extends Activity {
 	public void info_empty_folder() {
 		LinearLayout ll = (LinearLayout)findViewById(R.id.ll_favorites);
 		
+		if(empty != null)
+			ll.removeView(empty);
+		else
+			empty = null;
 		if(textv != null)
 			ll.removeView(textv);
 		else
 			textv = null;
+
+		empty = new ImageView(this);
+		empty.setImageBitmap(null);
+		empty.setImageResource(R.drawable.empty);
+		empty.setAdjustViewBounds(true);
+		LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+		param.gravity = Gravity.CENTER;
+		empty.setLayoutParams(param);
 		
 		textv = new TextView(this);
 		textv.setText(getResources().getString(R.string.no_data));
@@ -130,6 +143,7 @@ public class myfavorite extends Activity {
 		textv.setGravity(Gravity.CENTER);
 		textv.setHorizontallyScrolling(false);
 		
+		ll.addView(empty);
 		ll.addView(textv);
 	}
 

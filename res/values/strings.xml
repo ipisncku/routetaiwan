@@ -52,6 +52,8 @@
     
     <string name="goto_planroute">規劃路徑</string>
     
+    <string name="sendfrom">來自</string>
+    
     <string name="instruction">長按地圖可以設定起/終點\n進行路徑規劃</string>
     <string name="plan_route_instruction">點選各細項可以看詳細解說\n長按結果可以儲存路徑</string>
     <string name="understand">了解</string>

@@ -5,6 +5,7 @@ import java.io.File;
 import android.app.Activity;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 
@@ -27,7 +28,8 @@ public class diag_delete extends Activity {
 	
 	public void del_yes(View v) {
 		File file = new File(filename);
-		file.delete();
+		if(file.exists())
+			Log.i(TAG, "file.delete() = " + file.delete());
 		finish();
 	}
 	

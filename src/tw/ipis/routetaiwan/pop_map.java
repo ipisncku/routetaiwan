@@ -85,6 +85,13 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 					add_marker(p, R.drawable.destination);
 					focus_on_me(p);
 				}
+				else if(poly.contentEquals("marker")) {
+					LatLng p = decode_latlng(start);
+					Marker marker = add_marker(p, R.drawable.pink_marker);
+					marker.setTitle(Data.getString("title"));
+					marker.showInfoWindow();
+					focus_on_me(p);
+				}
 				else
 					draw_polyline(poly, decode_latlng(start), decode_latlng(det));
 			}
@@ -226,14 +233,15 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 
 	}
 
-	public void add_marker(LatLng _point, int icon) {
+	public Marker add_marker(LatLng _point, int icon) {
 
 		MarkerOptions markerOpt = new MarkerOptions();
 		markerOpt.position(_point);
 		if (icon != 0) {
 			markerOpt.icon(BitmapDescriptorFactory.fromResource(icon));
-			googleMap.addMarker(markerOpt);
+			return googleMap.addMarker(markerOpt);
 		}
+		return null;
 	}
 
 	public Marker add_marker(LatLng _point, int icon, String title, String description) {

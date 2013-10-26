@@ -37,6 +37,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnFocusChangeListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -406,21 +407,35 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 		AlertDialog.Builder dialog = new AlertDialog.Builder(new ContextThemeWrapper(this, R.style.ThemeWithCorners));
 		dialog.setTitle(getResources().getString(R.string.edit_title));
 		final EditText editText = new EditText(this);
+		editText.setOnFocusChangeListener(new OnFocusChangeListener() {
+
+			@Override
+			public void onFocusChange(View v, boolean hasFocus) {
+				if (hasFocus) {
+					v.setBackgroundColor(Color.WHITE);
+					((EditText) v).setTextColor(Color.BLACK);
+				} 
+			}
+		});
+		
+		
 		dialog.setView(editText);
 		dialog.setPositiveButton(getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int id) {
 				String fav_description = editText.getText().toString();
-				String fav_point = String.format("%s,%s,%s", fav_description.isEmpty() ? 
+				String fav_point = String.format("save,%s,%s,%s", fav_description.isEmpty() ? 
 						getResources().getString(R.string.fav_points) : fav_description, 
 						new DecimalFormat("###.######").format(temp.getPosition().latitude), new DecimalFormat("###.######").format(temp.getPosition().longitude));
 				String filename = projectdir + getMD5EncryptedString(fav_point) + ".point";
 				
 				File file = new File(filename);
 				if (!file.exists()) {
+					Log.i(TAG, String.format("file:%s content:%s", filename, fav_point));
+					
 					FileWriter writer;
 					try {
 						writer = new FileWriter(filename);
-						writer.write(fav_description);
+						writer.write(fav_point);
 						writer.close();
 						Toast.makeText(showmap.this, getResources().getString(R.string.saved) , Toast.LENGTH_SHORT).show();
 					} catch (IOException e) {
@@ -550,11 +565,11 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 
 		if(location!=null && !location.equals("")){
 			v.setOnClickListener(null);
-			new GeocoderTask().execute(location);
+			new Geocoder_get_address_by_name().execute(location);
 		}
 	}
-
-	private class GeocoderTask extends AsyncTask<String, Void, List<Address>>{
+	
+	private class Geocoder_get_address_by_name extends AsyncTask<String, Void, List<Address>>{
 
 		@Override
 		protected List<Address> doInBackground(String... locationName) {

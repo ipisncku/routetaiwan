@@ -4,13 +4,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
-    
-	<ScrollView
+
+    <ScrollView
         android:id="@+id/fav_points"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/route_show_bg" >
     </ScrollView>
-    
-    
+
 </LinearLayout>
