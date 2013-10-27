@@ -460,11 +460,12 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 	public void send_sms() {
 		/* Pop-up a dialog to ask for permission */
 		Intent launchpop = new Intent(this, sms_send.class);
-//		Bundle bundle=new Bundle();
+		Bundle bundle=new Bundle();
 		
-//		bundle.putString("filename", filename);
-//		bundle.putString("content", json);
-//		launchpop.putExtras(bundle);
+		bundle.putString("title", "");
+		bundle.putString("latlng"
+				, new DecimalFormat("###.######").format(temp.getPosition().latitude) + "," + new DecimalFormat("###.######").format(temp.getPosition().longitude));
+		launchpop.putExtras(bundle);
 
 		startActivity(launchpop);
 	}

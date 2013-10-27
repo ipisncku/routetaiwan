@@ -34,6 +34,9 @@
     <string name="info_no_result">沒有結果, 請重新輸入</string>
     <string name="info_internal_error">發生錯誤</string>
     
+    <string name="info_illegal_num">電話號碼輸入錯誤</string>
+    <string name="sms_sent">訊息已傳送</string>
+    
     <string name="common_bus">公車</string>
     <string name="common_mrt">捷運</string>
     
@@ -54,7 +57,7 @@
     
     <string name="sendfrom">來自</string>
     
-    <string name="name_or_number">輸入名字或電話號碼</string>
+    <string name="name_or_number">輸入電話號碼</string>
     
     <string name="instruction">長按地圖可以設定起/終點\n進行路徑規劃</string>
     <string name="plan_route_instruction">點選各細項可以看詳細解說\n長按結果可以儲存路徑</string>

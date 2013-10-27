@@ -232,6 +232,19 @@ public class favorite_points extends Activity {
 			iv.setImageResource(R.drawable.friend);
 			iv.setAdjustViewBounds(true);
 			iv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.1f));
+			iv.setOnClickListener(new OnClickListener(){  
+				public void onClick(View v) {
+					Intent launchpop = new Intent(favorite_points.this, sms_send.class);
+					Bundle bundle=new Bundle();
+					
+					bundle.putString("title", fp.name);
+					bundle.putString("latlng"
+							, new DecimalFormat("###.######").format(fp.location.latitude) + "," + new DecimalFormat("###.######").format(fp.location.longitude));
+					launchpop.putExtras(bundle);
+
+					startActivity(launchpop);
+				}
+			});
 			tr.addView(iv);
 
 			iv = new ImageView(this);
