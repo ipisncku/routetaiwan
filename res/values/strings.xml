@@ -36,6 +36,7 @@
     
     <string name="info_illegal_num">電話號碼輸入錯誤</string>
     <string name="sms_sent">訊息已傳送</string>
+    <string name="sms_received">收到了位置簡訊</string>
     
     <string name="common_bus">公車</string>
     <string name="common_mrt">捷運</string>

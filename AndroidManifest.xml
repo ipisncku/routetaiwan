@@ -26,12 +26,18 @@
     <uses-feature
         android:glEsVersion="0x00020000"
         android:required="true" />
-
+    
     <application
         android:allowBackup="true"
         android:icon="@drawable/routetw_logo_v2"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
+        <receiver android:name=".SmsReceiver" >
+            <intent-filter>
+                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
+            </intent-filter>
+        </receiver>
+
         <activity
             android:name="tw.ipis.routetaiwan.MainActivity"
             android:configChanges="orientation|screenSize"
@@ -82,6 +88,10 @@
             android:theme="@style/ThemeWithCorners_noTitle" ></activity>
         
         <activity android:name="tw.ipis.routetaiwan.sms_send"
+            android:configChanges="orientation|screenSize"
+            android:theme="@style/ThemeWithCorners_noTitle" ></activity>
+        
+        <activity android:name="tw.ipis.routetaiwan.SmsReceriver"
             android:configChanges="orientation|screenSize"
             android:theme="@style/ThemeWithCorners_noTitle" ></activity>
         
