@@ -97,16 +97,17 @@
             android:configChanges="orientation|screenSize"
             android:theme="@style/ThemeWithCorners_noTitle" ></activity>
         
-        <!-- debug key
+        
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="AIzaSyCLlYQfiYAcQsQXFZbksR4Frr0yrIhhR98"/>
-			-->
-        
+			
+        <!-- debug key
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="AIzaSyAL7IpREp53WpGcHshCcjBBgnsL6KYLhzw"/>
         
+        -->
     </application>
 
 </manifest>

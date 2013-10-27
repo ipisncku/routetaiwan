@@ -79,6 +79,7 @@ public class planroute extends Activity {
 	//	ProgressBar planning;
 	String TAG = "~~planroute~~";
 	private ProgressBar planning;
+	private ImageView gps_recving;
 	private EditText from;
 	private EditText to;
 	private LocationManager locationMgr;
@@ -87,6 +88,7 @@ public class planroute extends Activity {
 	public DirectionResponseObject dires = null;
 	String provider = null;
 	private static final String projectdir = Environment.getExternalStorageDirectory() + "/.routetaiwan/";
+	private int gps_image_id = 0;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -98,6 +100,10 @@ public class planroute extends Activity {
 		RelativeLayout ll = (RelativeLayout)findViewById(R.id.rl_planroute);
 		ll.setBackgroundResource(R.drawable.style_angle);
 
+		gps_recving = new ImageView(this);
+		gps_recving.setImageResource(0);
+		gps_recving.setAdjustViewBounds(true);
+		
 		start_positioning();
 
 		/* Intent from showmap class */
@@ -177,8 +183,14 @@ public class planroute extends Activity {
 			Location currentloc = GetCurrentPosition();
 
 			if(start.isEmpty()) {
-				if(provider != null && provider.contentEquals(LocationManager.GPS_PROVIDER))
+				if(provider != null && provider.contentEquals(LocationManager.GPS_PROVIDER)) {
 					Toast.makeText(this, getResources().getString(R.string.info_positioning_by_gps) , Toast.LENGTH_SHORT).show();
+					gps_recving.setImageResource(R.drawable.gps_recving);
+					ScrollView sv = (ScrollView) this.findViewById(R.id.routes);
+					planning.setVisibility(ProgressBar.INVISIBLE);
+					sv.removeAllViews();	// Clear screen
+					sv.addView(gps_recving);
+				}
 				else if(currentloc == null) {	/* Fixed wifi定位功能沒開時造成的crash */
 					planning.setVisibility(ProgressBar.INVISIBLE);
 					AlertDialog.Builder dialog = new AlertDialog.Builder(new ContextThemeWrapper(this, R.style.ThemeWithCorners));
@@ -200,6 +212,11 @@ public class planroute extends Activity {
 					Getroute();
 				else {
 					Toast.makeText(this, getResources().getString(R.string.info_positioning_by_gps) , Toast.LENGTH_SHORT).show();
+					gps_recving.setImageResource(R.drawable.gps_recving);
+					ScrollView sv = (ScrollView) this.findViewById(R.id.routes);
+					planning.setVisibility(ProgressBar.INVISIBLE);
+					sv.removeAllViews();	// Clear screen
+					sv.addView(gps_recving);
 				}
 			}
 			else 
@@ -884,6 +901,25 @@ public class planroute extends Activity {
 				break;
 			case GpsStatus.GPS_EVENT_SATELLITE_STATUS:
 				Log.d(TAG, "GPS_EVENT_SATELLITE_STATUS");
+				if(isrequested) {
+					switch(gps_image_id) {
+					case 0:
+						gps_recving.setImageResource(R.drawable.gps_recving);
+						gps_image_id++;
+						break;
+					case 1:
+						gps_recving.setImageResource(R.drawable.gps_recving1);
+						gps_image_id++;
+						break;
+					case 2:
+						gps_recving.setImageResource(R.drawable.gps_recving2);
+						gps_image_id=0;
+						break;
+					default:
+						gps_image_id=0;
+						break;
+					}
+				}
 				break;
 			}
 		}
@@ -892,6 +928,10 @@ public class planroute extends Activity {
 		@Override
 		public void onLocationChanged(Location location) {
 			if (isrequested) {
+				planning.setVisibility(ProgressBar.VISIBLE);
+				ScrollView sv = (ScrollView) planroute.this.findViewById(R.id.routes);
+				sv.removeAllViews();	// Clear screen
+				sv.addView(planning);
 				Toast.makeText(planroute.this, getResources().getString(R.string.info_gps_fixed) , Toast.LENGTH_SHORT).show();
 				Getroute();
 			}

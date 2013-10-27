@@ -1,5 +1,7 @@
 package tw.ipis.routetaiwan;
 
+import java.io.File;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -7,19 +9,27 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ContentResolver;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.ContactsContract;
 import android.telephony.SmsManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -36,7 +46,7 @@ public class sms_send extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.sms_search_contact);
-		
+
 		Bundle Data = this.getIntent().getExtras();
 		title = Data.getString("title");
 		latlng = Data.getString("latlng");
@@ -82,26 +92,81 @@ public class sms_send extends Activity {
 		});
 
 	}
-	
+
 	public void start_sending(View v) {
-		String phoneNo = inputSearch.getText().toString();
+		final String phoneNo = inputSearch.getText().toString();
 		if(!phoneNo.matches("[+0-9]+")) {
 			Toast.makeText(getApplicationContext(), getResources().getString(R.string.info_illegal_num),
 					Toast.LENGTH_LONG).show();
 			return;
 		}
 		String title_name = pos_title.getText().toString();
-		
-		String sms = String.format("rtw,%s,%s", title_name, latlng);
-		
+
+		final String sms = String.format("rtw,%s,%s", title_name, latlng);
+
 		Log.i(TAG, "sms="+sms);
-		
-		SmsManager smsManager = SmsManager.getDefault();
-		smsManager.sendTextMessage(phoneNo, null, sms, null, null);
-		Toast.makeText(getApplicationContext(), getResources().getString(R.string.sms_sent),
-				Toast.LENGTH_LONG).show();
-		
-		finish();
+
+		final File chk_fist_use = new File(Environment.getExternalStorageDirectory() + "/.routetaiwan/.sms_remind");
+
+		if(!chk_fist_use.exists()) {
+			AlertDialog.Builder dialog = new AlertDialog.Builder(new ContextThemeWrapper(this, R.style.ThemeWithCorners));
+			dialog.setTitle(getResources().getString(R.string.notice));
+			dialog.setMessage(getResources().getString(R.string.info_sms_sending));
+
+			CheckBox checkBox = new CheckBox(this);
+			checkBox.setText(getResources().getString(R.string.no_remind));
+			checkBox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+				@Override
+				public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+					if (isChecked) {
+						if(!chk_fist_use.exists()) {
+							try {
+								chk_fist_use.createNewFile();
+							} catch (IOException e) {
+								e.printStackTrace();
+							}
+						}
+					} else {
+						if(chk_fist_use.exists())
+							chk_fist_use.delete();
+					}
+				}
+			});
+
+			LinearLayout linearLayout = new LinearLayout(this);
+			linearLayout.setLayoutParams( new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+					LinearLayout.LayoutParams.MATCH_PARENT));
+			linearLayout.setOrientation(1);     
+			linearLayout.addView(checkBox);
+
+			dialog.setView(linearLayout);
+
+
+			dialog.setPositiveButton(getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int id) {
+
+					SmsManager smsManager = SmsManager.getDefault();
+					smsManager.sendTextMessage(phoneNo, null, sms, null, null);
+					Toast.makeText(getApplicationContext(), getResources().getString(R.string.sms_sent),
+							Toast.LENGTH_LONG).show();
+					finish();
+				}
+			});
+			dialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int id) {
+					// do nothing
+					finish();
+				}
+			});
+			dialog.show();
+		}
+		else {
+			SmsManager smsManager = SmsManager.getDefault();
+			smsManager.sendTextMessage(phoneNo, null, sms, null, null);
+			Toast.makeText(getApplicationContext(), getResources().getString(R.string.sms_sent),
+					Toast.LENGTH_LONG).show();
+			finish();
+		}
 	}
 	public static String getMD5EncryptedString(String encTarget){
 		MessageDigest mdEnc = null;
@@ -115,7 +180,7 @@ public class sms_send extends Activity {
 		String md5 = new BigInteger(1, mdEnc.digest()).toString(16) ;
 		return md5;
 	}
-	
+
 	public void cancel(View v) {
 		finish();
 	}
@@ -135,12 +200,11 @@ public class sms_send extends Activity {
 							ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
 							null,
 							ContactsContract.CommonDataKinds.Phone.CONTACT_ID +" = ?",
-									new String[]{id}, null);
+							new String[]{id}, null);
 					while (pCur.moveToNext()) {
 						String phoneNo = pCur.getString(pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-//						Toast.makeText(this, "Name: " + name + ", Phone No: " + phoneNo, Toast.LENGTH_SHORT).show();
-						
-						contact.add(String.format("%s %s", name, phoneNo));
+
+						contact.add(String.format("%s\t%s", name, phoneNo));
 					}
 					pCur.close();
 				}
@@ -153,7 +217,7 @@ public class sms_send extends Activity {
 			}
 			return list;
 		}
-		
+
 		return new String[0];
 	}
 

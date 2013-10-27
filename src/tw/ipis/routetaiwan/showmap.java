@@ -655,7 +655,8 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 					MarkerOptions markerOptions = new MarkerOptions();
 					markerOptions.position(latLng);
 					markerOptions.title(address.getFeatureName());
-					markerOptions.snippet(address.getMaxAddressLineIndex() > 0 ? address.getAddressLine(0) : address.getLocality());
+					markerOptions.snippet(address.getMaxAddressLineIndex() > 0 ? address.getAddressLine(0) 
+							: address.getAdminArea() + address.getLocality());
 
 					Marker marker = googleMap.addMarker(markerOptions);
 					if(i == 0)

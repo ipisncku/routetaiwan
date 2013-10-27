@@ -135,19 +135,6 @@ public class favorite_points extends Activity {
 			iv.setImageResource(fp.phonenum == null ? R.drawable.favorite_32 : R.drawable.friend);
 			iv.setAdjustViewBounds(true);
 			iv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.1f));
-			iv.setOnLongClickListener(new OnLongClickListener() {
-				@Override
-				public boolean onLongClick(View arg0) {
-					/* Pop up a diaglog to ask whether to remove this item */
-					Intent launchpop = new Intent(favorite_points.this, diag_delete.class);
-					Bundle bundle=new Bundle();
-					bundle.putString("filename", fp.file.getAbsolutePath());
-					launchpop.putExtras(bundle);
-
-					startActivity(launchpop);
-					return true;
-				}
-			});
 			tr.addView(iv);
 
 			TableLayout tl_text = new TableLayout(this);
@@ -205,22 +192,21 @@ public class favorite_points extends Activity {
 					public void show_result(final String p) {
 						if(p != null) {
 							Log.i(TAG, "google description=" + p);
-							fp.set_description(p);
-							description.setText(p);
-
 							new Thread(new Runnable() {
 								public void run() {
 									try {
 										String buf = getStringFromFile(fp.file);
-										buf = buf.concat(String.format(",%s", p));
+										buf = buf + "," + p;
 										FileWriter writer = new FileWriter(fp.file.getAbsolutePath());
 										writer.write(buf);
-										writer.close();;
+										writer.close();
 									} catch (Exception e) {
 										e.printStackTrace();
 									}
 								}
 							}).start();
+							fp.set_description(p);
+							description.setText(p);
 						}
 					}
 				});
@@ -244,6 +230,20 @@ public class favorite_points extends Activity {
 					startActivity(launchpop);
 				}
 			});
+			iv.setOnLongClickListener(new OnLongClickListener() {
+				@Override
+				public boolean onLongClick(View arg0) {
+					/* Pop up a diaglog to ask whether to remove this item */
+					Intent launchpop = new Intent(favorite_points.this, diag_delete.class);
+					Bundle bundle=new Bundle();
+					bundle.putString("filename", fp.file.getAbsolutePath());
+					Log.i(TAG, "file " + fp.file.getAbsolutePath() + " delete!");
+					launchpop.putExtras(bundle);
+
+					startActivity(launchpop);
+					return true;
+				}
+			});
 			tr.addView(iv);
 			
 			iv = new ImageView(this);
@@ -264,6 +264,20 @@ public class favorite_points extends Activity {
 					startActivity(launchpop);
 				}
 			});
+			iv.setOnLongClickListener(new OnLongClickListener() {
+				@Override
+				public boolean onLongClick(View arg0) {
+					/* Pop up a diaglog to ask whether to remove this item */
+					Intent launchpop = new Intent(favorite_points.this, diag_delete.class);
+					Bundle bundle=new Bundle();
+					bundle.putString("filename", fp.file.getAbsolutePath());
+					Log.i(TAG, "file " + fp.file.getAbsolutePath() + " delete!");
+					launchpop.putExtras(bundle);
+
+					startActivity(launchpop);
+					return true;
+				}
+			});
 			tr.addView(iv);
 
 			iv = new ImageView(this);
@@ -282,6 +296,20 @@ public class favorite_points extends Activity {
 					launchpop.putExtras(bundle);
 
 					startActivity(launchpop);
+				}
+			});
+			iv.setOnLongClickListener(new OnLongClickListener() {
+				@Override
+				public boolean onLongClick(View arg0) {
+					/* Pop up a diaglog to ask whether to remove this item */
+					Intent launchpop = new Intent(favorite_points.this, diag_delete.class);
+					Bundle bundle=new Bundle();
+					bundle.putString("filename", fp.file.getAbsolutePath());
+					Log.i(TAG, "file " + fp.file.getAbsolutePath() + " delete!");
+					launchpop.putExtras(bundle);
+
+					startActivity(launchpop);
+					return true;
 				}
 			});
 			tr.addView(iv);
@@ -330,10 +358,11 @@ public class favorite_points extends Activity {
 
 		@Override
 		protected void onPostExecute(List<Address> addresses) {
-			if(addresses.size() > 0) {
-				cb.show_result(addresses.get(0).getMaxAddressLineIndex() > 0 
-						? addresses.get(0).getAddressLine(0) 
-								: addresses.get(0).getLocality());
+			if(addresses != null && addresses.size() > 0) {
+				Address addr = addresses.get(0);
+				cb.show_result(addr.getMaxAddressLineIndex() > 0 
+						? addr.getAddressLine(0) 
+								: addr.getAdminArea() + addr.getLocality());
 			}
 		}
 	}
