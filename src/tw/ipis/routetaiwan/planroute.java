@@ -198,8 +198,9 @@ public class planroute extends Activity {
 				}
 				else if (currentloc.getProvider().contentEquals(LocationManager.NETWORK_PROVIDER))
 					Getroute();
-				else
+				else {
 					Toast.makeText(this, getResources().getString(R.string.info_positioning_by_gps) , Toast.LENGTH_SHORT).show();
+				}
 			}
 			else 
 				Getroute();

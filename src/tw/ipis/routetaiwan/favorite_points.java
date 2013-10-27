@@ -152,7 +152,7 @@ public class favorite_points extends Activity {
 
 			TableLayout tl_text = new TableLayout(this);
 			tl_text.setOrientation(TableLayout.VERTICAL);
-			tl_text.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.7f));
+			tl_text.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.6f));
 			tr.addView(tl_text);
 			TableRow tr_text = new TableRow(this);
 			tl_text.addView(tr_text);
@@ -227,6 +227,25 @@ public class favorite_points extends Activity {
 				task.execute(new LatLng[] {fp.location});
 			}
 
+			iv = new ImageView(this);
+			iv.setImageBitmap(null);
+			iv.setImageResource(R.drawable.button_direction_32);
+			iv.setAdjustViewBounds(true);
+			iv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.1f));
+			iv.setOnClickListener(new OnClickListener(){  
+				public void onClick(View v) {
+					Intent launchpop = new Intent(favorite_points.this, planroute.class);
+					Bundle bundle=new Bundle();
+					
+					bundle.putString("end"
+							, new DecimalFormat("###.######").format(fp.location.latitude) + "," + new DecimalFormat("###.######").format(fp.location.longitude));
+					launchpop.putExtras(bundle);
+
+					startActivity(launchpop);
+				}
+			});
+			tr.addView(iv);
+			
 			iv = new ImageView(this);
 			iv.setImageBitmap(null);
 			iv.setImageResource(R.drawable.friend);

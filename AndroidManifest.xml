@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="tw.ipis.routetaiwan"
     android:versionCode="9"
-    android:versionName="0.9.11b" >
+    android:versionName="0.10.01" >
 
     <uses-sdk
         android:minSdkVersion="15"
@@ -17,6 +17,8 @@
     <uses-permission android:name="android.permission.READ_SMS" />
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <uses-permission android:name="android.permission.SEND_SMS" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    
     <!--
      The following two permissions are not required to use
      Google Maps Android API v2, but are recommended.

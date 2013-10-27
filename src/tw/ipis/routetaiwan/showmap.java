@@ -46,6 +46,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
@@ -75,6 +76,7 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 	/* Define area */
 	private static final int TEXT_INSTRUCTION = 0x12300001;
 	private static final int BUTTON_PLAN_ROUTE = 0x12300002;
+	private static final int IMAGE_INSTRUCTION = 0x12300003;
 	/* Define area end */
 
 	private static final String TAG = "~~showmap~~";
@@ -134,10 +136,10 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			Toast.makeText(this, "Google play service unavailable", Toast.LENGTH_LONG).show();
 		}else {    // Google Play Services are available
 			Log.d(TAG, "Google play service available");
-			View cover = findViewById(R.id.mapcover);
+			final View cover = findViewById(R.id.mapcover);
 
 			/* Check if it is the first time to use this app, If yes, show some instruction */
-			File chk_fist_use = new File(Environment.getExternalStorageDirectory() + "/.routetaiwan/.first_showmap");
+			File chk_fist_use = new File(Environment.getExternalStorageDirectory() + "/.routetaiwan/.first_showmap2");
 			if(chk_fist_use.exists() == false) {
 
 				try {
@@ -145,8 +147,17 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-
-				cover.setBackgroundColor(Color.argb(0x80, 0xC, 0xC, 0xC));
+				
+				cover.setBackgroundColor(Color.argb(0x70, 0xA, 0xA, 0xA));
+				cover.setClickable(true);
+				cover.setFocusable(true);
+				
+				final ImageView image = new ImageView(this);
+				image.setId(IMAGE_INSTRUCTION);
+				image.setImageResource(R.drawable.showmap_instruction);
+				image.setAdjustViewBounds(true);
+				image.setBackgroundColor(Color.TRANSPARENT);
+				
 				TextView instruction = new TextView(this);
 				instruction.setId(TEXT_INSTRUCTION);
 				instruction.setText(getResources().getString(R.string.instruction));
@@ -158,10 +169,19 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 				ok.setText(getResources().getString(R.string.understand));
 				ok.setGravity(Gravity.CENTER);
 				ok.setTextColor(Color.WHITE);
-
+				
 				RelativeLayout ll = (RelativeLayout)findViewById(R.id.rl_showmap);
+				RelativeLayout.LayoutParams coverLayoutParameters = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
+				cover.setLayoutParams(coverLayoutParameters);
+				
+				RelativeLayout.LayoutParams imageLayoutParameters = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+				imageLayoutParameters.addRule(RelativeLayout.CENTER_IN_PARENT);
+				imageLayoutParameters.setMargins(0, 120, 0, 0);
+				image.setLayoutParams(imageLayoutParameters);
+				
 				RelativeLayout.LayoutParams textLayoutParameters = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-				textLayoutParameters.addRule(RelativeLayout.CENTER_IN_PARENT);
+				textLayoutParameters.addRule(RelativeLayout.BELOW, image.getId());
+				textLayoutParameters.addRule(RelativeLayout.CENTER_IN_PARENT, image.getId());
 				instruction.setLayoutParams(textLayoutParameters);
 
 				RelativeLayout.LayoutParams buttonLayoutParameters = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
@@ -169,15 +189,16 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 				buttonLayoutParameters.addRule(RelativeLayout.CENTER_IN_PARENT, instruction.getId());
 				ok.setLayoutParams(buttonLayoutParameters);
 
+				ll.addView(image);
 				ll.addView(instruction);
 				ll.addView(ok);
 
 				ok.setOnClickListener(new OnClickListener(){  
 					public void onClick(View v) {  
-						View cover = findViewById(R.id.mapcover);
 						RelativeLayout ll = (RelativeLayout)findViewById(R.id.rl_showmap);
 						TextView instruction = (TextView) findViewById(TEXT_INSTRUCTION);
 
+						ll.removeView(image);
 						ll.removeView(instruction);
 						ll.removeView(v);
 
@@ -190,8 +211,9 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 						{
 							public void run()
 							{
-								View cover = findViewById(R.id.mapcover);
 								cover.setBackgroundColor(Color.argb(0x0, 0x0, 0x0, 0x0));
+								cover.setClickable(false);
+								cover.setFocusable(false);
 							}
 						}, 500);
 					}  
@@ -437,7 +459,7 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 						writer = new FileWriter(filename);
 						writer.write(fav_point);
 						writer.close();
-						Toast.makeText(showmap.this, getResources().getString(R.string.saved) , Toast.LENGTH_SHORT).show();
+						Toast.makeText(showmap.this, getResources().getString(R.string.saved_to_fav) , Toast.LENGTH_SHORT).show();
 					} catch (IOException e) {
 						e.printStackTrace();
 						Toast.makeText(showmap.this, getResources().getString(R.string.info_internal_error) , Toast.LENGTH_SHORT).show();
@@ -484,8 +506,8 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 		final PopupWindow popup = new PopupWindow(layout, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
 
 		// Some offset to align the popup a bit to the right, and a bit down, relative to button's position.
-		int OFFSET_X = 30;
-		int OFFSET_Y = 10;
+		int OFFSET_X = 10;
+		int OFFSET_Y = 60;
 
 		// Clear the default translucent background
 		popup.setBackgroundDrawable(new BitmapDrawable());
