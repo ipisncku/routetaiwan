@@ -363,8 +363,9 @@ public class favorite_points extends Activity {
 		protected void onPostExecute(List<Address> addresses) {
 			if(addresses != null && addresses.size() > 0) {
 				Address addr = addresses.get(0);
-				cb.show_result(addr.getAdminArea() != null ? addr.getAdminArea() : ""
-									+ addr.getLocality() != null ? addr.getLocality() : "");
+				String local = addr.getAdminArea() != null ? addr.getAdminArea() : "";
+				local = new StringBuilder().append(local).append(addr.getLocality() != null ? addr.getLocality() : "").toString();
+				cb.show_result(local);
 			}
 		}
 	}
