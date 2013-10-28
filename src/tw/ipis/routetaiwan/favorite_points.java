@@ -3,7 +3,6 @@ package tw.ipis.routetaiwan;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -68,15 +67,21 @@ public class favorite_points extends Activity {
 				try {
 					String buf = getStringFromFile(fd);
 					FavPoint fp = decode_str_to_points(buf);
-					fp.set_filename(fd);
-					if(fp != null)
+					if(fp == null && fd.exists())
+						fd.delete();
+					else if(fp != null) {
+						fp.set_filename(fd);
 						points.add(fp);
+					}
 				} catch (Exception e) {
 					Log.e(TAG, "Cannot open file " + fd.getName());
 					e.printStackTrace();
 				}
 			}
-			display();
+			if(points.size() > 0)
+				display();
+			else
+				info_empty_folder();
 		}
 	}
 
@@ -101,15 +106,21 @@ public class favorite_points extends Activity {
 				try {
 					String buf = getStringFromFile(fd);
 					FavPoint fp = decode_str_to_points(buf);
-					fp.set_filename(fd);
-					if(fp != null)
+					if(fp == null && fd.exists())
+						fd.delete();
+					else if(fp != null) {
+						fp.set_filename(fd);
 						points.add(fp);
+					}
 				} catch (Exception e) {
 					Log.e(TAG, "Cannot open file " + fd.getName());
 					e.printStackTrace();
 				}
 			}
-			display();
+			if(points.size() > 0)
+				display();
+			else
+				info_empty_folder();
 		}
 	}
 
@@ -192,19 +203,11 @@ public class favorite_points extends Activity {
 					public void show_result(final String p) {
 						if(p != null) {
 							Log.i(TAG, "google description=" + p);
-							new Thread(new Runnable() {
-								public void run() {
-									try {
-										String buf = getStringFromFile(fp.file);
-										buf = buf + "," + p;
-										FileWriter writer = new FileWriter(fp.file.getAbsolutePath());
-										writer.write(buf);
-										writer.close();
-									} catch (Exception e) {
-										e.printStackTrace();
-									}
-								}
-							}).start();
+							Intent intent = new Intent(favorite_points.this, FileIntentService.class);
+							intent.putExtra("content", p);
+							intent.putExtra("filename", fp.file.getAbsolutePath());
+							startService(intent);
+							
 							fp.set_description(p);
 							description.setText(p);
 						}
@@ -362,7 +365,8 @@ public class favorite_points extends Activity {
 				Address addr = addresses.get(0);
 				cb.show_result(addr.getMaxAddressLineIndex() > 0 
 						? addr.getAddressLine(0) 
-								: addr.getAdminArea() + addr.getLocality());
+								: addr.getAdminArea() != null ? addr.getAdminArea() : ""
+									+ addr.getLocality() != null ? addr.getLocality() : "");
 			}
 		}
 	}

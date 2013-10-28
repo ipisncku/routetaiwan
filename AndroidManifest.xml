@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="tw.ipis.routetaiwan"
-    android:versionCode="9"
-    android:versionName="0.10.01" >
+    android:versionCode="10"
+    android:versionName="0.10.02" >
 
     <uses-sdk
         android:minSdkVersion="15"
@@ -39,6 +39,8 @@
                 <action android:name="android.provider.Telephony.SMS_RECEIVED" />
             </intent-filter>
         </receiver>
+        
+        <service android:name="FileIntentService"></service>
 
         <activity
             android:name="tw.ipis.routetaiwan.MainActivity"
@@ -96,13 +98,16 @@
         <activity android:name="tw.ipis.routetaiwan.SmsReceriver"
             android:configChanges="orientation|screenSize"
             android:theme="@style/ThemeWithCorners_noTitle" ></activity>
-        
+
+        <!--  production key  -->
         
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="AIzaSyCLlYQfiYAcQsQXFZbksR4Frr0yrIhhR98"/>
-			
-        <!-- debug key
+         
+        
+        <!-- debug key -->
+        <!-- 
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="AIzaSyAL7IpREp53WpGcHshCcjBBgnsL6KYLhzw"/>
