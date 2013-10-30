@@ -23,6 +23,14 @@
         android:textColorHint="#c3c3c3" />
   
     <!-- List View -->
+
+    <ProgressBar
+        android:id="@+id/contacts"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center" />
+
     <ListView
         android:id="@+id/all_contacts"
         android:layout_width="match_parent"
