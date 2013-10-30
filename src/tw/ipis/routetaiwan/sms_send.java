@@ -204,7 +204,7 @@ public class sms_send extends Activity {
 					while (pCur.moveToNext()) {
 						String phoneNo = pCur.getString(pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
 
-						contact.add(String.format("%s\t%s", name, phoneNo));
+						contact.add(String.format("%s %s", name, phoneNo));
 					}
 					pCur.close();
 				}
