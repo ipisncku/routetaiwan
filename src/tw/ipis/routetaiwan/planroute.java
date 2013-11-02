@@ -1,11 +1,16 @@
 package tw.ipis.routetaiwan;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.text.DecimalFormat;
 import java.text.Format;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
@@ -56,8 +61,9 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -68,6 +74,7 @@ import android.widget.TableRow.LayoutParams;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.Gson;
 
 public class planroute extends Activity {
@@ -75,13 +82,13 @@ public class planroute extends Activity {
 	private static final int PLAN_ROUTE_INSTRUCTION = 0x12340001;
 	private static final int PLAN_ROUTE_VIEW = 0x12340002;
 	private static final int PLAN_ROUTE_HELP_IMAGE = 0x12340003;
-	
+
 	//	ProgressBar planning;
 	String TAG = "~~planroute~~";
 	private ProgressBar planning;
 	private ImageView gps_recving;
-	private EditText from;
-	private EditText to;
+	private AutoCompleteTextView from;
+	private AutoCompleteTextView to;
 	private LocationManager locationMgr;
 	private DownloadWebPageTask task = null;
 	private boolean isrequested = false;
@@ -89,6 +96,9 @@ public class planroute extends Activity {
 	String provider = null;
 	private static final String projectdir = Environment.getExternalStorageDirectory() + "/.routetaiwan/";
 	private int gps_image_id = 0;
+	List<File> favorite_points;
+	List<FavPoint> points;
+	ArrayAdapter<String> adapter;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -96,29 +106,26 @@ public class planroute extends Activity {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.planroute);
-		
-		RelativeLayout ll = (RelativeLayout)findViewById(R.id.rl_planroute);
-		ll.setBackgroundResource(R.drawable.style_angle);
 
 		gps_recving = new ImageView(this);
 		gps_recving.setImageResource(0);
 		gps_recving.setAdjustViewBounds(true);
-		
+
 		start_positioning();
+
+		from = (AutoCompleteTextView)findViewById(R.id.from);
+		to = (AutoCompleteTextView)findViewById(R.id.to);
+		new get_fav_points().execute();
 
 		/* Intent from showmap class */
 		Bundle Data = this.getIntent().getExtras();
 		if(Data != null) {
 			String start = Data.getString("start");
 			String dest = Data.getString("end");
-			if(start != null) {
-				from = (EditText)findViewById(R.id.from);
+			if(start != null)
 				from.setText(start, TextView.BufferType.EDITABLE);
-			}
-			if(dest != null) {
-				to = (EditText)findViewById(R.id.to);
+			if(dest != null)
 				to.setText(dest, TextView.BufferType.EDITABLE);
-			}
 		}
 	}
 
@@ -136,16 +143,122 @@ public class planroute extends Activity {
 			task.cancel(true);
 		super.onStop();
 	}
-	
+
 	@Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-    }
-	
+	public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+	}
+
+	private class get_fav_points extends AsyncTask<Void, Void, String[]> {
+		@Override
+		protected String[] doInBackground(Void... params) {
+			File folder = new File(projectdir);
+			if (!folder.exists()) {
+				folder.mkdir();
+				return new String[0];
+			}
+			else {
+				favorite_points = new ArrayList<File>();
+				points = new ArrayList<FavPoint>();
+				/* Display result */
+				favorite_points = getListFiles(folder);
+				if(favorite_points.isEmpty()) {
+					return new String[0];
+				}
+				for(File fd : favorite_points) {
+					try {
+						String buf = getStringFromFile(fd);
+						FavPoint fp = decode_str_to_points(buf);
+						if(fp == null && fd.exists())
+							fd.delete();
+						else if(fp != null) {
+							fp.set_filename(fd);
+							points.add(fp);
+						}
+					} catch (Exception e) {
+						Log.e(TAG, "Cannot open file " + fd.getName());
+						e.printStackTrace();
+					}
+				}
+				if(points.size() > 0) {
+					String list[] = new String[points.size()];
+					for(int i=0; i<points.size(); i++) {
+						list[i] = points.get(i).name;
+					}
+					return list;
+				}
+				return new String[0];
+			}
+		}
+
+		@Override
+		protected void onPostExecute(String[] contact) {
+			if(contact.length > 0) {
+				adapter = new ArrayAdapter<String>(planroute.this, R.layout.contact_list, R.id.contact_name, contact);
+				from.setAdapter(adapter);
+				to.setAdapter(adapter);
+			}
+		}
+	}
+
+	public FavPoint decode_str_to_points(String buf) {
+		if(buf == null)
+			return null;
+
+		String[] results = buf.split(",");
+		if(results.length >= 4 && results[0].contentEquals("save")) {
+			/* 格式範例: save,地名,23.xxxxxx,125,xxxxxx,台北市中山區(option) */
+			LatLng location = new LatLng(Double.parseDouble(results[2]), Double.parseDouble(results[3]));
+			FavPoint fp = new FavPoint(results[1], null, location, results.length == 4 ? null : results[4]);
+			return fp;
+		}
+		else if(results.length >= 5 && results[0].contentEquals("phone")) {
+			/* 格式範例: phone,09xxxxxxxx,地名,23.xxxxxx,125,xxxxxx,,台北市中山區(option) */
+			LatLng location = new LatLng(Double.parseDouble(results[3]), Double.parseDouble(results[4]));
+			FavPoint fp = new FavPoint(results[2], results[1], location, results.length == 5 ? null : results[5]);
+			return fp;
+		}
+		else
+			return null;
+	}
+
+	private List<File> getListFiles(File parentDir) {
+		ArrayList<File> inFiles = new ArrayList<File>();
+		File[] files = parentDir.listFiles();
+		for (File file : files) {
+			if (file.isDirectory()) {
+				inFiles.addAll(getListFiles(file));
+			} else {
+				if(file.getName().endsWith(".point")){
+					inFiles.add(file);
+				}
+			}
+		}
+		return inFiles;
+	}
+
+	public static String convertStreamToString(InputStream is) throws Exception {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+		StringBuilder sb = new StringBuilder();
+		String line = null;
+		while ((line = reader.readLine()) != null) {
+			sb.append(line).append("\n");
+		}
+		return sb.toString();
+	}
+
+	public static String getStringFromFile (File fl) throws Exception {
+		FileInputStream fin = new FileInputStream(fl);
+		String ret = convertStreamToString(fin);
+		//Make sure you close all streams.
+		fin.close();        
+		return ret;
+	}
+
 	/* Fixed 網路功能沒開時造成的crash */
 	public boolean check_network() {
 		ConnectivityManager connMgr = (ConnectivityManager) 
-		getSystemService(Context.CONNECTIVITY_SERVICE);
+				getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 		if (networkInfo != null && networkInfo.isConnected()) {
 			Toast.makeText(this, getResources().getString(R.string.info_network_using) + networkInfo.getTypeName() , Toast.LENGTH_SHORT).show();
@@ -178,7 +291,7 @@ public class planroute extends Activity {
 
 			isrequested = true;
 
-			from = (EditText)findViewById(R.id.from);
+			from = (AutoCompleteTextView)findViewById(R.id.from);
 			String start = from.getText().toString();	// Get user input "From"
 			Location currentloc = GetCurrentPosition();
 
@@ -232,16 +345,16 @@ public class planroute extends Activity {
 		}
 		locationMgr.requestLocationUpdates(locprovider, 0, 0, locationListener);
 		if(locprovider.contentEquals("gps")) {
-//			Toast.makeText(this, getResources().getString(R.string.info_positioning_by_gps) , Toast.LENGTH_SHORT).show();
+			//			Toast.makeText(this, getResources().getString(R.string.info_positioning_by_gps) , Toast.LENGTH_SHORT).show();
 			locationMgr.addGpsStatusListener(gpsListener);
 		}
-//		else
-//			Toast.makeText(this, getResources().getString(R.string.info_positioning_by_network) , Toast.LENGTH_SHORT).show();
+		//		else
+		//			Toast.makeText(this, getResources().getString(R.string.info_positioning_by_network) , Toast.LENGTH_SHORT).show();
 	}
 
 	private void foreground_cosmetic() {
-		from = (EditText)findViewById(R.id.from);
-		to = (EditText)findViewById(R.id.to);
+		from = (AutoCompleteTextView)findViewById(R.id.from);
+		to = (AutoCompleteTextView)findViewById(R.id.to);
 
 		InputMethodManager imm = (InputMethodManager)getSystemService(
 				Context.INPUT_METHOD_SERVICE);
@@ -255,19 +368,19 @@ public class planroute extends Activity {
 
 		planning.setVisibility(ProgressBar.VISIBLE);
 	}
-	
+
 	public boolean current_not_in_taiwan(Location curr) {
 		double lat = curr.getLatitude();
 		double lon = curr.getLongitude();
 		boolean flag = false;
-		
+
 		if(lon > 122 || lon < 120)
 			flag = true;
 		else if (lat > 25.5 || lat < 21.9)
 			flag = true;
 		else
 			return false;
-		
+
 		if(flag) {
 			planning.setVisibility(ProgressBar.INVISIBLE);
 			AlertDialog.Builder dialog = new AlertDialog.Builder(new ContextThemeWrapper(this, R.style.ThemeWithCorners));
@@ -285,15 +398,39 @@ public class planroute extends Activity {
 
 	public void Getroute() {
 		String request = "";
-		from = (EditText)findViewById(R.id.from);
-		to = (EditText)findViewById(R.id.to);
+		from = (AutoCompleteTextView)findViewById(R.id.from);
+		to = (AutoCompleteTextView)findViewById(R.id.to);
 		String start = from.getText().toString();	// Get user input "From"
 		String destination = to.getText().toString();	// Get user input "to"
 		String Mapapi = "https://maps.googleapis.com/maps/api/directions/json?origin={0}&destination={1}&sensor={3}&departure_time={2}&mode={4}&alternatives=true&region=tw";
 
+		if(start.matches(".*<[0-9]{2}.[0-9]+,[0-9]{3}.[0-9]+>"))
+			start = start.substring(start.lastIndexOf('<')).replaceAll("[<>]", "");
+		else {
+			for(FavPoint fp : points) {
+				if(start.contentEquals(fp.name)) {
+					start = new DecimalFormat("###.######").format(fp.location.latitude) + "," + new DecimalFormat("###.######").format(fp.location.longitude);
+					break;
+				}
+			}
+		}
+		
+		if(destination.matches(".*<[0-9]{2}.[0-9]+,[0-9]{3}.[0-9]+>"))
+			destination = destination.substring(destination.lastIndexOf('<')).replaceAll("[<>]", "");
+		else {
+			for(FavPoint fp : points) {
+				if(destination.contentEquals(fp.name)) {
+					destination = new DecimalFormat("###.######").format(fp.location.latitude) + "," + new DecimalFormat("###.######").format(fp.location.longitude);
+					break;
+				}
+			}
+		}
+		
+		Log.i(TAG, String.format("start:%s destination:%s", start, destination));
+
 		isrequested = false;
 
-//		if(Locale.getDefault().getDisplayLanguage().contentEquals("中文"))
+		//		if(Locale.getDefault().getDisplayLanguage().contentEquals("中文"))
 		Mapapi = new StringBuilder().append(Mapapi).append("&language=zh-tw").toString();
 
 		long now = System.currentTimeMillis() / 1000;
@@ -305,7 +442,7 @@ public class planroute extends Activity {
 				Location current = GetCurrentPosition();
 				if(current_not_in_taiwan(current))
 					return;
-				
+
 				String curr = current.getLatitude() + "," + current.getLongitude();
 				request = MessageFormat.format(Mapapi, URLEncoder.encode(curr, "UTF-8"), 
 						URLEncoder.encode(destination, "UTF-8"), URLEncoder.encode(new Long(now).toString(), "UTF-8"), 
@@ -375,7 +512,7 @@ public class planroute extends Activity {
 		Format format = new SimpleDateFormat("HH:mm");
 		return format.format(date).toString();
 	}
-	
+
 	private TextView createTextView(String content, TableRow parent, int textcolor, float weight, int gravity) {
 		TextView tv = new TextView(this);
 		tv.setText(content);
@@ -464,7 +601,7 @@ public class planroute extends Activity {
 		parent.addView(tr);
 		return tr;
 	}
-	
+
 	private TableRow CreateTableRow(TableLayout parent, float weight, final int num){
 		TableRow tr = new TableRow(this);	// 1st row
 
@@ -479,7 +616,7 @@ public class planroute extends Activity {
 				}
 			}
 		};
-		
+
 		OnLongClickListener save_to_favorite = new OnLongClickListener() {
 			@Override
 			public boolean onLongClick(View arg0) {
@@ -502,15 +639,12 @@ public class planroute extends Activity {
 				else {
 					Toast.makeText(planroute.this, getResources().getString(R.string.file_already_existed) , Toast.LENGTH_SHORT).show();
 				}
-				
+
 				return true;
 			}
 		};
 
-		if(num % 2 == 0)
-			tr.setBackgroundResource(R.drawable.seletor_white);
-		else
-			tr.setBackgroundResource(R.drawable.seletor_ltgray);
+		tr.setBackgroundResource(R.drawable.seletor_trans);
 		if(weight != 0)
 			tr.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, weight));
 		else
@@ -525,7 +659,7 @@ public class planroute extends Activity {
 		parent.addView(tr);
 		return tr;
 	}
-	
+
 	public static String getMD5EncryptedString(String encTarget){
 		MessageDigest mdEnc = null;
 		try {
@@ -543,18 +677,18 @@ public class planroute extends Activity {
 		ScrollView sv = (ScrollView) this.findViewById(R.id.routes);
 
 		// Create a LinearLayout element
-		TableLayout tl = new TableLayout(this);
-		tl.setOrientation(TableLayout.VERTICAL);
+		TableLayout tl_host = new TableLayout(this);
+		tl_host.setOrientation(TableLayout.VERTICAL);
 		sv.removeAllViews();
 
 		if(!dires.status.contentEquals("OK")) {
 			Toast.makeText(this, getResources().getString(R.string.info_no_result) , Toast.LENGTH_LONG).show();
 			return false;
 		}
-		
+
 		/* 顯示Google版權 */
 		RelativeLayout rl = (RelativeLayout)findViewById(R.id.rl_planroute);
-		
+
 		TextView tv = new TextView(this);
 		tv.setText(dires.routes[0].copyrights);
 		tv.setTextColor(Color.WHITE);
@@ -569,11 +703,14 @@ public class planroute extends Activity {
 		tv.setLayoutParams(param);
 
 		rl.addView(tv);
-		
-		
+
+
 		// Add text
 		for (int i = 0; i < dires.routes.length; i++) {
 			int transit = 0;
+			TableLayout tl = new TableLayout(this);
+			tl.setOrientation(TableLayout.VERTICAL);
+			tl.setBackgroundResource(R.drawable.fav_btn_bg);
 			for (int j = 0; j < dires.routes[i].legs.length; j++)	{
 				boolean pure_walk_flag = false;
 				TableRow tr = null;
@@ -594,7 +731,7 @@ public class planroute extends Activity {
 					dires.routes[i].legs[j].departure_time.value = System.currentTimeMillis() / 1000;
 				}
 
-//				TableRow transit_times = CreateTableRow(tl, 0, i);	// 2nd row, leave it for later use
+				//				TableRow transit_times = CreateTableRow(tl, 0, i);	// 2nd row, leave it for later use
 
 				tr = CreateTableRow(tl, 1.0f, i);
 				createImageViewbyR(R.drawable.start, tr, 50, 50);
@@ -623,11 +760,11 @@ public class planroute extends Activity {
 						String text = "transit,";
 
 						String trans = new StringBuilder().append(getResources().getString(R.string.taketransit)).append(step.transit_details.line.short_name).toString();
-						
+
 						String headsign = step.transit_details.headsign;
 
 						String trans_to = new StringBuilder().append(getResources().getString(R.string.to)).append(step.transit_details.arrival_stop.name).toString();
-						
+
 						String time_taken = new StringBuilder().append("\n(" + step.transit_details.num_stops + getResources().getString(R.string.stops) + ", " +step.duration.text + ")").toString();
 						transit++;
 
@@ -691,7 +828,7 @@ public class planroute extends Activity {
 							headsign = new StringBuilder().append("(" + headsign + ")").toString();
 							createTextView(trans + headsign + trans_to + time_taken, tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT | Gravity.CENTER_VERTICAL, text, 
 									step.start_location, step.end_location);
-							
+
 						}
 						else if(type.contentEquals("DRIVING")) {
 							createImageViewbyR(R.drawable.drive, tr, 50, 50);
@@ -712,28 +849,29 @@ public class planroute extends Activity {
 					}
 				}
 				String str = getResources().getString(R.string.transit) + ": " + transit + "x";
-//				createTextView(str, transit_times, Color.rgb(0,0,0), 1.0f, Gravity.LEFT | Gravity.CENTER_VERTICAL, "all," + dires.routes[i].overview_polyline.points, 
-//						dires.routes[i].legs[j].mark);
+				//				createTextView(str, transit_times, Color.rgb(0,0,0), 1.0f, Gravity.LEFT | Gravity.CENTER_VERTICAL, "all," + dires.routes[i].overview_polyline.points, 
+				//						dires.routes[i].legs[j].mark);
 				// Set time row
 				if(pure_walk_flag == true) {
 					dires.routes[i].legs[j].arrival_time.value = dires.routes[i].legs[j].departure_time.value + duration;
 				}
-				
+
 				String dur = String.format(" (%d" + getResources().getString(R.string.hour) + "%d" + getResources().getString(R.string.minute) + ")",
 						TimeUnit.SECONDS.toHours(duration), TimeUnit.SECONDS.toMinutes(duration % 3600));
 				title = new StringBuilder().append(convertTime(dires.routes[i].legs[j].departure_time.value)).append(" - ")
-										.append(convertTime(dires.routes[i].legs[j].arrival_time.value))
-										.append(dur)
-										.append("\n" + str).toString();
+						.append(convertTime(dires.routes[i].legs[j].arrival_time.value))
+						.append(dur)
+						.append("\n" + str).toString();
 				createTextView(title, time_row, Color.rgb(0,0,0), 1.0f, Gravity.LEFT | Gravity.CENTER_VERTICAL,
 						"all," + dires.routes[i].overview_polyline.points, dires.routes[i].legs[j].mark);
 			}
+			tl_host.addView(tl);
 		}
 		// 空白行
-		createTextView("", CreateTableRow(tl, Color.TRANSPARENT), Color.TRANSPARENT, 1.0f, Gravity.RIGHT);
-		
+		createTextView("", CreateTableRow(tl_host, Color.TRANSPARENT), Color.TRANSPARENT, 1.0f, Gravity.RIGHT);
+
 		// Add the LinearLayout element to the ScrollView
-		sv.addView(tl);
+		sv.addView(tl_host);
 
 		return true;
 	}
@@ -742,7 +880,7 @@ public class planroute extends Activity {
 		// ori example: 往苗栗,車次1183,山線 or 往左營 ,車次151
 		return ori.replaceAll("[^0-9]", "");
 	}
-	
+
 	private void decode(String result) {
 		try {
 			Gson gson = new Gson();
@@ -750,15 +888,15 @@ public class planroute extends Activity {
 			Log.i(TAG, "Total routes = " + dires.routes.length);
 			planning.setVisibility(ProgressBar.GONE);
 			if(dumpdetails(dires) == true);
-				display_help();
+			display_help();
 		} catch (Exception e) {
 			planning.setVisibility(ProgressBar.GONE);
 			e.printStackTrace();
-//			Toast.makeText(this, getResources().getString(R.string.info_internal_error) , Toast.LENGTH_LONG).show();
+			//			Toast.makeText(this, getResources().getString(R.string.info_internal_error) , Toast.LENGTH_LONG).show();
 			return;
 		}
 	}
-	
+
 	private void display_help() {
 		/* Check if it is the first time to use this app, If yes, show some instruction */
 		File chk_fist_use = new File(Environment.getExternalStorageDirectory() + "/.routetaiwan/.first_planroute2");
@@ -773,13 +911,13 @@ public class planroute extends Activity {
 			cover.setBackgroundColor(Color.argb(0x70, 0xA, 0xA, 0xA));
 			cover.setClickable(true);
 			cover.setFocusable(true);
-			
+
 			final ImageView image = new ImageView(this);
 			image.setId(PLAN_ROUTE_HELP_IMAGE);
 			image.setImageResource(R.drawable.planroute_help);
 			image.setAdjustViewBounds(true);
 			image.setBackgroundColor(Color.TRANSPARENT);
-			
+
 			TextView instruction = new TextView(this);
 			instruction.setId(PLAN_ROUTE_INSTRUCTION);
 			instruction.setText(getResources().getString(R.string.plan_route_instruction));
@@ -791,16 +929,16 @@ public class planroute extends Activity {
 			ok.setText(getResources().getString(R.string.understand));
 			ok.setGravity(Gravity.CENTER);
 			ok.setTextColor(Color.WHITE);
-			
+
 			RelativeLayout ll = (RelativeLayout)findViewById(R.id.rl_planroute);
 			RelativeLayout.LayoutParams coverLayoutParameters = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
 			cover.setLayoutParams(coverLayoutParameters);
-			
+
 			RelativeLayout.LayoutParams imageLayoutParameters = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
 			imageLayoutParameters.addRule(RelativeLayout.CENTER_HORIZONTAL);
 			imageLayoutParameters.setMargins(0, 120, 0, 0);
 			image.setLayoutParams(imageLayoutParameters);
-			
+
 			RelativeLayout.LayoutParams textLayoutParameters = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
 			textLayoutParameters.addRule(RelativeLayout.BELOW, image.getId());
 			textLayoutParameters.addRule(RelativeLayout.CENTER_IN_PARENT, image.getId());
@@ -1039,12 +1177,12 @@ public class planroute extends Activity {
 
 	public class Time {
 		long value;
-		
+
 		public Time(long v) {
 			value = v;
 		}
 	}
-	
+
 	public class MarkP {
 		String type;
 		String title;
@@ -1100,12 +1238,12 @@ public class planroute extends Activity {
 			bundle.putStringArrayList("descriptions", description);
 			bundle.putStringArrayList("locations", locations);
 			launchpop.putExtras(bundle);
-			
+
 			startActivity(launchpop);
 		}
 		else if(action.regionMatches(0, "transit", 0, 7)) {
 			String[] transit_detail = action.split(",");
-			
+
 			Intent launchpop = new Intent(this, pop_transit.class);
 			Bundle bundle=new Bundle();
 
@@ -1133,7 +1271,7 @@ public class planroute extends Activity {
 			else {
 				bundle.putString("type", transit_detail[1]);	// type = null
 			}
-			
+
 			launchpop.putExtras(bundle);
 
 			startActivity(launchpop);

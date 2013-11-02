@@ -245,11 +245,9 @@ public class myfavorite extends Activity {
 				return true;
 			}
 		};
+		
+		tr.setBackgroundResource(R.drawable.seletor_trans);
 
-		if(num % 2 == 0)
-			tr.setBackgroundResource(R.drawable.seletor_white);
-		else
-			tr.setBackgroundResource(R.drawable.seletor_ltgray);
 		if(weight != 0)
 			tr.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, weight));
 		else
@@ -269,11 +267,14 @@ public class myfavorite extends Activity {
 		ScrollView sv = (ScrollView) this.findViewById(R.id.favorites);
 
 		// Create a LinearLayout element
-		TableLayout tl = new TableLayout(this);
-		tl.setOrientation(TableLayout.VERTICAL);
 		sv.removeAllViews();
+		TableLayout tl_host = new TableLayout(this);
+		tl_host.setOrientation(TableLayout.VERTICAL);
 		for (int i = 0; i < routes.size(); i++) {
 			int transit = 0;
+			TableLayout tl = new TableLayout(this);
+			tl.setOrientation(TableLayout.VERTICAL);
+			tl.setBackgroundResource(R.drawable.fav_btn_bg);
 			for (int j = 0; j < routes.get(i).legs.length; j++)	{
 				TableRow tr = null;
 				TableRow time_row = CreateTableRow(tl, 0, i);	// 1st row
@@ -391,8 +392,9 @@ public class myfavorite extends Activity {
 				createTextView(title, time_row, Color.rgb(0,0,0), 1.0f, Gravity.LEFT | Gravity.CENTER_VERTICAL,
 						"all," + routes.get(i).overview_polyline.points, routes.get(i).legs[j].mark);
 			}
+			tl_host.addView(tl);
 		}
-		sv.addView(tl);
+		sv.addView(tl_host);
 	}
 	
 	private String train_num(String ori) {

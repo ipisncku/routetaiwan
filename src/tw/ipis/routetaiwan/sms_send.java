@@ -6,7 +6,6 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -41,7 +40,6 @@ public class sms_send extends Activity {
 	private ListView lv;
 	ArrayAdapter<String> adapter;
 	EditText inputSearch, pos_title;
-	ArrayList<HashMap<String, String>> productList;
 	String title, latlng;
 	private ProgressBar contacts;
 
@@ -56,7 +54,7 @@ public class sms_send extends Activity {
 
 		contacts = (ProgressBar)findViewById(R.id.contacts);
 		contacts.setVisibility(ProgressBar.VISIBLE);
-		
+
 		new get_all_contacts().execute();
 
 		inputSearch = (EditText) findViewById(R.id.inputSearch);
@@ -72,7 +70,7 @@ public class sms_send extends Activity {
 					Toast.LENGTH_LONG).show();
 			return;
 		}
-		
+
 		String title_name = pos_title.getText().toString();
 
 		final String sms = String.format("rtw,%s,%s", title_name, latlng);
@@ -200,40 +198,41 @@ public class sms_send extends Activity {
 		protected void onPostExecute(String[] contact) {
 			// Adding items to listview
 			contacts.setVisibility(ProgressBar.GONE);
-			lv = (ListView) findViewById(R.id.all_contacts);
-			adapter = new ArrayAdapter<String>(sms_send.this, R.layout.contact_list, R.id.contact_name, contact);
-			lv.setAdapter(adapter);
+			if(contact.length > 0) {
+				lv = (ListView) findViewById(R.id.all_contacts);
+				adapter = new ArrayAdapter<String>(sms_send.this, R.layout.contact_list, R.id.contact_name, contact);
+				lv.setAdapter(adapter);
 
-			lv.setOnItemClickListener(new OnItemClickListener() {
-				public void onItemClick(AdapterView<?> parent, View view,
-						int position, long id) {
+				lv.setOnItemClickListener(new OnItemClickListener() {
+					public void onItemClick(AdapterView<?> parent, View view,
+							int position, long id) {
 
-					String selectedFromList =(String) (lv.getItemAtPosition(position));
-					inputSearch.setText(selectedFromList.replaceAll("[^+0-9]", ""));
+						String selectedFromList =(String) (lv.getItemAtPosition(position));
+						inputSearch.setText(selectedFromList.replaceAll("[^+0-9]", ""));
 
-				}
-			});
+					}
+				});
 
-			inputSearch.addTextChangedListener(new TextWatcher() {
+				inputSearch.addTextChangedListener(new TextWatcher() {
 
-				@Override
-				public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3) {
-					// When user changed the Text
-					sms_send.this.adapter.getFilter().filter(cs);   
-				}
+					@Override
+					public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3) {
+						// When user changed the Text
+						sms_send.this.adapter.getFilter().filter(cs);   
+					}
 
-				@Override
-				public void beforeTextChanged(CharSequence arg0, int arg1, int arg2,
-						int arg3) {
+					@Override
+					public void beforeTextChanged(CharSequence arg0, int arg1, int arg2,
+							int arg3) {
 
-				}
+					}
 
-				@Override
-				public void afterTextChanged(Editable arg0) {
-				}
-			});
+					@Override
+					public void afterTextChanged(Editable arg0) {
+					}
+				});
+			}
 		}
-
 	}
 
 	@Override

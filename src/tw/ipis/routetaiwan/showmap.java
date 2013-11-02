@@ -355,6 +355,8 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			Button gotoplan = new Button(this);
 			gotoplan.setId(BUTTON_PLAN_ROUTE);
 			gotoplan.setText(getResources().getString(R.string.goto_planroute));
+			gotoplan.setBackgroundResource(R.drawable.seletor_ltgray);
+			gotoplan.setTextColor(Color.WHITE);
 
 			RelativeLayout ll = (RelativeLayout)findViewById(R.id.rl_showmap);
 			RelativeLayout.LayoutParams buttonLayoutParameters = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);

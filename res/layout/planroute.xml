@@ -2,7 +2,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/rl_planroute"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_main" >
 
     <View
         android:id="@+id/line0"
@@ -21,7 +22,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" >
 
-            <TableLayout android:layout_weight="0.85" >
+            <TableLayout android:layout_weight="0.70" >
 
                 <TableRow>
 
@@ -35,7 +36,7 @@
                         android:textAppearance="?android:attr/textAppearanceMedium"
                         android:textColor="@color/route_edit_fg" />
 
-                    <EditText
+                    <AutoCompleteTextView
                         android:id="@+id/from"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -43,9 +44,10 @@
                         android:background="#FFFFFF"
                         android:ems="10"
                         android:hint="@string/pos_from"
-                        android:textColorHint="#c3c3c3"
                         android:inputType="textPostalAddress"
-                        android:singleLine="true" />
+                        android:selectAllOnFocus="true"
+                        android:singleLine="true"
+                        android:textColorHint="#c3c3c3" />
                 </TableRow>
 
                 <TableRow>
@@ -69,7 +71,7 @@
                         android:textAppearance="?android:attr/textAppearanceMedium"
                         android:textColor="@color/route_edit_fg" />
 
-                    <EditText
+                    <AutoCompleteTextView
                         android:id="@+id/to"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -77,29 +79,28 @@
                         android:background="#FFFFFF"
                         android:ems="10"
                         android:hint="@string/pos_to"
-                        android:textColorHint="#c3c3c3"
                         android:inputType="textPostalAddress"
-                        android:singleLine="true" />
+                        android:selectAllOnFocus="true"
+                        android:singleLine="true"
+                        android:textColorHint="#c3c3c3" />
                 </TableRow>
             </TableLayout>
-
             
             <ImageButton
                 android:id="@+id/button1"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 android:layout_marginBottom="2dp"
                 android:layout_marginLeft="2dp"
                 android:layout_marginRight="2dp"
                 android:layout_marginTop="0dp"
                 android:layout_weight="0.15"
-                android:layout_gravity="center"
                 android:adjustViewBounds="true"
                 android:contentDescription="@string/search_google"
                 android:onClick="start_planing"
                 android:scaleType="fitCenter"
                 android:src="@drawable/search_btn" />
-            
         </TableRow>
 
         <TableRow
@@ -112,6 +113,7 @@
                 android:layout_height="3dp"
                 android:background="#00000000" />
         </TableRow>
+        
     </TableLayout>
 
     <ScrollView

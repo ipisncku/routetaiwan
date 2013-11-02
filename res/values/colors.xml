@@ -5,4 +5,5 @@
     <color name="route_show_bg">#FFFFFF</color>
     <color name="ltgray">#CCCCCC</color>
     <color name="white">#FFFFFF</color>
+    <color name="btn_ltgray">#800C0C0C</color>
 </resources>

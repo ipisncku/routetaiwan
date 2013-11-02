@@ -11,7 +11,4 @@
             android:state_pressed="true"
             android:drawable="@android:drawable/list_selector_background" />
 
-
-     <item android:drawable="@color/btn_ltgray"></item>
-
 </selector>
