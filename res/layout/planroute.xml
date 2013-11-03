@@ -85,7 +85,7 @@
                         android:textColorHint="#c3c3c3" />
                 </TableRow>
             </TableLayout>
-            
+
             <ImageButton
                 android:id="@+id/button1"
                 android:layout_width="0dp"
@@ -113,7 +113,6 @@
                 android:layout_height="3dp"
                 android:background="#00000000" />
         </TableRow>
-        
     </TableLayout>
 
     <ScrollView

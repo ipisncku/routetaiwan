@@ -91,40 +91,6 @@ public class favorite_points extends Activity {
 	@Override
 	public void onResume() {
 		super.onResume();
-		setContentView(R.layout.favorite_point);
-
-		File folder = new File(projectdir);
-		if (!folder.exists()) {
-			folder.mkdir();
-		}
-		else {
-			favorite_points = new ArrayList<File>();
-			points = new ArrayList<FavPoint>();
-			/* Display result */
-			favorite_points = getListFiles(folder);
-			if(favorite_points.isEmpty()) {
-				info_empty_folder();
-			}
-			for(File fd : favorite_points) {
-				try {
-					String buf = getStringFromFile(fd);
-					FavPoint fp = decode_str_to_points(buf);
-					if(fp == null && fd.exists())
-						fd.delete();
-					else if(fp != null) {
-						fp.set_filename(fd);
-						points.add(fp);
-					}
-				} catch (Exception e) {
-					Log.e(TAG, "Cannot open file " + fd.getName());
-					e.printStackTrace();
-				}
-			}
-			if(points.size() > 0)
-				display();
-			else
-				info_empty_folder();
-		}
 	}
 	
 	public String getPhotoByNumber(String number) {

@@ -90,11 +90,27 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 	List<Marker> results;
 	Point p = new Point(0, 0);
 	private static final String projectdir = Environment.getExternalStorageDirectory() + "/.routetaiwan/";
+	EditText etLocation;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.showmap);
+		
+		etLocation = (EditText) findViewById(R.id.search_map);
+		
+		etLocation.setOnFocusChangeListener(new OnFocusChangeListener()
+		{
+			@Override
+			public void onFocusChange(View v, boolean hasFocus) 
+			{
+				if (hasFocus == true)
+					etLocation.setError(getResources().getString(R.string.info_showmap_edit));
+				else
+					etLocation.setError(null);
+			}
+		});
+		
 
 		LocationManager locationMgr = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
@@ -137,7 +153,7 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 		}else {    // Google Play Services are available
 			Log.d(TAG, "Google play service available");
 			final View cover = findViewById(R.id.mapcover);
-
+			
 			/* Check if it is the first time to use this app, If yes, show some instruction */
 			File chk_fist_use = new File(Environment.getExternalStorageDirectory() + "/.routetaiwan/.first_showmap2");
 			if(chk_fist_use.exists() == false) {
@@ -248,6 +264,7 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			cover.setOnTouchListener(new OnTouchListener() {
 				@Override
 				public boolean onTouch(View v, MotionEvent event) {
+					etLocation.setError(null);
 					p.x = (int)event.getX();
 					p.y = (int)event.getY();
 					return false;
@@ -592,7 +609,8 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 	}
 
 	public void google_search(View v) {
-		EditText etLocation = (EditText) findViewById(R.id.search_map);
+		etLocation = (EditText) findViewById(R.id.search_map);
+		etLocation.setError(null);
 
 		// Getting user input location
 		String location = etLocation.getText().toString();

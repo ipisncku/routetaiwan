@@ -40,6 +40,8 @@
     <string name="notice">提醒</string>
     <string name="no_remind">不再提醒</string>
     <string name="info_sms_sending">將使用簡訊傳送，簡訊費用依各電信公司費率計收</string>
+    <string name="info_planroute_edit">地址/地名/喜愛點名稱</string>
+    <string name="info_showmap_edit">查詢地址/地名</string>
     
     <string name="common_bus">公車</string>
     <string name="common_mrt">捷運</string>

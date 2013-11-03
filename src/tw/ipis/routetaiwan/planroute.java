@@ -56,6 +56,7 @@ import android.view.ContextThemeWrapper;
 import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnFocusChangeListener;
 import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -116,6 +117,30 @@ public class planroute extends Activity {
 		from = (AutoCompleteTextView)findViewById(R.id.from);
 		to = (AutoCompleteTextView)findViewById(R.id.to);
 		new get_fav_points().execute();
+
+		from.setOnFocusChangeListener(new OnFocusChangeListener()
+		{
+			@Override
+			public void onFocusChange(View v, boolean hasFocus) 
+			{
+				if (hasFocus == true)
+					from.setError(getResources().getString(R.string.info_planroute_edit));
+				else
+					from.setError(null);
+			}
+		});
+
+		to.setOnFocusChangeListener(new OnFocusChangeListener()
+		{
+			@Override
+			public void onFocusChange(View v, boolean hasFocus) 
+			{
+				if (hasFocus == true)
+					to.setError(getResources().getString(R.string.info_planroute_edit));
+				else
+					to.setError(null);
+			}
+		});
 
 		/* Intent from showmap class */
 		Bundle Data = this.getIntent().getExtras();
@@ -294,6 +319,9 @@ public class planroute extends Activity {
 			from = (AutoCompleteTextView)findViewById(R.id.from);
 			String start = from.getText().toString();	// Get user input "From"
 			Location currentloc = GetCurrentPosition();
+			
+			from.setError(null);
+			to.setError(null);
 
 			if(start.isEmpty()) {
 				if(provider != null && provider.contentEquals(LocationManager.GPS_PROVIDER)) {
@@ -408,13 +436,13 @@ public class planroute extends Activity {
 			start = start.substring(start.lastIndexOf('<')).replaceAll("[<>]", "");
 		else {
 			for(FavPoint fp : points) {
-				if(start.contentEquals(fp.name)) {
+				if(start.equalsIgnoreCase(fp.name)) {
 					start = new DecimalFormat("###.######").format(fp.location.latitude) + "," + new DecimalFormat("###.######").format(fp.location.longitude);
 					break;
 				}
 			}
 		}
-		
+
 		if(destination.matches(".*<[0-9]{2}.[0-9]+,[0-9]{3}.[0-9]+>"))
 			destination = destination.substring(destination.lastIndexOf('<')).replaceAll("[<>]", "");
 		else {
@@ -425,7 +453,7 @@ public class planroute extends Activity {
 				}
 			}
 		}
-		
+
 		Log.i(TAG, String.format("start:%s destination:%s", start, destination));
 
 		isrequested = false;
