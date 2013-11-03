@@ -123,7 +123,7 @@ public class planroute extends Activity {
 			@Override
 			public void onFocusChange(View v, boolean hasFocus) 
 			{
-				if (hasFocus == true)
+				if (hasFocus == true && from.getText().toString().length() == 0)
 					from.setError(getResources().getString(R.string.info_planroute_edit));
 				else
 					from.setError(null);
@@ -135,7 +135,7 @@ public class planroute extends Activity {
 			@Override
 			public void onFocusChange(View v, boolean hasFocus) 
 			{
-				if (hasFocus == true)
+				if (hasFocus == true && to.getText().toString().length() == 0)
 					to.setError(getResources().getString(R.string.info_planroute_edit));
 				else
 					to.setError(null);

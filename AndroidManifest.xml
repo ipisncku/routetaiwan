@@ -107,7 +107,7 @@
          
         
         <!-- debug key -->
-        <!-- 
+         <!--
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="AIzaSyAL7IpREp53WpGcHshCcjBBgnsL6KYLhzw"/>
