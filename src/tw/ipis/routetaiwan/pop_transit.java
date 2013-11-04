@@ -123,7 +123,7 @@ public class pop_transit extends Activity {
 		RelativeLayout.LayoutParams process_param = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
 		process_param.addRule(RelativeLayout.CENTER_IN_PARENT);
 		process.setLayoutParams(process_param);
-		
+
 		loading = new ProgressBar(this, null, android.R.attr.progressBarStyleSmall);
 		loading.setIndeterminate(true);
 		RelativeLayout.LayoutParams loading_param = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
@@ -580,6 +580,16 @@ public class pop_transit extends Activity {
 				else if(line.contains("五福幹線"))
 					line = "五福幹線";
 
+
+				SimpleDateFormat formatter = new SimpleDateFormat("H");
+				Date date = new Date(System.currentTimeMillis()) ;
+				String str_now = formatter.format(date);
+				int now = Integer.parseInt(str_now);
+
+				if(now > 17 && line.contentEquals("紅36")) {
+					line = "紅36繞駛";		// 為了較好的效能..
+				}
+
 				//				String khh_bus_url = "http://122.146.229.210/bus/pda/businfo.aspx?Routeid={0}&GO_OR_BACK=1&Line=All&lang=Cht";
 
 				String xml_bus_route = "http://122.146.229.210/xmlbus2/GetEstimateTime.xml?routeIds={0}";
@@ -808,6 +818,9 @@ public class pop_transit extends Activity {
 				String come_time = station.getAttribute("comeTime");
 				String car_id = station.getAttribute("carId");
 
+				if(come_time.length() == 0)
+					come_time = getResources().getString(R.string.no_service);
+
 				routes.add(new BusRoute(name, Integer.valueOf(goback), 
 						Integer.valueOf(seqnum), wait_time,
 						come_time, car_id));
@@ -830,6 +843,7 @@ public class pop_transit extends Activity {
 	private void find_start_dest(List<BusRoute> routes, String dept, String arr) {
 		BusRoute start = null, end = null;
 		int maxtime = 999;
+		boolean match_depart = false;
 
 		dept = string_replace(dept);
 		arr = string_replace(arr);
@@ -846,12 +860,27 @@ public class pop_transit extends Activity {
 				maxtime = wait_time;
 			}
 
+			String stopname = temp.StopName;
+
 			/* Check for departure/arrival stops */
-			if(end == null && ( dept.contains(temp.StopName) || temp.StopName.contains(dept) )) {
-				start = temp;
+			if(end == null && ( dept.contains(stopname) || stopname.contains(dept) )) {
+				if(match_depart == false) {
+					if(dept.contentEquals(stopname)) {
+						match_depart = true;
+						start = temp;
+					}
+					else {
+						start = temp;
+					}
+				}
 			}
-			else if(start != null && end == null && ( arr.contains(temp.StopName) || temp.StopName.contains(arr) )) {
-				end = temp;
+			else if(start != null && ( arr.contains(stopname) || stopname.contains(arr) )) {
+				if(end == null)
+					end = temp;
+				else if(arr.contentEquals(stopname)) {
+					end = temp;
+					break;
+				}
 			}
 		}
 		if(start != null && end != null) {
@@ -996,7 +1025,7 @@ public class pop_transit extends Activity {
 		tv.setLayoutParams(param);
 
 		rl.addView(tv);
-		
+
 		/* Add small progress bar */
 		rl.addView(loading);
 	}
@@ -1089,6 +1118,8 @@ public class pop_transit extends Activity {
 		original_sta.add("台安醫院"); after_sta.add("臺安醫院");
 		original_sta.add("(松壽路)"); after_sta.add("(松壽)");
 		original_sta.add("(松仁路)"); after_sta.add("(松仁)");
+		original_sta.add("松山火車站"); after_sta.add("松山車站");
+		original_sta.add("萬華火車站"); after_sta.add("萬華車站");
 	}
 
 	private String string_replace(String station) {
@@ -1136,11 +1167,11 @@ public class pop_transit extends Activity {
 				Log.i("WEB_VIEW_TEST", "error code:" + errorCode);
 				view.reload();
 			}
-			
+
 			@Override
 			public void onPageFinished(WebView view, String url) {
 				loading.setVisibility(ProgressBar.INVISIBLE);
-		    }
+			}
 		});
 
 		wv.loadUrl(url);

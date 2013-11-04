@@ -26,6 +26,7 @@
     <string name="hour">小時</string>
     <string name="minute">分</string>
     <string name="to">到</string>
+    <string name="no_service">未發車</string>
     <string name="warning_no_loc_provider">無法定位, 請開啟GPS或網路</string>
     <string name="info_network_using">網路服務: </string>
     <string name="info_positioning_by_gps">GPS定位中，請稍候</string>

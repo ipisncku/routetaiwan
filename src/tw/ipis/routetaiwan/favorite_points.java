@@ -48,6 +48,7 @@ public class favorite_points extends Activity {
 	List<FavPoint> points;
 	List<TableLayout> btn_table;
 	TextView textv;
+	private int num_of_points = 0;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -81,7 +82,9 @@ public class favorite_points extends Activity {
 					e.printStackTrace();
 				}
 			}
-			if(points.size() > 0)
+			num_of_points = points.size();
+			Log.i(TAG, "num = " + num_of_points);
+			if(num_of_points > 0)
 				display();
 			else
 				info_empty_folder();
@@ -91,6 +94,44 @@ public class favorite_points extends Activity {
 	@Override
 	public void onResume() {
 		super.onResume();
+		
+		File folder = new File(projectdir);
+		if (!folder.exists()) {
+			folder.mkdir();
+		}
+		else {
+			favorite_points = new ArrayList<File>();
+			points = new ArrayList<FavPoint>();
+			/* Display result */
+			favorite_points = getListFiles(folder);
+			if(favorite_points.isEmpty()) {
+				info_empty_folder();
+			}
+			for(File fd : favorite_points) {
+				try {
+					String buf = getStringFromFile(fd);
+					FavPoint fp = decode_str_to_points(buf);
+					if(fp == null && fd.exists())
+						fd.delete();
+					else if(fp != null) {
+						fp.set_filename(fd);
+						points.add(fp);
+					}
+				} catch (Exception e) {
+					Log.e(TAG, "Cannot open file " + fd.getName());
+					e.printStackTrace();
+				}
+			}
+			if(num_of_points != points.size()){
+				Log.i(TAG, "repaint! " + points.size());
+				num_of_points = points.size();
+				if(num_of_points > 0)
+					display();
+				else
+					info_empty_folder();
+			}
+		}
+		
 	}
 	
 	public String getPhotoByNumber(String number) {
@@ -123,6 +164,7 @@ public class favorite_points extends Activity {
 		final ScrollView sv = (ScrollView)findViewById(R.id.fav_points);
 		TableLayout tl = new TableLayout(this);
 		tl.setOrientation(TableLayout.VERTICAL);
+		sv.removeAllViews();
 		sv.addView(tl);
 
 		final Rect scrollBounds = new Rect();
@@ -410,13 +452,13 @@ public class favorite_points extends Activity {
 		if(results.length >= 4 && results[0].contentEquals("save")) {
 			/* 格式範例: save,地名,23.xxxxxx,125,xxxxxx,台北市中山區(option) */
 			LatLng location = new LatLng(Double.parseDouble(results[2]), Double.parseDouble(results[3]));
-			FavPoint fp = new FavPoint(results[1], null, location, results.length == 4 ? null : results[4]);
+			FavPoint fp = new FavPoint(results[1], null, location, results.length >= 5 ? results[4] : null);
 			return fp;
 		}
 		else if(results.length >= 5 && results[0].contentEquals("phone")) {
-			/* 格式範例: phone,09xxxxxxxx,地名,23.xxxxxx,125,xxxxxx,,台北市中山區(option) */
+			/* 格式範例: phone,09xxxxxxxx,地名,23.xxxxxx,125,xxxxxx,台北市中山區(option) */
 			LatLng location = new LatLng(Double.parseDouble(results[3]), Double.parseDouble(results[4]));
-			FavPoint fp = new FavPoint(results[2], results[1], location, results.length == 5 ? null : results[5]);
+			FavPoint fp = new FavPoint(results[2], results[1], location, results.length >= 6 ? results[5] : null);
 			return fp;
 		}
 		else
