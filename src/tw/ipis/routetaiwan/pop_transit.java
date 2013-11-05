@@ -875,7 +875,6 @@ public class pop_transit extends Activity {
 				if(match_arr == false && arr.contentEquals(stopname)) {
 					end = temp;
 					match_arr = true;
-					break;
 				}
 				else if(end == null && match_arr == false) {
 					end = temp;
