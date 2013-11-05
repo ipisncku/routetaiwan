@@ -843,7 +843,7 @@ public class pop_transit extends Activity {
 	private void find_start_dest(List<BusRoute> routes, String dept, String arr) {
 		BusRoute start = null, end = null;
 		int maxtime = 999;
-		boolean match_depart = false;
+		boolean match_depart = false, match_arr = false;
 
 		dept = string_replace(dept);
 		arr = string_replace(arr);
@@ -864,22 +864,21 @@ public class pop_transit extends Activity {
 
 			/* Check for departure/arrival stops */
 			if(end == null && ( dept.contains(stopname) || stopname.contains(dept) )) {
-				if(match_depart == false) {
-					if(dept.contentEquals(stopname)) {
-						match_depart = true;
-						start = temp;
-					}
-					else {
-						start = temp;
-					}
+				if(dept.contentEquals(stopname)) {
+					start = temp;
+					match_depart = true;
 				}
+				else if(match_depart == false)
+					start = temp;
 			}
 			else if(start != null && ( arr.contains(stopname) || stopname.contains(arr) )) {
-				if(end == null)
+				if(match_arr == false && arr.contentEquals(stopname)) {
 					end = temp;
-				else if(arr.contentEquals(stopname)) {
-					end = temp;
+					match_arr = true;
 					break;
+				}
+				else if(end == null && match_arr == false) {
+					end = temp;
 				}
 			}
 		}
