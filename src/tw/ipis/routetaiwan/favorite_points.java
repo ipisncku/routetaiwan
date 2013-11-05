@@ -49,6 +49,7 @@ public class favorite_points extends Activity {
 	List<TableLayout> btn_table;
 	TextView textv;
 	private int num_of_points = 0;
+	private int img_base_pixel = 48;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -182,10 +183,10 @@ public class favorite_points extends Activity {
 			else {
 				String PhotoURI = getPhotoByNumber(fp.phonenum);
 				if(PhotoURI != null) {
-					Log.i(TAG, "found contact!");
+					Log.i(TAG, "found contact! ");
 					iv.setImageURI(Uri.parse(PhotoURI));
-					iv.setMaxWidth(64);
-					iv.setMaxHeight(64);
+					iv.setMaxWidth((int) (img_base_pixel * getResources().getDisplayMetrics().density));
+					iv.setMaxHeight((int) (img_base_pixel * getResources().getDisplayMetrics().density));
 				}
 				else
 					iv.setImageResource(R.drawable.friend);

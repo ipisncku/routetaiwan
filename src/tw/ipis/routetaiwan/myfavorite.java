@@ -45,6 +45,7 @@ public class myfavorite extends Activity {
 	List<Route> routes;
 	private static final String projectdir = Environment.getExternalStorageDirectory() + "/.routetaiwan";
 	String TAG = "--myfavorite--";
+	private int basic_pixel = 36;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -210,8 +211,8 @@ public class myfavorite extends Activity {
 		ImageView iv = new ImageView(this);
 		iv.setImageBitmap(null);
 		iv.setImageResource(R);
-		iv.setMaxHeight(height);
-		iv.setMaxWidth(width);
+		iv.setMaxHeight((int) (height * getResources().getDisplayMetrics().density));
+		iv.setMaxWidth((int) (width * getResources().getDisplayMetrics().density));
 		iv.setAdjustViewBounds(true);
 		parent.addView(iv);
 		return iv;
@@ -297,7 +298,7 @@ public class myfavorite extends Activity {
 //				TableRow transit_times = CreateTableRow(tl, 0, i);	// 2nd row, leave it for later use
 
 				tr = CreateTableRow(tl, 1.0f, i);
-				createImageViewbyR(R.drawable.start, tr, 50, 50);
+				createImageViewbyR(R.drawable.start, tr, basic_pixel, basic_pixel);
 				createTextView(routes.get(i).legs[j].start_address, tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT | Gravity.CENTER_VERTICAL, "map,current", 
 						routes.get(i).legs[0].start_location, routes.get(i).legs[0].start_location);
 
@@ -306,7 +307,7 @@ public class myfavorite extends Activity {
 					if(step.travel_mode.contentEquals("WALKING")) {
 						String walk = new StringBuilder().append(step.html_instructions).append("\n(" + step.distance.text + ", " +step.duration.text + ")").toString();
 						tr = CreateTableRow(tl, 1.0f, i);
-						createImageViewbyR(R.drawable.walk, tr, 50, 50);
+						createImageViewbyR(R.drawable.walk, tr, basic_pixel, basic_pixel);
 						createTextView(walk, tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT | Gravity.CENTER_VERTICAL, "map," + step.polyline.points, 
 								step.start_location, step.end_location);
 					}
@@ -326,7 +327,7 @@ public class myfavorite extends Activity {
 
 						tr = CreateTableRow(tl, 1.0f, i);
 						if(type.contentEquals("BUS")) {
-							createImageViewbyR(R.drawable.bus, tr, 50, 50);
+							createImageViewbyR(R.drawable.bus, tr, basic_pixel, basic_pixel);
 							text = new StringBuilder().append(text).append("bus,").append(step.transit_details.line.short_name + ",").append(step.transit_details.line.agencies[0].name + ",")
 									.append(step.transit_details.departure_stop.name + ",").append(step.transit_details.arrival_stop.name + ",")
 									.append(step.transit_details.line.name).toString();
@@ -335,10 +336,10 @@ public class myfavorite extends Activity {
 						}
 						else if(type.contentEquals("SUBWAY")) {
 							if(agencyname.contentEquals("台北捷運")) {
-								createImageViewbyR(R.drawable.trtc, tr, 50, 50);
+								createImageViewbyR(R.drawable.trtc, tr, basic_pixel, basic_pixel);
 							}
 							else if(agencyname.contentEquals("高雄捷運")) {
-								createImageViewbyR(R.drawable.krtc, tr, 50, 50);
+								createImageViewbyR(R.drawable.krtc, tr, basic_pixel, basic_pixel);
 							}
 							else
 								createTextView("車", tr, Color.rgb(0,0,0), 0.1f, Gravity.CENTER, "transit,null", (String)null, (String)null);
@@ -348,14 +349,14 @@ public class myfavorite extends Activity {
 						}
 						else if(type.contentEquals("HEAVY_RAIL")) {
 							if(agencyname.contentEquals("台灣高鐵")) {
-								createImageViewbyR(R.drawable.hsr, tr, 50, 50);
+								createImageViewbyR(R.drawable.hsr, tr, basic_pixel, basic_pixel);
 								text = new StringBuilder().append(text).append("hsr,").append(train_num(step.transit_details.headsign)+",")
 										.append(step.transit_details.departure_time.value+",")
 										.append(step.transit_details.departure_stop.name+",")
 										.append(step.transit_details.arrival_stop.name).toString();
 							}
 							else if(agencyname.contentEquals("台灣鐵路管理局")) {
-								createImageViewbyR(R.drawable.train, tr, 50, 50);
+								createImageViewbyR(R.drawable.train, tr, basic_pixel, basic_pixel);
 								text = new StringBuilder().append(text).append("tra,").append(train_num(step.transit_details.headsign) + ",").append(step.transit_details.line.short_name).toString();
 							}
 							else
@@ -365,7 +366,7 @@ public class myfavorite extends Activity {
 									step.start_location, step.end_location);
 						}
 						else if(type.contentEquals("DRIVING")) {
-							createImageViewbyR(R.drawable.drive, tr, 50, 50);
+							createImageViewbyR(R.drawable.drive, tr, basic_pixel, basic_pixel);
 							createTextView(new StringBuilder().append(step.html_instructions).append("\n(" + step.distance.text + ", " +step.duration.text + ")").toString()
 									, tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT | Gravity.CENTER_VERTICAL, text, 
 									step.start_location, step.end_location);
@@ -374,7 +375,7 @@ public class myfavorite extends Activity {
 					if(k == routes.get(i).legs[j].steps.length - 1) {
 						// Arrived
 						tr = CreateTableRow(tl, 1.0f, i);
-						createImageViewbyR(R.drawable.destination, tr, 50, 50);
+						createImageViewbyR(R.drawable.destination, tr, basic_pixel, basic_pixel);
 						createTextView(routes.get(i).legs[j].end_address, tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT, "map,destination", 
 								routes.get(i).legs[0].end_location, routes.get(i).legs[0].end_location);
 					}
