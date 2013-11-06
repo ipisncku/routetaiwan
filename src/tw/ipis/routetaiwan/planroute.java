@@ -608,11 +608,15 @@ public class planroute extends Activity {
 		return tv;
 	}
 
-	private GifView createImageViewbyAnim(TableRow parent, int height, int width) {
-		GifView gv = new GifView(this);
-		gv.setLayoutParams(new TableRow.LayoutParams((int) (width * getResources().getDisplayMetrics().density), (int) (height * getResources().getDisplayMetrics().density)));
-		parent.addView(gv);
-		return gv;
+	private ImageView createImageViewbyAnim(TableRow parent, int height, int width) {
+		ImageView iv = new ImageView(this);
+		iv.setImageBitmap(null);
+		iv.setBackgroundResource(R.anim.btn_anim_moreinfo);
+		iv.setMaxHeight((int) (height * getResources().getDisplayMetrics().density));
+		iv.setMaxWidth((int) (width * getResources().getDisplayMetrics().density));
+		iv.setAdjustViewBounds(true);
+		parent.addView(iv);
+		return iv;
 	}
 	
 	private ImageView createImageViewbyR(int R, TableRow parent, int height, int width) {
