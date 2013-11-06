@@ -638,7 +638,7 @@ public class planroute extends Activity {
 			@Override
 			public void onClick(View onclick) {
 				int childcount = ((ViewGroup) onclick).getChildCount();
-				TextView act = (TextView)((ViewGroup) onclick).getChildAt(childcount - 1);
+				TextView act = (TextView)((ViewGroup) onclick).getChildAt(childcount - 2);
 
 				if(act != null) {
 					showPopup(planroute.this, act);
@@ -763,9 +763,10 @@ public class planroute extends Activity {
 				//				TableRow transit_times = CreateTableRow(tl, 0, i);	// 2nd row, leave it for later use
 
 				tr = CreateTableRow(tl, 1.0f, i);
-				createImageViewbyR(R.drawable.start, tr, 50, 50);
+				createImageViewbyR(R.drawable.start, tr, basic_pixel, basic_pixel);
 				createTextView(dires.routes[i].legs[j].start_address, tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT | Gravity.CENTER_VERTICAL, "map,current", 
 						dires.routes[i].legs[0].start_location, dires.routes[i].legs[0].start_location);
+				createImageViewbyR(R.drawable.more_info, tr, 24, 24);
 
 				dires.routes[i].legs[j].mark.add(new MarkP("start", getResources().getString(R.string.str_from), dires.routes[i].legs[0].start_address, dires.routes[i].legs[0].start_location));
 
@@ -775,8 +776,9 @@ public class planroute extends Activity {
 						String walk = new StringBuilder().append(step.html_instructions).append("\n(" + step.distance.text + ", " +step.duration.text + ")").toString();
 						tr = CreateTableRow(tl, 1.0f, i);
 						createImageViewbyR(R.drawable.walk, tr, basic_pixel, basic_pixel);
-						createTextView(walk, tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT | Gravity.CENTER_VERTICAL, "map," + step.polyline.points, 
+						createTextView(walk, tr, Color.rgb(0,0,0), 0.85f, Gravity.LEFT | Gravity.CENTER_VERTICAL, "map," + step.polyline.points, 
 								step.start_location, step.end_location);
+						createImageViewbyR(R.drawable.more_info, tr, 24, 24);
 
 						dires.routes[i].legs[j].mark.add(new MarkP("walk", step.html_instructions, step.distance.text, step.start_location));
 						if(pure_walk_flag == true) {
@@ -804,7 +806,7 @@ public class planroute extends Activity {
 									.append(step.transit_details.departure_stop.name + ",").append(step.transit_details.arrival_stop.name + ",")
 									.append(step.transit_details.line.name).toString();
 							headsign = new StringBuilder().append("(" + getResources().getString(R.string.go_to)).append(headsign + ")").toString();
-							createTextView(trans + headsign + trans_to + time_taken, tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT | Gravity.CENTER_VERTICAL, text, step.transit_details.departure_stop.name, step.transit_details.arrival_stop.name);
+							createTextView(trans + headsign + trans_to + time_taken, tr, Color.rgb(0,0,0), 0.85f, Gravity.LEFT | Gravity.CENTER_VERTICAL, text, step.transit_details.departure_stop.name, step.transit_details.arrival_stop.name);
 
 							dires.routes[i].legs[j].mark.add(new MarkP("bus"
 									,	getResources().getString(R.string.taketransit) + step.transit_details.line.short_name
@@ -830,7 +832,7 @@ public class planroute extends Activity {
 								createTextView("車", tr, Color.rgb(0,0,0), 0.1f, Gravity.CENTER, "transit,null", (String)null, (String)null);
 							text = new StringBuilder().append("map,").append(step.polyline.points).toString();
 							headsign = new StringBuilder().append("(" + getResources().getString(R.string.go_to)).append(headsign + ")").toString();
-							createTextView(trans + headsign + trans_to + time_taken, tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT | Gravity.CENTER_VERTICAL, text, step.start_location, step.end_location);
+							createTextView(trans + headsign + trans_to + time_taken, tr, Color.rgb(0,0,0), 0.85f, Gravity.LEFT | Gravity.CENTER_VERTICAL, text, step.start_location, step.end_location);
 						}
 						else if(type.contentEquals("HEAVY_RAIL")) {
 							if(agencyname.contentEquals("台灣高鐵")) {
@@ -855,7 +857,7 @@ public class planroute extends Activity {
 							else
 								createTextView("車", tr, Color.rgb(0,0,0), 0.1f, Gravity.CENTER, "transit,null", step.transit_details.departure_stop.name, step.transit_details.arrival_stop.name);
 							headsign = new StringBuilder().append("(" + headsign + ")").toString();
-							createTextView(trans + headsign + trans_to + time_taken, tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT | Gravity.CENTER_VERTICAL, text, 
+							createTextView(trans + headsign + trans_to + time_taken, tr, Color.rgb(0,0,0), 0.85f, Gravity.LEFT | Gravity.CENTER_VERTICAL, text, 
 									step.start_location, step.end_location);
 
 						}
@@ -866,6 +868,7 @@ public class planroute extends Activity {
 									step.start_location, step.end_location);
 							dires.routes[i].legs[j].mark.add(new MarkP("drive", step.html_instructions, step.distance.text, step.start_location));
 						}
+						createImageViewbyR(R.drawable.more_info, tr, 24, 24);
 					}
 					if(k == dires.routes[i].legs[j].steps.length - 1) {
 						// Arrived
@@ -873,6 +876,7 @@ public class planroute extends Activity {
 						createImageViewbyR(R.drawable.destination, tr, basic_pixel, basic_pixel);
 						createTextView(dires.routes[i].legs[j].end_address, tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT, "map,destination", 
 								dires.routes[i].legs[0].end_location, dires.routes[i].legs[0].end_location);
+						createImageViewbyR(R.drawable.more_info, tr, 24, 24);
 
 						dires.routes[i].legs[j].mark.add(new MarkP("end", getResources().getString(R.string.str_to),dires.routes[i].legs[0].end_address, dires.routes[i].legs[0].end_location));
 					}
@@ -891,8 +895,9 @@ public class planroute extends Activity {
 						.append(convertTime(dires.routes[i].legs[j].arrival_time.value))
 						.append(dur)
 						.append("\n" + str).toString();
-				createTextView(title, time_row, Color.rgb(0,0,0), 1.0f, Gravity.LEFT | Gravity.CENTER_VERTICAL,
+				createTextView(title, time_row, Color.rgb(0,0,0), 0.95f, Gravity.LEFT | Gravity.CENTER_VERTICAL,
 						"all," + dires.routes[i].overview_polyline.points, dires.routes[i].legs[j].mark);
+				createImageViewbyR(R.drawable.more_info, time_row, 24, 24);
 			}
 			tl_host.addView(tl);
 		}
