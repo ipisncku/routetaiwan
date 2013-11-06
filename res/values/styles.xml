@@ -66,5 +66,9 @@
         <item name="android:windowEnterAnimation">@anim/anim_translate</item>
         <item name="android:windowExitAnimation">@anim/anim_alpha_out</item>
     </style>
+    
+    <style name="Anim_moreinfo" parent="@android:style/Widget.ProgressBar.Large">
+        <item name="android:indeterminateDrawable">@anim/btn_anim_moreinfo</item>
+    </style>
 
 </resources>
