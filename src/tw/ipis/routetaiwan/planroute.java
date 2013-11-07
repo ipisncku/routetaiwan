@@ -39,6 +39,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
+import android.graphics.drawable.AnimationDrawable;
 import android.location.Criteria;
 import android.location.GpsStatus;
 import android.location.Location;
@@ -101,6 +102,7 @@ public class planroute extends Activity {
 	List<FavPoint> points;
 	ArrayAdapter<String> adapter;
 	private int basic_pixel = 36;
+	private int basic_btn_pixel = 16;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -610,12 +612,12 @@ public class planroute extends Activity {
 
 	private ImageView createImageViewbyAnim(TableRow parent, int height, int width) {
 		ImageView iv = new ImageView(this);
-		iv.setImageBitmap(null);
 		iv.setBackgroundResource(R.anim.btn_anim_moreinfo);
-		iv.setMaxHeight((int) (height * getResources().getDisplayMetrics().density));
-		iv.setMaxWidth((int) (width * getResources().getDisplayMetrics().density));
+		AnimationDrawable startAnimation = (AnimationDrawable) iv.getBackground(); 
+		iv.setLayoutParams(new LayoutParams((int) (width * getResources().getDisplayMetrics().density), (int) (width * getResources().getDisplayMetrics().density)));
 		iv.setAdjustViewBounds(true);
 		parent.addView(iv);
+		startAnimation.start();
 		return iv;
 	}
 	
@@ -777,7 +779,7 @@ public class planroute extends Activity {
 				createImageViewbyR(R.drawable.start, tr, basic_pixel, basic_pixel);
 				createTextView(dires.routes[i].legs[j].start_address, tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT | Gravity.CENTER_VERTICAL, "map,current", 
 						dires.routes[i].legs[0].start_location, dires.routes[i].legs[0].start_location);
-				createImageViewbyAnim(tr, 24, 24);
+				createImageViewbyAnim(tr, basic_btn_pixel, basic_btn_pixel);
 
 				dires.routes[i].legs[j].mark.add(new MarkP("start", getResources().getString(R.string.str_from), dires.routes[i].legs[0].start_address, dires.routes[i].legs[0].start_location));
 
@@ -789,7 +791,7 @@ public class planroute extends Activity {
 						createImageViewbyR(R.drawable.walk, tr, basic_pixel, basic_pixel);
 						createTextView(walk, tr, Color.rgb(0,0,0), 0.85f, Gravity.LEFT | Gravity.CENTER_VERTICAL, "map," + step.polyline.points, 
 								step.start_location, step.end_location);
-						createImageViewbyAnim(tr, 24, 24);
+						createImageViewbyAnim(tr, basic_btn_pixel, basic_btn_pixel);
 
 						dires.routes[i].legs[j].mark.add(new MarkP("walk", step.html_instructions, step.distance.text, step.start_location));
 						if(pure_walk_flag == true) {
@@ -879,7 +881,7 @@ public class planroute extends Activity {
 									step.start_location, step.end_location);
 							dires.routes[i].legs[j].mark.add(new MarkP("drive", step.html_instructions, step.distance.text, step.start_location));
 						}
-						createImageViewbyAnim(tr, 24, 24);
+						createImageViewbyAnim(tr, basic_btn_pixel, basic_btn_pixel);
 					}
 					if(k == dires.routes[i].legs[j].steps.length - 1) {
 						// Arrived
@@ -887,7 +889,7 @@ public class planroute extends Activity {
 						createImageViewbyR(R.drawable.destination, tr, basic_pixel, basic_pixel);
 						createTextView(dires.routes[i].legs[j].end_address, tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT, "map,destination", 
 								dires.routes[i].legs[0].end_location, dires.routes[i].legs[0].end_location);
-						createImageViewbyAnim(tr, 24, 24);
+						createImageViewbyAnim(tr, basic_btn_pixel, basic_btn_pixel);
 
 						dires.routes[i].legs[j].mark.add(new MarkP("end", getResources().getString(R.string.str_to),dires.routes[i].legs[0].end_address, dires.routes[i].legs[0].end_location));
 					}
@@ -908,7 +910,7 @@ public class planroute extends Activity {
 						.append("\n" + str).toString();
 				createTextView(title, time_row, Color.rgb(0,0,0), 0.95f, Gravity.LEFT | Gravity.CENTER_VERTICAL,
 						"all," + dires.routes[i].overview_polyline.points, dires.routes[i].legs[j].mark);
-				createImageViewbyAnim(time_row, 24, 24);
+				createImageViewbyAnim(time_row, basic_btn_pixel, basic_btn_pixel);
 			}
 			tl_host.addView(tl);
 		}

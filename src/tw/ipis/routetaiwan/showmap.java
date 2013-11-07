@@ -97,21 +97,6 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.showmap);
 		
-		etLocation = (EditText) findViewById(R.id.search_map);
-		
-		etLocation.setOnFocusChangeListener(new OnFocusChangeListener()
-		{
-			@Override
-			public void onFocusChange(View v, boolean hasFocus) 
-			{
-				if (hasFocus == true)
-					etLocation.setError(getResources().getString(R.string.info_showmap_edit));
-				else
-					etLocation.setError(null);
-			}
-		});
-		
-
 		LocationManager locationMgr = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
 		//1.選擇最佳提供器
@@ -260,6 +245,20 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			.build();
 
 			googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(camPosition));
+			
+			etLocation = (EditText) findViewById(R.id.search_map);
+			
+			etLocation.setOnFocusChangeListener(new OnFocusChangeListener()
+			{
+				@Override
+				public void onFocusChange(View v, boolean hasFocus) 
+				{
+					if (hasFocus == true)
+						etLocation.setError(getResources().getString(R.string.info_showmap_edit));
+					else
+						etLocation.setError(null);
+				}
+			});
 
 			cover.setOnTouchListener(new OnTouchListener() {
 				@Override

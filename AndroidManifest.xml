@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="tw.ipis.routetaiwan"
-    android:versionCode="15"
-    android:versionName="0.10.06" >
+    android:versionCode="16"
+    android:versionName="0.10.07" >
 
     <uses-sdk
         android:minSdkVersion="15"
@@ -105,13 +105,13 @@
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="AIzaSyCLlYQfiYAcQsQXFZbksR4Frr0yrIhhR98"/>
          
-        
+       
         <!-- debug key -->
          <!--
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="AIzaSyAL7IpREp53WpGcHshCcjBBgnsL6KYLhzw"/>
-        -->
+         -->
         
     </application>
 
