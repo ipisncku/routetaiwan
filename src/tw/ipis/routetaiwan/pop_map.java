@@ -77,12 +77,12 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 				poly = poly.substring(4);
 				if(poly.contentEquals("current")) {
 					LatLng p = decode_latlng(start);
-					add_marker(p, R.drawable.start);
+					add_marker(p, R.drawable.map_start);
 					focus_on_me(p);
 				}
 				else if(poly.contentEquals("destination")) {
 					LatLng p = decode_latlng(det);
-					add_marker(p, R.drawable.destination);
+					add_marker(p, R.drawable.map_destination);
 					focus_on_me(p);
 				}
 				else if(poly.contentEquals("marker")) {
@@ -169,7 +169,7 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			else if (t.contentEquals("tra"))
 				marker = add_marker(p, R.drawable.map_tra, tl, d);
 			else if (t.contentEquals("end"))
-				marker = add_marker(p, R.drawable.destination, tl, d);
+				marker = add_marker(p, R.drawable.map_destination, tl, d);
 			else if (t.contentEquals("drive"))
 				marker = add_marker(p, R.drawable.map_drive, tl, d);
 			else
@@ -211,8 +211,8 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 
 		points.add(0, start);
 		points.add(points.size(), det);
-		add_marker(start, R.drawable.start);
-		add_marker(det, R.drawable.destination);
+		add_marker(start, R.drawable.map_start);
+		add_marker(det, R.drawable.map_destination);
 
 		for (int i = 0; i < points.size(); i++) {
 			builder.include(points.get(i));
