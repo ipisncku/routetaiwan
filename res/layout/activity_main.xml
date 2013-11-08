@@ -78,7 +78,7 @@
         <Button
             style="@style/Button"
             android:id="@+id/but_fav_points"
-            android:drawableLeft="@drawable/pink_marker"
+            android:drawableLeft="@drawable/btn_favpoints"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
