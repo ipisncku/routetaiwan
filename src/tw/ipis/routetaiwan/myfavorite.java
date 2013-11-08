@@ -20,6 +20,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
+import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -46,6 +47,7 @@ public class myfavorite extends Activity {
 	private static final String projectdir = Environment.getExternalStorageDirectory() + "/.routetaiwan";
 	String TAG = "--myfavorite--";
 	private int basic_pixel = 36;
+	private int basic_btn_pixel = 16;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -207,6 +209,17 @@ public class myfavorite extends Activity {
 		return tv;
 	}
 
+	private ImageView createImageViewbyAnim(TableRow parent, int height, int width) {
+		ImageView iv = new ImageView(this);
+		iv.setBackgroundResource(R.anim.btn_anim_moreinfo);
+		AnimationDrawable startAnimation = (AnimationDrawable) iv.getBackground(); 
+		iv.setLayoutParams(new LayoutParams((int) (width * getResources().getDisplayMetrics().density), (int) (width * getResources().getDisplayMetrics().density)));
+		iv.setAdjustViewBounds(true);
+		parent.addView(iv);
+		startAnimation.start();
+		return iv;
+	}
+	
 	private ImageView createImageViewbyR(int R, TableRow parent, int height, int width) {
 		ImageView iv = new ImageView(this);
 		iv.setImageBitmap(null);
@@ -225,7 +238,7 @@ public class myfavorite extends Activity {
 			@Override
 			public void onClick(View onclick) {
 				int childcount = ((ViewGroup) onclick).getChildCount();
-				TextView act = (TextView)((ViewGroup) onclick).getChildAt(childcount - 1);
+				TextView act = (TextView)((ViewGroup) onclick).getChildAt(childcount - 2);
 
 				if(act != null) {
 					showPopup(myfavorite.this, act);
@@ -301,6 +314,7 @@ public class myfavorite extends Activity {
 				createImageViewbyR(R.drawable.start, tr, basic_pixel, basic_pixel);
 				createTextView(routes.get(i).legs[j].start_address, tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT | Gravity.CENTER_VERTICAL, "map,current", 
 						routes.get(i).legs[0].start_location, routes.get(i).legs[0].start_location);
+				createImageViewbyAnim(tr, basic_btn_pixel, basic_btn_pixel);
 
 				for (int k = 0; k < routes.get(i).legs[j].steps.length; k++) {
 					Step step = routes.get(i).legs[j].steps[k];
@@ -310,6 +324,7 @@ public class myfavorite extends Activity {
 						createImageViewbyR(R.drawable.walk, tr, basic_pixel, basic_pixel);
 						createTextView(walk, tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT | Gravity.CENTER_VERTICAL, "map," + step.polyline.points, 
 								step.start_location, step.end_location);
+						createImageViewbyAnim(tr, basic_btn_pixel, basic_btn_pixel);
 					}
 					else if(step.travel_mode.contentEquals("TRANSIT")) {
 						String type = step.transit_details.line.vehicle.type;
@@ -371,6 +386,7 @@ public class myfavorite extends Activity {
 									, tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT | Gravity.CENTER_VERTICAL, text, 
 									step.start_location, step.end_location);
 						}
+						createImageViewbyAnim(tr, basic_btn_pixel, basic_btn_pixel);
 					}
 					if(k == routes.get(i).legs[j].steps.length - 1) {
 						// Arrived
@@ -378,6 +394,7 @@ public class myfavorite extends Activity {
 						createImageViewbyR(R.drawable.destination, tr, basic_pixel, basic_pixel);
 						createTextView(routes.get(i).legs[j].end_address, tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT, "map,destination", 
 								routes.get(i).legs[0].end_location, routes.get(i).legs[0].end_location);
+						createImageViewbyAnim(tr, basic_btn_pixel, basic_btn_pixel);
 					}
 				}
 				String str = getResources().getString(R.string.transit) + ": " + transit + "x";
@@ -392,6 +409,7 @@ public class myfavorite extends Activity {
 										.append("\n" + str).toString();
 				createTextView(title, time_row, Color.rgb(0,0,0), 1.0f, Gravity.LEFT | Gravity.CENTER_VERTICAL,
 						"all," + routes.get(i).overview_polyline.points, routes.get(i).legs[j].mark);
+				createImageViewbyAnim(time_row, basic_btn_pixel, basic_btn_pixel);
 			}
 			tl_host.addView(tl);
 		}

@@ -248,16 +248,10 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			
 			etLocation = (EditText) findViewById(R.id.search_map);
 			
-			etLocation.setOnFocusChangeListener(new OnFocusChangeListener()
-			{
-				@Override
-				public void onFocusChange(View v, boolean hasFocus) 
-				{
-					if (hasFocus == true)
-						etLocation.setError(getResources().getString(R.string.info_showmap_edit));
-					else
-						etLocation.setError(null);
-				}
+			etLocation.setOnClickListener(new OnClickListener(){  
+				public void onClick(View v) {
+					etLocation.setError(getResources().getString(R.string.info_showmap_edit));
+				}  
 			});
 
 			cover.setOnTouchListener(new OnTouchListener() {
@@ -633,9 +627,9 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			List<Address> addresses = null;
 
 			try {
-				// Getting a maximum of 20 Address that matches the input text
+				// Getting a maximum of 10 Address that matches the input text
 				addresses = geocoder.getFromLocationName(locationName[0], 20);
-			} catch (IOException e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 			}			
 			return addresses;
