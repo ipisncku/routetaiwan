@@ -24,7 +24,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:drawableTop="@drawable/start"
                 android:text="@string/add_to_departure" />
 
             <Button
@@ -32,7 +31,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:drawableTop="@drawable/destination"
                 android:text="@string/add_to_arrival" />
 
             <Button
@@ -40,7 +38,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:drawableTop="@drawable/friend"
                 android:text="@string/send_friend" />
             
             <Button
@@ -48,7 +45,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:drawableTop="@drawable/favorite_32"
                 android:text="@string/save_result" />
 
             <Button
@@ -56,7 +52,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:drawableTop="@drawable/clean"
                 android:text="@string/cancel_result" />
         </TableRow>
     </TableLayout>

@@ -50,6 +50,7 @@ public class favorite_points extends Activity {
 	TextView textv;
 	private int num_of_points = 0;
 	private int img_base_pixel = 48;
+	private int basic_size = 24;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -178,8 +179,11 @@ public class favorite_points extends Activity {
 
 			ImageView iv = new ImageView(this);
 			iv.setImageBitmap(null);
-			if(fp.phonenum == null)
+			if(fp.phonenum == null) {
 				iv.setImageResource(R.drawable.favorite_32);
+				iv.setMaxHeight((int) (img_base_pixel * getResources().getDisplayMetrics().density));
+				iv.setMaxWidth((int) (img_base_pixel * getResources().getDisplayMetrics().density));
+			}
 			else {
 				String PhotoURI = getPhotoByNumber(fp.phonenum);
 				if(PhotoURI != null) {
@@ -188,8 +192,11 @@ public class favorite_points extends Activity {
 					iv.setMaxWidth((int) (img_base_pixel * getResources().getDisplayMetrics().density));
 					iv.setMaxHeight((int) (img_base_pixel * getResources().getDisplayMetrics().density));
 				}
-				else
+				else {
 					iv.setImageResource(R.drawable.friend);
+					iv.setMaxHeight((int) (img_base_pixel * getResources().getDisplayMetrics().density));
+					iv.setMaxWidth((int) (img_base_pixel * getResources().getDisplayMetrics().density));
+				}
 			}
 			iv.setAdjustViewBounds(true);
 			iv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.2f));
@@ -240,6 +247,8 @@ public class favorite_points extends Activity {
 			iv = new ImageView(this);
 			iv.setImageBitmap(null);
 			iv.setImageResource(R.drawable.button_direction_32);
+			iv.setMaxHeight((int) (basic_size * getResources().getDisplayMetrics().density));
+			iv.setMaxWidth((int) (basic_size * getResources().getDisplayMetrics().density));
 			iv.setAdjustViewBounds(true);
 			iv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.2f));
 			iv.setOnClickListener(new OnClickListener(){  
@@ -259,6 +268,8 @@ public class favorite_points extends Activity {
 			iv = new ImageView(this);
 			iv.setImageBitmap(null);
 			iv.setImageResource(R.drawable.friend);
+			iv.setMaxHeight((int) (basic_size * getResources().getDisplayMetrics().density));
+			iv.setMaxWidth((int) (basic_size * getResources().getDisplayMetrics().density));
 			iv.setAdjustViewBounds(true);
 			iv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.2f));
 			iv.setOnClickListener(new OnClickListener(){  
@@ -279,6 +290,8 @@ public class favorite_points extends Activity {
 			iv = new ImageView(this);
 			iv.setImageBitmap(null);
 			iv.setImageResource(R.drawable.button_map_32);
+			iv.setMaxHeight((int) (basic_size * getResources().getDisplayMetrics().density));
+			iv.setMaxWidth((int) (basic_size * getResources().getDisplayMetrics().density));
 			iv.setAdjustViewBounds(true);
 			iv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.2f));
 			iv.setOnClickListener(new OnClickListener(){  
@@ -299,6 +312,8 @@ public class favorite_points extends Activity {
 			iv = new ImageView(this);
 			iv.setImageBitmap(null);
 			iv.setImageResource(R.drawable.delete);
+			iv.setMaxHeight((int) (basic_size * getResources().getDisplayMetrics().density));
+			iv.setMaxWidth((int) (basic_size * getResources().getDisplayMetrics().density));
 			iv.setAdjustViewBounds(true);
 			iv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.2f));
 			iv.setOnClickListener(new OnClickListener(){  

@@ -17,9 +17,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Criteria;
 import android.location.Geocoder;
@@ -516,7 +518,7 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 
 		// Creating the PopupWindow
 		final PopupWindow popup = new PopupWindow(layout, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
-
+		
 		// Some offset to align the popup a bit to the right, and a bit down, relative to button's position.
 		int OFFSET_X = 10;
 		int OFFSET_Y = 60;
@@ -528,8 +530,15 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 
 		// Displaying the popup at the specified location, + offsets.
 		popup.showAtLocation(layout, Gravity.NO_GRAVITY, p.x + OFFSET_X, p.y + OFFSET_Y);
+		
+		Drawable dr = getResources().getDrawable(R.drawable.start);
+		Bitmap bitmap = ((BitmapDrawable) dr).getBitmap();
+		
+		Drawable drawable = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(bitmap, 
+				(int) (24 * getResources().getDisplayMetrics().density), (int) (24 * getResources().getDisplayMetrics().density), true)); 
 
 		Button set_start = (Button) layout.findViewById(R.id.add_to_departure);
+		set_start.setCompoundDrawablesWithIntrinsicBounds(null, drawable, null, null);
 		set_start.setOnClickListener(new OnClickListener() {
 
 			@Override
@@ -544,8 +553,15 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 				v.setOnClickListener(null);
 			}
 		});
+		
+		dr = getResources().getDrawable(R.drawable.destination);
+		bitmap = ((BitmapDrawable) dr).getBitmap();
+		
+		drawable = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(bitmap, 
+				(int) (24 * getResources().getDisplayMetrics().density), (int) (24 * getResources().getDisplayMetrics().density), true)); 
 
 		Button set_end = (Button) layout.findViewById(R.id.add_to_arrival);
+		set_end.setCompoundDrawablesWithIntrinsicBounds(null, drawable, null, null);
 		set_end.setOnClickListener(new OnClickListener() {
 
 			@Override
@@ -561,7 +577,14 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			}
 		});
 		
+		dr = getResources().getDrawable(R.drawable.friend);
+		bitmap = ((BitmapDrawable) dr).getBitmap();
+		
+		drawable = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(bitmap, 
+				(int) (24 * getResources().getDisplayMetrics().density), (int) (24 * getResources().getDisplayMetrics().density), true)); 
+		
 		Button send_friend = (Button) layout.findViewById(R.id.send_friend);
+		send_friend.setCompoundDrawablesWithIntrinsicBounds(null, drawable, null, null);
 		send_friend.setOnClickListener(new OnClickListener() {
 
 			@Override
@@ -572,7 +595,14 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			}
 		});
 		
+		dr = getResources().getDrawable(R.drawable.favorite_32);
+		bitmap = ((BitmapDrawable) dr).getBitmap();
+		
+		drawable = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(bitmap, 
+				(int) (24 * getResources().getDisplayMetrics().density), (int) (24 * getResources().getDisplayMetrics().density), true)); 
+		
 		Button save_point = (Button) layout.findViewById(R.id.save);
+		save_point.setCompoundDrawablesWithIntrinsicBounds(null, drawable, null, null);
 		save_point.setOnClickListener(new OnClickListener() {
 
 			@Override
@@ -583,8 +613,15 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			}
 		});
 		
+		dr = getResources().getDrawable(R.drawable.clean);
+		bitmap = ((BitmapDrawable) dr).getBitmap();
+		
+		drawable = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(bitmap, 
+				(int) (24 * getResources().getDisplayMetrics().density), (int) (24 * getResources().getDisplayMetrics().density), true)); 
+		
 		// Getting a reference to Close button, and close the popup when clicked.
 		Button clearall = (Button) layout.findViewById(R.id.close);
+		clearall.setCompoundDrawablesWithIntrinsicBounds(null, drawable, null, null);
 		clearall.setOnClickListener(new OnClickListener() {
 
 			@Override
