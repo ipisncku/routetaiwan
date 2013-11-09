@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">繞台灣</string>
+    <string name="plan_route">路徑規劃</string>
+    <string name="show_map">顯示地圖</string>
+    <string name="my_favorite">儲存路徑</string>
+    <string name="fav_points">喜愛點</string>
+    <string name="version">版本</string>
+    
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="showmap2">觀看地圖</string>
+    <string name="your_pos">Your Position: </string>
+    <string name="pos_from"><i>現在位置</i></string>
+    <string name="pos_to"><i>Taipei 101</i></string>
+    <string name="str_from">起點</string>
+    <string name="str_to">終點</string>
+    <string name="go">Go</string>
+    <string name="transit">轉乘</string>
+    <string name="walkto">行走到</string>
+    <string name="taketransit">搭乘</string>
+    <string name="go_to">往</string>
+    <string name="dirction">方向</string>
+    <string name="stops">站</string>
+    <string name="hour">小時</string>
+    <string name="minute">分</string>
+    <string name="to">到</string>
+    <string name="no_service">未發車</string>
+    <string name="warning_no_loc_provider">無法定位, 請開啟GPS或網路</string>
+    <string name="info_network_using">網路服務: </string>
+    <string name="info_positioning_by_gps">GPS定位中，請稍候</string>
+    <string name="info_gps_fixed">GPS定位完成</string>
+    <string name="info_positioning_by_network">使用網路定位中</string>
+    <string name="info_no_result">沒有結果, 請重新輸入</string>
+    <string name="info_internal_error">發生錯誤</string>
+    
+    <string name="info_illegal_num">電話號碼輸入錯誤</string>
+    <string name="sms_sent">訊息已傳送</string>
+    <string name="sms_received">收到了位置簡訊</string>
+    <string name="notice">提醒</string>
+    <string name="no_remind">不再提醒</string>
+    <string name="info_sms_sending">將使用簡訊傳送，簡訊費用依各電信公司費率計收</string>
+    <string name="info_planroute_edit">地址/地名/喜愛點名稱</string>
+    <string name="info_showmap_edit">查詢地址/地名</string>
+    
+    <string name="common_bus">公車</string>
+    <string name="common_mrt">捷運</string>
+    
+    <string name="trtc">台北捷運</string>
+    <string name="krtc">高雄捷運</string>
+    <string name="hsr">台灣高鐵</string>
+    <string name="tra">台灣鐵路管理局</string>
+    
+    <string name="add_to_departure">起點</string>
+    <string name="add_to_arrival">終點</string>
+    <string name="send_friend">傳送</string>
+    <string name="save_result">儲存</string>
+    <string name="cancel_result">清除</string>
+    
+    <string name="edit_title">請輸入地點名稱</string>
+    
+    <string name="goto_planroute">規劃路徑</string>
+    
+    <string name="sendfrom">來自</string>
+    
+    <string name="name_or_number">輸入電話號碼</string>
+    
+    <string name="instruction">長按地圖可以設定起/終點\n或是傳送地點給親朋好友喔!</string>
+    <string name="plan_route_instruction">點選各細項可以看詳細解說\n長按結果可以儲存路徑</string>
+    <string name="understand">了解</string>
+    
+    <string name="diag_saving">儲存此路徑?</string>
+    <string name="diag_delete">確定要刪除嗎?</string>
+    <string name="saved">已儲存</string>
+    <string name="saved_to_fav">已儲存到喜愛點</string>
+    <string name="diag_yes">確定</string>
+    <string name="diag_no">取消</string>
+    <string name="file_already_existed">路徑已經存在</string>
+    
+    <string name="realtime_under_construction">即時資訊施工中</string>
+    <string name="realtime_info">即時資訊</string>
+    <string name="arriving">進站中</string>
+    <string name="almost_arriving">即將到站</string>
+    <string name="hsr_status">高鐵目前狀態</string>
+    <string name="hsr_normal">正常運行</string>
+    <string name="hsr_warning">異常狀況</string>
+    <string name="network_issue">網路連線異常</string>
+    <string name="time_table">時刻表</string>
+    
+    <string name="estimate">預計</string>
+    <string name="departure_time">出發時間</string>
+    <string name="arrival_time">抵達時間</string>
+    <string name="trival_time">行駛時間</string>
+    <string name="train_id">車次</string>
+    
+    <string name="no_data">沒有資料</string>
+    <string name="no_loc_provider">WiFi/GPS定位服務未開啟</string>
+    <string name="no_loc_provider_msg">至少需要一項定位服務\n按\"確定\"前往設定頁面</string>
+    <string name="no_network">無法使用網路</string>
+    <string name="error">錯誤</string>
+    <string name="not_in_tw">查詢的位置不在台灣，目前僅支援台灣本島</string>
+    <string name="ok">確定</string>
+    <string name="cancel">取消</string>
+    
+    <string name="search_google">Search</string>
+    
+    <string name="provide_by_tra">資料來源: 台灣鐵路局</string>
+    <string name="provide_by_5284">資料來源: 5284我愛巴士</string>
+    <string name="provide_by_khh">資料來源: 高雄市政府</string>
+    <string name="provide_by_txg">資料來源: 台中市政府</string>
+    <string name="provide_by_tyn">資料來源: 桃園縣政府</string>
+    <string name="provide_by_bus">資料來源: 公路總局</string>
+    <string name="provide_by_thsr">資料來源: 台灣高鐵</string>
+    <string name="error_find_start_dest">無法標記起訖點</string>
+    
+    <item type="id" name="tag_zero"></item>
+    <item type="id" name="tag_first"></item>
+		<item type="id" name="tag_second"></item>
+
+</resources>
