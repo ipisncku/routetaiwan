@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import android.app.Activity;
 import android.content.ContentResolver;
@@ -56,7 +57,7 @@ public class favorite_points extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.favorite_point);
-
+		
 		File folder = new File(projectdir);
 		if (!folder.exists()) {
 			folder.mkdir();
@@ -126,6 +127,8 @@ public class favorite_points extends Activity {
 			}
 			if(num_of_points != points.size()){
 				Log.i(TAG, "repaint! " + points.size());
+				ScrollView sv = (ScrollView)findViewById(R.id.fav_points);
+				sv.removeAllViews();
 				num_of_points = points.size();
 				if(num_of_points > 0)
 					display();
@@ -382,12 +385,13 @@ public class favorite_points extends Activity {
 					public void show_result(final String p) {
 						if(p != null) {
 							Log.i(TAG, "google description=" + p);
+							fp.set_description(p);
+							
 							Intent intent = new Intent(favorite_points.this, FileIntentService.class);
-							intent.putExtra("content", p);
+							intent.putExtra("content", fp.obj2str());
 							intent.putExtra("filename", fp.file.getAbsolutePath());
 							startService(intent);
 
-							fp.set_description(p);
 							description.setText(p);
 						}
 					}
@@ -443,7 +447,10 @@ public class favorite_points extends Activity {
 			if(addresses != null && addresses.size() > 0) {
 				Address addr = addresses.get(0);
 				String local = addr.getAdminArea() != null ? addr.getAdminArea() : "";
-				local = new StringBuilder().append(local).append(addr.getLocality() != null ? addr.getLocality() : "").toString();
+				if(Locale.getDefault().getDisplayLanguage().contentEquals("English"))
+					local = new StringBuilder().append(addr.getLocality() != null ? addr.getLocality() + "\n" : "").append(local).toString();
+				else
+					local = new StringBuilder().append(local).append(addr.getLocality() != null ? addr.getLocality() : "").toString();
 				cb.show_result(local);
 			}
 		}

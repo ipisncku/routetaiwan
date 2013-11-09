@@ -6,7 +6,7 @@
     <string name="show_map">Map</string>
     <string name="my_favorite">Saved Routes</string>
     <string name="fav_points">Favorite Points</string>
-    <string name="version">ver</string>
+    <string name="version">Version</string>
     
     <string name="showmap2">Map</string>
     <string name="pos_from"><i>Current position</i></string>
@@ -110,6 +110,8 @@
     <string name="provide_by_bus">Source: Directorate General of Highways</string>
     <string name="provide_by_thsr">Source: THSR</string>
     <string name="error_find_start_dest">Cannot mark dept./arr. stops!</string>
+    
+    <string name="destination">Destination</string>
     
     <item type="id" name="tag_zero"></item>
     <item type="id" name="tag_first"></item>

@@ -946,7 +946,7 @@ public class planroute extends Activity {
 								dires.routes[i].legs[0].end_location, dires.routes[i].legs[0].end_location);
 						createImageViewbyAnim(tr, basic_btn_pixel, basic_btn_pixel);
 
-						dires.routes[i].legs[j].mark.add(new MarkP("end", getResources().getString(R.string.str_to),dires.routes[i].legs[0].end_address, dires.routes[i].legs[0].end_location));
+						dires.routes[i].legs[j].mark.add(new MarkP("end", getResources().getString(R.string.destination),dires.routes[i].legs[0].end_address, dires.routes[i].legs[0].end_location));
 					}
 				}
 				String str = getResources().getString(R.string.transit) + ": " + transit + "x";

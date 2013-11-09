@@ -40,4 +40,20 @@ public class FavPoint {
 	public void set_filename(File f) {
 		file = f;
 	}
+	
+	public String obj2str() {
+		String result = null;
+		if(phonenum == null)
+			result = "save";
+		else
+			result = "phone," + phonenum;
+		result = new StringBuilder().append(result)
+				.append("," + name)
+				.append("," + location.latitude)
+				.append("," + location.longitude).toString();
+		
+		if(description != null)
+			result = new StringBuilder().append(result).append("," + description).toString();
+		return result;
+	}
 }
