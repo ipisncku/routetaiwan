@@ -71,6 +71,7 @@ public class pop_transit extends Activity {
 	final Handler handler = new Handler();
 	Runnable runtask;
 	private String[] hsr_stations = {"台北站", "板橋站", "桃園站", "新竹站", "台中站", "嘉義站", "台南站", "左營站"};
+	private String[] en_hsr_stations = {"Taipei", "Banciao", "Taoyuan", "Hsinchu", "Taichung", "Chiayi", "Tainan", "Zuoying"};
 	private static final int ID_PROVIDER_ANNOUNCEMENT = 0x12365401;
 	private static final int ID_HSR_STATUS = 0x12345001;
 	private static final int ID_HSR_STATUS_DESCRIPTION = 0x12345002;
@@ -166,10 +167,23 @@ public class pop_transit extends Activity {
 			String formattedDate = sdf.format(date);
 
 			final int current_min = string_2_minutes_of_day(formattedDate);
-			dept = dept.replaceAll("高鐵", "");
-			arr = arr.replaceAll("高鐵", "");
+			final boolean southbound;
+			if(Locale.getDefault().getDisplayLanguage().contentEquals("English")) {
+				dept = dept.replaceAll("high speed rail ", "");
+				arr = arr.replaceAll("high speed rail ", "");
+				dept = dept.replaceAll(" station", "");
+				arr = arr.replaceAll(" station", "");
+				
+				Log.i(TAG, String.format("<%s> <%s>", dept, arr));
 
-			final boolean southbound = Arrays.asList(hsr_stations).indexOf(dept) < Arrays.asList(hsr_stations).indexOf(arr) ? true : false;
+				southbound = Arrays.asList(en_hsr_stations).indexOf(dept) < Arrays.asList(en_hsr_stations).indexOf(arr) ? true : false;
+			}
+			else {
+				dept = dept.replaceAll("高鐵", "");
+				arr = arr.replaceAll("高鐵", "");
+
+				southbound = Arrays.asList(hsr_stations).indexOf(dept) < Arrays.asList(hsr_stations).indexOf(arr) ? true : false;
+			}
 
 			/* 表格第一行 高鐵狀態 */
 			TableLayout tl = new TableLayout(this);
@@ -207,7 +221,7 @@ public class pop_transit extends Activity {
 			tv = new TextView(this);
 			tv.setId(ID_HSR_TIME_DEPART);
 			SimpleDateFormat boarding_time = new SimpleDateFormat("MM/dd HH:mm", Locale.TAIWAN);
-			tv.setText(getResources().getString(R.string.estimate) + dept + getResources().getString(R.string.departure_time) + ": " + boarding_time.format(date));
+			tv.setText(dept + getResources().getString(R.string.estimate) + getResources().getString(R.string.departure_time) + ": " + boarding_time.format(date));
 			tv.setTextColor(Color.WHITE);
 			tv.setTextSize(16);
 			tv.setGravity(Gravity.LEFT);
@@ -1339,7 +1353,7 @@ public class pop_transit extends Activity {
 							wait_time = "null";
 
 						routes.add(new BusRoute(tds.get(0).text(), 1, 
-								0, wait_time, "未發車", ""));
+								0, wait_time, getResources().getString(R.string.no_service), ""));
 
 					}
 
@@ -1360,7 +1374,7 @@ public class pop_transit extends Activity {
 							wait_time = "null";
 
 						routes.add(new BusRoute(tds.get(0).text(), 2, 
-								0, wait_time, "未發車", ""));
+								0, wait_time, getResources().getString(R.string.no_service), ""));
 					}
 
 				} catch (IOException e) {
@@ -1399,7 +1413,7 @@ public class pop_transit extends Activity {
 
 					Elements trs = doc.select("td#ddlName");
 					for (org.jsoup.nodes.Element tr : trs) {
-						String wait_time = "null", time_come = "未發車";
+						String wait_time = "null", time_come = getResources().getString(R.string.no_service);
 						Elements tds = tr.select("td");
 
 						String[] detail = tds.get(0).text().split(" ");
@@ -1463,7 +1477,7 @@ public class pop_transit extends Activity {
 					Elements tds = doc.select("td[bgcolor=#f3f3f3]");
 					for(int i=0; i+2 < tds.size(); i+=3) {
 						org.jsoup.nodes.Element td_time = tds.get(i+2);
-						String wait_time = "null", time_come = "未發車", time = td_time.text();
+						String wait_time = "null", time_come = getResources().getString(R.string.no_service), time = td_time.text();
 
 						// example: 1 中壢公車站 0分 (站序 站牌名稱 預估到站)
 						if(time.matches("[0-9]{1,2}:[0-9]{2}")) {

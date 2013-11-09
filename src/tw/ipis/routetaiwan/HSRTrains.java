@@ -27,21 +27,21 @@ public class HSRTrains {
 	}
 	
 	public int get_time_by_station(String station) {
-		if(station.contains("台北"))
+		if(station.contains("台北") || station.contains("Taipei"))
 			return Taipei;
-		else if(station.contains("板橋"))
+		else if(station.contains("板橋") || station.contains("Banciao"))
 			return Banqiao;
-		else if(station.contains("桃園"))
+		else if(station.contains("桃園") || station.contains("Taoyuan"))
 			return Taoyuang;
-		else if(station.contains("新竹"))
+		else if(station.contains("新竹") || station.contains("Hsinchu"))
 			return Hsinchu;
-		else if(station.contains("台中"))
+		else if(station.contains("台中") || station.contains("Taichung"))
 			return Taichung;
-		else if(station.contains("嘉義"))
+		else if(station.contains("嘉義") || station.contains("Chiayi"))
 			return Chayi;
-		else if(station.contains("台南"))
+		else if(station.contains("台南") || station.contains("Tainan"))
 			return Tainan;
-		else if(station.contains("左營"))
+		else if(station.contains("左營") || station.contains("Zuoying"))
 			return Zuoying;
 		else 
 			return -1;
