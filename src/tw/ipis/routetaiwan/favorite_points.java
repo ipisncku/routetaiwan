@@ -9,7 +9,6 @@ import java.io.InputStreamReader;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import android.app.Activity;
 import android.content.ContentResolver;
@@ -447,7 +446,7 @@ public class favorite_points extends Activity {
 			if(addresses != null && addresses.size() > 0) {
 				Address addr = addresses.get(0);
 				String local = addr.getAdminArea() != null ? addr.getAdminArea() : "";
-				if(Locale.getDefault().getDisplayLanguage().contentEquals("English"))
+				if(getResources().getString(R.string.locale).contentEquals("English"))
 					local = new StringBuilder().append(addr.getLocality() != null ? addr.getLocality() + "\n" : "").append(local).toString();
 				else
 					local = new StringBuilder().append(local).append(addr.getLocality() != null ? addr.getLocality() : "").toString();

@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.http.HttpEntity;
@@ -478,9 +477,11 @@ public class planroute extends Activity {
 
 		isrequested = false;
 		
-		Log.i(TAG, Locale.getDefault().getDisplayLanguage());
+		Log.i(TAG, getResources().getString(R.string.locale));
 
-		if(Locale.getDefault().getDisplayLanguage().contentEquals("中文"))
+		if(getResources().getString(R.string.locale).contentEquals("English"))
+			Mapapi = new StringBuilder().append(Mapapi).append("&language=en").toString();
+		else
 			Mapapi = new StringBuilder().append(Mapapi).append("&language=zh-tw").toString();
 
 		long now = System.currentTimeMillis() / 1000;
@@ -822,7 +823,7 @@ public class planroute extends Activity {
 						String agencyname = step.transit_details.line.agencies[0].name;
 						String text = "transit,";
 						
-						if(Locale.getDefault().getDisplayLanguage().contentEquals("English")) {
+						if(getResources().getString(R.string.locale).contentEquals("English")) {
 							step.transit_details.line.short_name = step.transit_details.line.short_name.replaceAll("高鐵", "HSR");
 							step.transit_details.line.short_name = step.transit_details.line.short_name.replaceAll("自強號", "Tze-Chiang Limited Express");
 							step.transit_details.line.short_name = step.transit_details.line.short_name.replaceAll("莒光號", "Chu-Kuang Express");
@@ -836,7 +837,7 @@ public class planroute extends Activity {
 							step.transit_details.line.short_name = step.transit_details.line.short_name.replaceAll("高雄捷運橘線", "Orange Line");
 						}
 						
-						if(Locale.getDefault().getDisplayLanguage().contentEquals("English")) {
+						if(getResources().getString(R.string.locale).contentEquals("English")) {
 							step.transit_details.headsign = step.transit_details.headsign.replaceAll("往", "bound for ");
 							step.transit_details.headsign = step.transit_details.headsign.replaceAll(",車次", ", Train ID ");
 							step.transit_details.headsign = step.transit_details.headsign.replaceAll("台北[ ]?,", "Taipei,");
@@ -866,7 +867,7 @@ public class planroute extends Activity {
 									.append(step.transit_details.departure_stop.name + ",").append(step.transit_details.arrival_stop.name + ",")
 									.append(step.transit_details.line.name).toString();
 							headsign = new StringBuilder().append(" (" + getResources().getString(R.string.go_to)).append(headsign + ") ").toString();
-							if(Locale.getDefault().getDisplayLanguage().contentEquals("English")) {
+							if(getResources().getString(R.string.locale).contentEquals("English")) {
 								trans = trans.replace("Take", "Take bus");
 							}
 							createTextView(trans + headsign + trans_to + time_taken, tr, Color.rgb(0,0,0), 0.85f, Gravity.LEFT | Gravity.CENTER_VERTICAL, text, step.transit_details.departure_stop.name, step.transit_details.arrival_stop.name);
@@ -895,7 +896,7 @@ public class planroute extends Activity {
 								createTextView("車", tr, Color.rgb(0,0,0), 0.1f, Gravity.CENTER, "transit,null", (String)null, (String)null);
 							text = new StringBuilder().append("map,").append(step.polyline.points).toString();
 							headsign = new StringBuilder().append(" (" + getResources().getString(R.string.go_to)).append(headsign + ") ").toString();
-							if(Locale.getDefault().getDisplayLanguage().contentEquals("English")) {
+							if(getResources().getString(R.string.locale).contentEquals("English")) {
 								trans = trans.replace("Take", "Take MRT(subway)");
 							}
 							createTextView(trans + headsign + trans_to + time_taken, tr, Color.rgb(0,0,0), 0.85f, Gravity.LEFT | Gravity.CENTER_VERTICAL, text, step.start_location, step.end_location);

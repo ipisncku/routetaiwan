@@ -168,7 +168,7 @@ public class pop_transit extends Activity {
 
 			final int current_min = string_2_minutes_of_day(formattedDate);
 			final boolean southbound;
-			if(Locale.getDefault().getDisplayLanguage().contentEquals("English")) {
+			if(getResources().getString(R.string.locale).contentEquals("English")) {
 				dept = dept.replaceAll("high speed rail ", "");
 				arr = arr.replaceAll("high speed rail ", "");
 				dept = dept.replaceAll(" station", "");

@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import tw.ipis.routetaiwan.myfavorite.Route.Leg.Step;
@@ -349,7 +348,7 @@ public class myfavorite extends Activity {
 									.append(step.transit_details.departure_stop.name + ",").append(step.transit_details.arrival_stop.name + ",")
 									.append(step.transit_details.line.name).toString();
 							headsign = new StringBuilder().append(" (" + getResources().getString(R.string.go_to)).append(headsign + ") ").toString();
-							if(Locale.getDefault().getDisplayLanguage().contentEquals("English")) {
+							if(getResources().getString(R.string.locale).contentEquals("English")) {
 								trans = trans.replace("Take", "Take bus");
 							}
 							createTextView(trans + headsign + trans_to + time_taken, tr, Color.rgb(0,0,0), 0.85f, Gravity.LEFT | Gravity.CENTER_VERTICAL, text, step.transit_details.departure_stop.name, step.transit_details.arrival_stop.name);
@@ -365,7 +364,7 @@ public class myfavorite extends Activity {
 								createTextView("車", tr, Color.rgb(0,0,0), 0.1f, Gravity.CENTER, "transit,null", (String)null, (String)null);
 							text = new StringBuilder().append("map,").append(step.polyline.points).toString();
 							headsign = new StringBuilder().append(" (" + getResources().getString(R.string.go_to)).append(headsign + ") ").toString();
-							if(Locale.getDefault().getDisplayLanguage().contentEquals("English")) {
+							if(getResources().getString(R.string.locale).contentEquals("English")) {
 								trans = trans.replace("Take", "Take MRT(subway)");
 							}
 							createTextView(trans + headsign + trans_to + time_taken, tr, Color.rgb(0,0,0), 0.85f, Gravity.LEFT | Gravity.CENTER_VERTICAL, text, step.start_location, step.end_location);

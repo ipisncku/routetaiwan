@@ -25,7 +25,8 @@
             android:layout_centerInParent="true"
             android:layout_gravity="center_horizontal"
             android:onClick="plan_route"
-            android:text="@string/plan_route" />
+            android:text="@string/plan_route"
+            android:textSize="20sp" />
 
     </RelativeLayout>
 
@@ -45,7 +46,8 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:onClick="show_map_v2"
-            android:text="@string/showmap2" />
+            android:text="@string/showmap2"
+            android:textSize="20sp" />
     </RelativeLayout>
 
     <RelativeLayout
@@ -64,7 +66,8 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:onClick="my_favorite"
-            android:text="@string/my_favorite" />
+            android:text="@string/my_favorite"
+            android:textSize="20sp" />
     </RelativeLayout>
     
     <RelativeLayout
@@ -83,7 +86,8 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:onClick="fav_points"
-            android:text="@string/fav_points" />
+            android:text="@string/fav_points"
+            android:textSize="20sp" />
     </RelativeLayout>
     
     <TextView

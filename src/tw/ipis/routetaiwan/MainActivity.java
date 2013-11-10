@@ -1,20 +1,28 @@
 package tw.ipis.routetaiwan;
 
 import java.io.File;
+import java.util.Locale;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ComponentName;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.DisplayMetrics;
+import android.view.ContextThemeWrapper;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
 public class MainActivity extends Activity {
-	
-private String version = "0.9.05";
+
+	private String version = "0.9.05";
+	Locale myLocale;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -25,16 +33,16 @@ private String version = "0.9.05";
 		if (!folder.exists()) {
 			folder.mkdir();
 		}
-		
+
 		/* 設定版本號 */
 		TextView ver = (TextView)findViewById(R.id.ver);
 		try {
 			ver.setText(getResources().getString(R.string.version) + ":" + this.getPackageManager()
-				    .getPackageInfo(this.getPackageName(), 0).versionName);
+					.getPackageInfo(this.getPackageName(), 0).versionName);
 		} catch (Exception e) {
 			ver.setText(getResources().getString(R.string.version) + ":" + version);
 		} 
-		
+
 		/* Create shortcut on desktop */
 		Intent shortcutIntent;
 		shortcutIntent = new Intent();
@@ -55,12 +63,12 @@ private String version = "0.9.05";
 		putShortCutIntent.setAction("com.android.launcher.action.INSTALL_SHORTCUT");
 		sendBroadcast(putShortCutIntent);
 	}
-	
+
 	@Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-    }
-	
+	public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+	}
+
 	public void my_favorite(View v) {
 		Intent myfavorite = new Intent(this, myfavorite.class);
 		startActivity(myfavorite);
@@ -75,16 +83,59 @@ private String version = "0.9.05";
 		Intent route = new Intent(this, planroute.class);
 		startActivity(route);
 	}
-	
+
 	public void fav_points(View v) {
 		Intent route = new Intent(this, favorite_points.class);
 		startActivity(route);
 	}
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-//		getMenuInflater().inflate(R.menu.main, menu);
+		//		Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
 
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		int item_id = item.getItemId();
+
+		switch (item_id){
+		case R.id.language_settings:
+			openOptionsDialog();
+			break;
+		default: 
+			return false;
+		}
+		return true;
+	}
+
+	public void openOptionsDialog() {
+		AlertDialog.Builder dialog = new AlertDialog.Builder(new ContextThemeWrapper(this, R.style.ThemeWithCorners));
+		dialog.setTitle(getResources().getString(R.string.language_settings));
+		dialog.setItems(R.array.country_arrays, new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+				switch (which) {
+				case 0:
+					setLocale("zh_TW");
+					break;
+				case 1:
+					setLocale("en");
+					break;
+				}
+			}
+		});
+		dialog.show();
+	}
+
+	public void setLocale(String lang) {
+		myLocale = new Locale(lang);
+		Resources res = getResources();
+		DisplayMetrics dm = res.getDisplayMetrics();
+		Configuration conf = res.getConfiguration();
+		conf.locale = myLocale;
+		res.updateConfiguration(conf, dm);
+		Intent refresh = new Intent(this, MainActivity.class);
+		startActivity(refresh);
+		this.finish();
+	}
 }

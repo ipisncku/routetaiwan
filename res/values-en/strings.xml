@@ -8,6 +8,8 @@
     <string name="fav_points">Favorite Points</string>
     <string name="version">Version</string>
     
+    <string name="locale">English</string>
+    <string name="language_settings">Language</string>
     <string name="showmap2">Map</string>
     <string name="pos_from"><i>Current position</i></string>
     <string name="pos_to"><i>Taipei 101</i></string>
@@ -31,7 +33,6 @@
     <string name="info_positioning_by_network">WiFi positioning, please wait</string>
     <string name="info_no_result">No search results</string>
     <string name="info_internal_error">Interal error</string>
-    
     <string name="info_illegal_num">Please enter phone-number</string>
     <string name="sms_sent">SMS successfully sent!</string>
     <string name="sms_received">Localization SMS received!</string>
@@ -40,33 +41,24 @@
     <string name="info_sms_sending">Will send SMS, SMS charges may apply</string>
     <string name="info_planroute_edit">Address/Place/Favorite point</string>
     <string name="info_showmap_edit">Looking for Address/Place</string>
-    
     <string name="common_bus">Bus</string>
     <string name="common_mrt">Subway/MRT</string>
-    
     <string name="trtc">TRTC</string>
     <string name="krtc">KRTC</string>
     <string name="hsr">THSR</string>
     <string name="tra">TRA</string>
-    
     <string name="add_to_departure">Dept.</string>
     <string name="add_to_arrival">Arr.</string>
     <string name="send_friend">Send</string>
     <string name="save_result">Save</string>
     <string name="cancel_result">Clear</string>
-    
     <string name="edit_title">Title Name</string>
-    
     <string name="goto_planroute">Plan Route</string>
-    
     <string name="sendfrom">from&#160;</string>
-    
     <string name="name_or_number">Enter phone-number</string>
-    
     <string name="instruction">You can set departure/arrival position or send desired position to your friend by long-press the map.</string>
     <string name="plan_route_instruction">Click for each item for detail information.\nLong press will save the result.</string>
     <string name="understand">OK</string>
-    
     <string name="diag_saving">Save this route?</string>
     <string name="diag_delete">Delete this item?</string>
     <string name="saved">Succefully saved.</string>
@@ -74,7 +66,6 @@
     <string name="diag_yes">Yes</string>
     <string name="diag_no">No</string>
     <string name="file_already_existed">Route already existed.</string>
-    
     <string name="realtime_under_construction">Under construction</string>
     <string name="realtime_info">Real Time Information</string>
     <string name="arriving">Arriving</string>
@@ -84,13 +75,11 @@
     <string name="hsr_warning">Delayed</string>
     <string name="network_issue">Network unstable</string>
     <string name="time_table">Time Table</string>
-    
     <string name="estimate">&#160;ETD</string>
     <string name="departure_time"></string>
     <string name="arrival_time">Arrival Time</string>
     <string name="trival_time">Duration</string>
     <string name="train_id">ID</string>
-    
     <string name="no_data">No results!</string>
     <string name="no_loc_provider">WiFi/GPS positioning required</string>
     <string name="no_loc_provider_msg">Press "OK" to Settings</string>
@@ -99,9 +88,7 @@
     <string name="not_in_tw">The results are not in Taiwan</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
-    
     <string name="search_google">Search</string>
-    
     <string name="provide_by_tra">Source: TRA</string>
     <string name="provide_by_5284">Source: www.5284.com.tw</string>
     <string name="provide_by_khh">Source: Kaohsiung City Gov.</string>
@@ -110,11 +97,10 @@
     <string name="provide_by_bus">Source: Directorate General of Highways</string>
     <string name="provide_by_thsr">Source: THSR</string>
     <string name="error_find_start_dest">Cannot mark dept./arr. stops!</string>
-    
     <string name="destination">Destination</string>
-    
-    <item type="id" name="tag_zero"></item>
-    <item type="id" name="tag_first"></item>
-		<item type="id" name="tag_second"></item>
+
+    <item name="tag_zero" type="id"></item>
+    <item name="tag_first" type="id"></item>
+    <item name="tag_second" type="id"></item>
 
 </resources>

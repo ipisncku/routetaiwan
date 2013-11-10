@@ -44,7 +44,7 @@
 
         <activity
             android:name="tw.ipis.routetaiwan.MainActivity"
-            android:configChanges="orientation|screenSize"
+            android:configChanges="locale|orientation|screenSize"
             android:screenOrientation="portrait"
             android:label="@string/app_name" >
             <intent-filter>
@@ -60,43 +60,43 @@
             -->
         
         <activity android:name="tw.ipis.routetaiwan.myfavorite"
-            android:configChanges="orientation|screenSize"
+            android:configChanges="locale|orientation|screenSize"
             android:label="@string/my_favorite" ></activity>
         
         <activity android:name="tw.ipis.routetaiwan.favorite_points"
-            android:configChanges="orientation|screenSize"
+            android:configChanges="locale|orientation|screenSize"
             android:label="@string/my_favorite" ></activity>
         
         <activity android:name="tw.ipis.routetaiwan.showmap"
-            android:configChanges="orientation|screenSize"
+            android:configChanges="locale|orientation|screenSize"
             android:label="@string/show_map" ></activity>
         
         <activity android:name="tw.ipis.routetaiwan.planroute"
-            android:configChanges="orientation|screenSize"
+            android:configChanges="locale|orientation|screenSize"
             android:label="@string/plan_route" ></activity>
         
         <activity android:name="tw.ipis.routetaiwan.pop_map"
-            android:configChanges="orientation|screenSize"
+            android:configChanges="locale|orientation|screenSize"
             android:theme="@style/ThemeWithCorners_noTitle" ></activity>
         
         <activity android:name="tw.ipis.routetaiwan.pop_transit"
-            android:configChanges="orientation|screenSize"
+            android:configChanges="locale|orientation|screenSize"
             android:theme="@style/ThemeWithCorners" ></activity>
         
         <activity android:name="tw.ipis.routetaiwan.diag_save"
-            android:configChanges="orientation|screenSize"
+            android:configChanges="locale|orientation|screenSize"
             android:theme="@style/ThemeWithCorners_noTitle" ></activity>
         
         <activity android:name="tw.ipis.routetaiwan.diag_delete"
-            android:configChanges="orientation|screenSize"
+            android:configChanges="locale|orientation|screenSize"
             android:theme="@style/ThemeWithCorners_noTitle" ></activity>
         
         <activity android:name="tw.ipis.routetaiwan.sms_send"
-            android:configChanges="orientation|screenSize"
+            android:configChanges="locale|orientation|screenSize"
             android:theme="@style/ThemeWithCorners_noTitle" ></activity>
         
         <activity android:name="tw.ipis.routetaiwan.SmsReceriver"
-            android:configChanges="orientation|screenSize"
+            android:configChanges="locale|orientation|screenSize"
             android:theme="@style/ThemeWithCorners_noTitle" ></activity>
 
         <!--  production key  -->
