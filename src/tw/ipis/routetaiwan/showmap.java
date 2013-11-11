@@ -63,6 +63,7 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -248,6 +249,17 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 
 			googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(camPosition));
 			
+			googleMap.setOnInfoWindowClickListener(new OnInfoWindowClickListener() {
+				@Override
+				public void onInfoWindowClick(Marker marker) {
+					opt_temp.position(marker.getPosition());
+					if(temp != null)
+						temp.remove();
+					temp = googleMap.addMarker(opt_temp);
+					showPopup(showmap.this, marker.getPosition(), marker.getTitle());
+				}
+			});
+			
 			etLocation = (EditText) findViewById(R.id.search_map);
 			
 			etLocation.setOnClickListener(new OnClickListener(){  
@@ -274,7 +286,7 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 					if(temp != null)
 						temp.remove();
 					temp = googleMap.addMarker(opt_temp);
-					showPopup(showmap.this, position);
+					showPopup(showmap.this, position, null);
 				}
 			});
 
@@ -439,10 +451,14 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 		return md5;
 	}
 	
-	public void save2fav() {
+	public void save2fav(String default_str) {
 		AlertDialog.Builder dialog = new AlertDialog.Builder(new ContextThemeWrapper(this, R.style.ThemeWithCorners));
 		dialog.setTitle(getResources().getString(R.string.edit_title));
 		final EditText editText = new EditText(this);
+		if(default_str != null) {
+			editText.setText(default_str);
+			editText.selectAll();
+		}
 		editText.setOnFocusChangeListener(new OnFocusChangeListener() {
 
 			@Override
@@ -508,7 +524,7 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 
 	// The method that displays the popup.
 	@SuppressWarnings("deprecation")
-	private void showPopup(final Activity context, final LatLng position) {
+	private void showPopup(final Activity context, final LatLng position, final String default_name) {
 
 		// Inflate the popup_layout.xml
 		LinearLayout viewGroup = (LinearLayout) context.findViewById(R.id.menu1);
@@ -607,7 +623,7 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 
 			@Override
 			public void onClick(View v) {
-				save2fav();
+				save2fav(default_name);
 				popup.dismiss();
 				v.setOnClickListener(null);
 			}
