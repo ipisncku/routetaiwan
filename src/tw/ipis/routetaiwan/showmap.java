@@ -223,8 +223,8 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 				});
 			}
 
-			opt_start = new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.start));
-			opt_destination = new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.destination));
+			opt_start = new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.map_start));
+			opt_destination = new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.map_destination));
 			opt_temp = new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.marker));
 
 			locationclient = new LocationClient(this,this,this);
