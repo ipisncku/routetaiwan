@@ -34,6 +34,7 @@
     <string name="info_no_result">No search results</string>
     <string name="info_internal_error">Interal error</string>
     <string name="info_illegal_num">Please enter phone-number</string>
+    <string name="info_illegal_titlename">Illegal charater \",\"</string>
     <string name="sms_sent">SMS successfully sent!</string>
     <string name="sms_received">Localization SMS received!</string>
     <string name="notice">NOTICE</string>

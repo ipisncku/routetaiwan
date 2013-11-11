@@ -59,19 +59,31 @@ public class sms_send extends Activity {
 
 		inputSearch = (EditText) findViewById(R.id.inputSearch);
 		pos_title = (EditText) findViewById(R.id.point_name);
-		pos_title.setText(title);
+		if(!title.isEmpty()) {
+			pos_title.setText(title);
+			inputSearch.requestFocus();
+		}
+		else
+			pos_title.requestFocus();
 
 	}
 
 	public void start_sending(View v) {
 		final String phoneNo = inputSearch.getText().toString();
 		if(!phoneNo.matches("[+0-9]+")) {
-			Toast.makeText(getApplicationContext(), getResources().getString(R.string.info_illegal_num),
-					Toast.LENGTH_LONG).show();
+			inputSearch.requestFocus();
+			inputSearch.selectAll();
+			inputSearch.setError(getResources().getString(R.string.info_illegal_num));
 			return;
 		}
 
 		String title_name = pos_title.getText().toString();
+		if(title_name.contains(",")) {
+			pos_title.requestFocus();
+			pos_title.selectAll();
+			pos_title.setError(getResources().getString(R.string.info_illegal_titlename));
+			return;
+		}
 
 		final String sms = String.format("rtw,%s,%s", title_name, latlng);
 

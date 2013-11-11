@@ -32,6 +32,8 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.provider.Settings;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.Gravity;
@@ -470,11 +472,11 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			}
 		});
 		
-		
 		dialog.setView(editText);
 		dialog.setPositiveButton(getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int id) {
 				String fav_description = editText.getText().toString();
+				
 				String fav_point = String.format("save,%s,%s,%s", fav_description.isEmpty() ? 
 						getResources().getString(R.string.fav_points) : fav_description, 
 						new DecimalFormat("###.######").format(temp.getPosition().latitude), new DecimalFormat("###.######").format(temp.getPosition().longitude));
@@ -506,15 +508,42 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 				temp.remove();
 			}
 		});
-		dialog.show();
+		
+		final AlertDialog diag = dialog.show();
+		
+		editText.addTextChangedListener(new TextWatcher() {
+
+			@Override
+			public void afterTextChanged(Editable s) {
+			}
+
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count,
+					int after) {
+			}
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before,
+					int count) {
+				if(editText.getText().toString().contains(",")) {
+					editText.setError(getResources().getString(R.string.info_illegal_titlename));
+					diag.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+				}
+				else {
+					editText.setError(null);
+					diag.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+				}
+			}
+			
+		});
 	}
 	
-	public void send_sms() {
+	public void send_sms(String title) {
 		/* Pop-up a dialog to ask for permission */
 		Intent launchpop = new Intent(this, sms_send.class);
 		Bundle bundle=new Bundle();
 		
-		bundle.putString("title", "");
+		bundle.putString("title", title != null ? title : "");
 		bundle.putString("latlng"
 				, new DecimalFormat("###.######").format(temp.getPosition().latitude) + "," + new DecimalFormat("###.######").format(temp.getPosition().longitude));
 		launchpop.putExtras(bundle);
@@ -606,7 +635,7 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			@Override
 			public void onClick(View v) {
 				popup.dismiss();
-				send_sms();
+				send_sms(default_name);
 				v.setOnClickListener(null);
 			}
 		});

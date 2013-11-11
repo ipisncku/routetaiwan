@@ -37,6 +37,7 @@
     <string name="info_internal_error">發生錯誤</string>
     
     <string name="info_illegal_num">電話號碼輸入錯誤</string>
+    <string name="info_illegal_titlename">不合法字元 \",\"</string>
     <string name="sms_sent">訊息已傳送</string>
     <string name="sms_received">收到了位置簡訊</string>
     <string name="notice">提醒</string>
