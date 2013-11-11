@@ -677,6 +677,11 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 					dest.remove();
 				temp.remove();
 				remove_button();
+				for(int i=0; i<results.size(); i++) {
+					results.get(i).remove();
+				}
+				if(results.size() > 0)
+					results.clear();
 				popup.dismiss();
 				v.setOnClickListener(null);
 			}
