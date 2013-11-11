@@ -88,7 +88,9 @@
     <string name="not_in_tw">The results are not in Taiwan</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
+
     <string name="search_google">Search</string>
+
     <string name="provide_by_tra">Source: TRA</string>
     <string name="provide_by_5284">Source: www.5284.com.tw</string>
     <string name="provide_by_khh">Source: Kaohsiung City Gov.</string>
@@ -98,6 +100,11 @@
     <string name="provide_by_thsr">Source: THSR</string>
     <string name="error_find_start_dest">Cannot mark dept./arr. stops!</string>
     <string name="destination">Destination</string>
+
+<string-array name="country_arrays">
+        <item>繁體中文</item>
+        <item>English</item>
+    </string-array>
 
     <item name="tag_zero" type="id"></item>
     <item name="tag_first" type="id"></item>
