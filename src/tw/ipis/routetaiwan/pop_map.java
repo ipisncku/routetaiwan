@@ -77,12 +77,12 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 				poly = poly.substring(4);
 				if(poly.contentEquals("current")) {
 					LatLng p = decode_latlng(start);
-					add_marker(p, R.drawable.map_start);
+					add_marker(p, R.drawable.map_start, getResources().getString(R.string.add_to_departure), null).showInfoWindow();
 					focus_on_me(p);
 				}
 				else if(poly.contentEquals("destination")) {
 					LatLng p = decode_latlng(det);
-					add_marker(p, R.drawable.map_destination);
+					add_marker(p, R.drawable.map_destination, getResources().getString(R.string.add_to_arrival), null).showInfoWindow();
 					focus_on_me(p);
 				}
 				else if(poly.contentEquals("marker")) {
@@ -146,13 +146,13 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 		Log.i(TAG, "poly=" + poly);
 		points = decodePoly(poly);
 
-		for (int i = 0; i < locations.size(); i++) {
+		for (int i = locations.size() - 1; i >= 0; i--) {
 			LatLng p = decode_latlng(locations.get(i));
 			String t = types.get(i);
 			String tl = title.get(i);
 			String d = descriptions.get(i);
-			boolean disaplayed = false;
 			Marker marker;
+			boolean displayed = false;
 
 //			if (t.contentEquals("start"))
 //				add_marker(p, R.drawable.start, tl, d);
@@ -173,11 +173,11 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			else if (t.contentEquals("drive"))
 				marker = add_marker(p, R.drawable.map_drive, tl, d);
 			else
-				marker = add_marker(p, 0, "", "");
+				continue;
 			
-			if(disaplayed == false && marker != null) {
+			if(displayed == false) {
 				marker.showInfoWindow();
-				disaplayed = true;
+				displayed = true;
 			}
 		}
 

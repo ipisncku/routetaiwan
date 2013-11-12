@@ -809,8 +809,12 @@ public class planroute extends Activity {
 						String walk = new StringBuilder().append(step.html_instructions).append("\n(" + step.distance.text + ", " +step.duration.text + ")").toString();
 						tr = CreateTableRow(tl, 1.0f, i);
 						createImageViewbyR(R.drawable.walk, tr, basic_pixel, basic_pixel);
-						createTextView(walk, tr, Color.rgb(0,0,0), 0.85f, Gravity.LEFT | Gravity.CENTER_VERTICAL, "map," + step.polyline.points, 
-								step.start_location, step.end_location);
+						
+						ArrayList<MarkP> markers = new ArrayList<MarkP>();
+						markers.add(new MarkP("walk", getResources().getString(R.string.add_to_departure), step.distance.text, step.start_location));
+						markers.add(new MarkP("end", getResources().getString(R.string.add_to_arrival), null, step.end_location));
+						
+						createTextView(walk, tr, Color.rgb(0,0,0), 0.85f, Gravity.LEFT | Gravity.CENTER_VERTICAL, "all," + step.polyline.points, markers);
 						createImageViewbyAnim(tr, basic_btn_pixel, basic_btn_pixel);
 
 						dires.routes[i].legs[j].mark.add(new MarkP("walk", step.html_instructions, step.distance.text, step.start_location));
@@ -870,6 +874,7 @@ public class planroute extends Activity {
 							if(getResources().getString(R.string.locale).contentEquals("English")) {
 								trans = trans.replace("Take", "Take bus");
 							}
+							
 							createTextView(trans + headsign + trans_to + time_taken, tr, Color.rgb(0,0,0), 0.85f, Gravity.LEFT | Gravity.CENTER_VERTICAL, text, step.transit_details.departure_stop.name, step.transit_details.arrival_stop.name);
 
 							dires.routes[i].legs[j].mark.add(new MarkP("bus"
@@ -878,8 +883,19 @@ public class planroute extends Activity {
 									, step.transit_details.departure_stop.location));
 						}
 						else if(type.contentEquals("SUBWAY")) {
+							ArrayList<MarkP> markers = new ArrayList<MarkP>();
 							if(agencyname.contentEquals("台北捷運")) {
 								createImageViewbyR(R.drawable.trtc, tr, basic_pixel, basic_pixel);
+								
+								markers.add(new MarkP("trtc"
+										, getResources().getString(R.string.taketransit_mrt) + step.transit_details.line.short_name
+										, getResources().getString(R.string.go_to) + step.transit_details.headsign + getResources().getString(R.string.dirction)
+										, step.transit_details.departure_stop.location));
+								markers.add(new MarkP("end"
+										, getResources().getString(R.string.exit_station)
+										, step.transit_details.arrival_stop.name
+										, step.transit_details.arrival_stop.location));
+								
 								dires.routes[i].legs[j].mark.add(new MarkP("trtc"
 										, getResources().getString(R.string.taketransit) + step.transit_details.line.short_name
 										, getResources().getString(R.string.go_to) + step.transit_details.headsign + getResources().getString(R.string.dirction)
@@ -887,6 +903,16 @@ public class planroute extends Activity {
 							}
 							else if(agencyname.contentEquals("高雄捷運")) {
 								createImageViewbyR(R.drawable.krtc, tr, basic_pixel, basic_pixel);
+								
+								markers.add(new MarkP("krtc"
+										, getResources().getString(R.string.taketransit_mrt) + step.transit_details.line.short_name
+										, getResources().getString(R.string.go_to) + step.transit_details.headsign + getResources().getString(R.string.dirction)
+										, step.transit_details.departure_stop.location));
+								markers.add(new MarkP("end"
+										, getResources().getString(R.string.exit_station)
+										, step.transit_details.arrival_stop.name
+										, step.transit_details.arrival_stop.location));
+								
 								dires.routes[i].legs[j].mark.add(new MarkP("krtc"
 										, getResources().getString(R.string.taketransit) + step.transit_details.line.short_name
 										, getResources().getString(R.string.go_to) + step.transit_details.headsign + getResources().getString(R.string.dirction)
@@ -894,12 +920,12 @@ public class planroute extends Activity {
 							}
 							else
 								createTextView("車", tr, Color.rgb(0,0,0), 0.1f, Gravity.CENTER, "transit,null", (String)null, (String)null);
-							text = new StringBuilder().append("map,").append(step.polyline.points).toString();
+							text = new StringBuilder().append("all,").append(step.polyline.points).toString();
 							headsign = new StringBuilder().append(" (" + getResources().getString(R.string.go_to)).append(headsign + ") ").toString();
 							if(getResources().getString(R.string.locale).contentEquals("English")) {
 								trans = trans.replace("Take", "Take MRT(subway)");
 							}
-							createTextView(trans + headsign + trans_to + time_taken, tr, Color.rgb(0,0,0), 0.85f, Gravity.LEFT | Gravity.CENTER_VERTICAL, text, step.start_location, step.end_location);
+							createTextView(trans + headsign + trans_to + time_taken, tr, Color.rgb(0,0,0), 0.85f, Gravity.LEFT | Gravity.CENTER_VERTICAL, text, markers);
 						}
 						else if(type.contentEquals("HEAVY_RAIL")) {
 							if(agencyname.contentEquals("台灣高鐵")) {

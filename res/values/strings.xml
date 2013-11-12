@@ -19,6 +19,8 @@
     <string name="transit">Transit</string>
     <string name="walkto">Walk to&#160;</string>
     <string name="taketransit">Take&#160;</string>
+    <string name="taketransit_bus">Take bus&#160;</string>
+    <string name="taketransit_mrt">Take MRT&#160;</string>
     <string name="go_to">bound for&#160;</string>
     <string name="dirction"></string>
     <string name="stops">&#160;stops</string>
@@ -26,6 +28,8 @@
     <string name="minute">&#160;min</string>
     <string name="to">to&#160;</string>
     <string name="no_service">No service</string>
+    <string name="exit_stop">Alighting stop</string>
+    <string name="exit_station">Alighting station</string>
     <string name="warning_no_loc_provider">Please enable GPS or WiFi for positioning</string>
     <string name="info_network_using">Network Service: </string>
     <string name="info_positioning_by_gps">GPS positioning, please wait</string>
