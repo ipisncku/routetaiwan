@@ -324,8 +324,8 @@ public class myfavorite extends Activity {
 						createImageViewbyR(R.drawable.walk, tr, basic_pixel, basic_pixel);
 						
 						ArrayList<MarkP> markers = new ArrayList<MarkP>();
-						markers.add(new MarkP("walk", getResources().getString(R.string.add_to_departure), step.distance.text, step.start_location));
-						markers.add(new MarkP("end", getResources().getString(R.string.add_to_arrival), null, step.end_location));
+						markers.add(new MarkP("walk", getResources().getString(R.string.departure), step.distance.text + ", " +step.duration.text, step.start_location));
+						markers.add(new MarkP("end", getResources().getString(R.string.destination), null, step.end_location));
 						
 						createTextView(walk, tr, Color.rgb(0,0,0), 0.85f, Gravity.LEFT | Gravity.CENTER_VERTICAL, "all," + step.polyline.points, markers);
 						createImageViewbyAnim(tr, basic_btn_pixel, basic_btn_pixel);

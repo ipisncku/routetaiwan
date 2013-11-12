@@ -801,7 +801,7 @@ public class planroute extends Activity {
 						dires.routes[i].legs[0].start_location, dires.routes[i].legs[0].start_location);
 				createImageViewbyAnim(tr, basic_btn_pixel, basic_btn_pixel);
 
-				dires.routes[i].legs[j].mark.add(new MarkP("start", getResources().getString(R.string.str_from), dires.routes[i].legs[0].start_address, dires.routes[i].legs[0].start_location));
+				dires.routes[i].legs[j].mark.add(new MarkP("start", getResources().getString(R.string.departure), dires.routes[i].legs[0].start_address, dires.routes[i].legs[0].start_location));
 
 				for (int k = 0; k < dires.routes[i].legs[j].steps.length; k++) {
 					Step step = dires.routes[i].legs[j].steps[k];
@@ -811,13 +811,13 @@ public class planroute extends Activity {
 						createImageViewbyR(R.drawable.walk, tr, basic_pixel, basic_pixel);
 						
 						ArrayList<MarkP> markers = new ArrayList<MarkP>();
-						markers.add(new MarkP("walk", getResources().getString(R.string.add_to_departure), step.distance.text, step.start_location));
-						markers.add(new MarkP("end", getResources().getString(R.string.add_to_arrival), null, step.end_location));
+						markers.add(new MarkP("walk", getResources().getString(R.string.departure), step.distance.text + ", " +step.duration.text, step.start_location));
+						markers.add(new MarkP("end", getResources().getString(R.string.destination), null, step.end_location));
 						
 						createTextView(walk, tr, Color.rgb(0,0,0), 0.85f, Gravity.LEFT | Gravity.CENTER_VERTICAL, "all," + step.polyline.points, markers);
 						createImageViewbyAnim(tr, basic_btn_pixel, basic_btn_pixel);
 
-						dires.routes[i].legs[j].mark.add(new MarkP("walk", step.html_instructions, step.distance.text, step.start_location));
+						dires.routes[i].legs[j].mark.add(new MarkP("walk", step.html_instructions, step.distance.text + ", " +step.duration.text, step.start_location));
 						if(pure_walk_flag == true) {
 							duration += step.duration.value;
 						}
@@ -878,7 +878,7 @@ public class planroute extends Activity {
 							createTextView(trans + headsign + trans_to + time_taken, tr, Color.rgb(0,0,0), 0.85f, Gravity.LEFT | Gravity.CENTER_VERTICAL, text, step.transit_details.departure_stop.name, step.transit_details.arrival_stop.name);
 
 							dires.routes[i].legs[j].mark.add(new MarkP("bus"
-									,	getResources().getString(R.string.taketransit) + step.transit_details.line.short_name
+									,	getResources().getString(R.string.taketransit_bus) + step.transit_details.line.short_name
 									, getResources().getString(R.string.go_to) + step.transit_details.headsign + getResources().getString(R.string.dirction)
 									, step.transit_details.departure_stop.location));
 						}
@@ -897,7 +897,7 @@ public class planroute extends Activity {
 										, step.transit_details.arrival_stop.location));
 								
 								dires.routes[i].legs[j].mark.add(new MarkP("trtc"
-										, getResources().getString(R.string.taketransit) + step.transit_details.line.short_name
+										, getResources().getString(R.string.taketransit_mrt) + step.transit_details.line.short_name
 										, getResources().getString(R.string.go_to) + step.transit_details.headsign + getResources().getString(R.string.dirction)
 										, step.transit_details.departure_stop.location));
 							}

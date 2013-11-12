@@ -77,12 +77,12 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 				poly = poly.substring(4);
 				if(poly.contentEquals("current")) {
 					LatLng p = decode_latlng(start);
-					add_marker(p, R.drawable.map_start, getResources().getString(R.string.add_to_departure), null).showInfoWindow();
+					add_marker(p, R.drawable.map_start, getResources().getString(R.string.departure), null).showInfoWindow();
 					focus_on_me(p);
 				}
 				else if(poly.contentEquals("destination")) {
 					LatLng p = decode_latlng(det);
-					add_marker(p, R.drawable.map_destination, getResources().getString(R.string.add_to_arrival), null).showInfoWindow();
+					add_marker(p, R.drawable.map_destination, getResources().getString(R.string.destination), null).showInfoWindow();
 					focus_on_me(p);
 				}
 				else if(poly.contentEquals("marker")) {

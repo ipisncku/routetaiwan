@@ -104,6 +104,8 @@
     <string name="provide_by_bus">Source: Directorate General of Highways</string>
     <string name="provide_by_thsr">Source: THSR</string>
     <string name="error_find_start_dest">Cannot mark dept./arr. stops!</string>
+    
+    <string name="departure">Departure</string>
     <string name="destination">Destination</string>
 
 <string-array name="country_arrays">
