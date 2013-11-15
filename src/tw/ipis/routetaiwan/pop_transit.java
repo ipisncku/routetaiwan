@@ -33,12 +33,15 @@ import org.xml.sax.SAXException;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.Gravity;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -321,7 +324,7 @@ public class pop_transit extends Activity {
 
 			HSR_TIMETABLE_PARSER timetable = new HSR_TIMETABLE_PARSER (new AnalysisResult() {
 				@Override
-				public void parsexml(String result) {
+				public void parsestr(String result) {
 					return;
 				}
 
@@ -480,7 +483,7 @@ public class pop_transit extends Activity {
 						public void run () {
 							TPE_BUS_PARSER task = new TPE_BUS_PARSER(new AnalysisResult() {
 								@Override
-								public void parsexml(String result) {
+								public void parsestr(String result) {
 									return;
 								}
 
@@ -544,7 +547,7 @@ public class pop_transit extends Activity {
 						public void run () {
 							TXN_BUS_PARSER task = new TXN_BUS_PARSER(new AnalysisResult() {
 								@Override
-								public void parsexml(String result) {
+								public void parsestr(String result) {
 									return;
 								}
 
@@ -635,10 +638,10 @@ public class pop_transit extends Activity {
 					/* Update every 30 seconds */
 					runtask = new Runnable() {
 						public void run () {
-							KHH_BUS_PARSER task = new KHH_BUS_PARSER(
+							HTML_BUS_PARSER task = new HTML_BUS_PARSER(
 									new AnalysisResult() {
 										@Override
-										public void parsexml(String result) {
+										public void parsestr(String result) {
 											khh_bus_xml(result, tl, sv);
 											loading.setVisibility(ProgressBar.INVISIBLE);
 										}
@@ -697,7 +700,7 @@ public class pop_transit extends Activity {
 						public void run () {
 							TYN_BUS_PARSER task = new TYN_BUS_PARSER(new AnalysisResult() {
 								@Override
-								public void parsexml(String result) {
+								public void parsestr(String result) {
 									return;
 								}
 
@@ -732,6 +735,63 @@ public class pop_transit extends Activity {
 				SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
 				Date date = new Date(System.currentTimeMillis()) ;
 				String str_date = formatter.format(date);
+				String url_runid = "http://www.taiwanbus.tw/aspx/dyBus/BusXMLLine.aspx?Mode=6&Cus=&RouteNo={0}";
+				ArrayList<String> runid = new ArrayList<String>();
+				/* 拿到1915的run ID: http://www.taiwanbus.tw/aspx/dyBus/BusXMLLine.aspx?Mode=6&Cus=&RouteNo=1915 */
+				try {
+					String url = MessageFormat.format(url_runid, URLEncoder.encode(line, "UTF-8"), line);
+					HTML_BUS_PARSER get_runid = new HTML_BUS_PARSER(
+							new AnalysisResult() {
+								@Override
+								public void parsestr(String result) {
+									String[] branches = result.split("|");
+									CharSequence[] headway;
+									for(int i=0; i<branches.length; i++) {
+										String[] infos = branches[i].split(",");
+										/* 3126,32,0,台北→高雄,阿羅哈客運 */
+										headway[i] = infos[3];
+										runid.add(infos[0]);
+									}
+									
+									if(branches.length > 2) {
+										// 有支線...
+										AlertDialog.Builder dialog = new AlertDialog.Builder(new ContextThemeWrapper(pop_transit.this, R.style.ThemeWithCorners));
+										dialog.setTitle(getResources().getString(R.string.language_settings));
+										dialog.setItems(headway, new DialogInterface.OnClickListener() {
+											public void onClick(DialogInterface dialog, int which) {
+												switch (which) {
+												case 0:
+													setLocale("zh_TW");
+													break;
+												case 1:
+													setLocale("en");
+													break;
+												}
+											}
+										});
+										dialog.show();
+									}
+								}
+
+								@Override
+								public void parsedBUS(List<BusRoute> routes) {
+									return;
+								}
+
+								@Override
+								public void parsedHSR(List<HSRTrains> trains) {
+									return;
+								}
+							});
+					get_runid.execute(url);
+				} catch (UnsupportedEncodingException e) {
+					e.printStackTrace();
+					Toast.makeText(this, getResources().getString(R.string.info_internal_error) , Toast.LENGTH_LONG).show();
+					finish();
+				}
+				
+				
+				
 				String bus_url = "http://web.taiwanbus.tw/eBUS/subsystem/Timetable/TimeTableAPIByWeek.aspx?RouteId={0}&RouteBranch=0&SearchDate={1}";
 				try {
 					String url = MessageFormat.format(bus_url, URLEncoder.encode(line, "UTF-8"), str_date);
@@ -1215,7 +1275,7 @@ public class pop_transit extends Activity {
 	}
 
 	public interface AnalysisResult {
-		public void parsexml(String p);
+		public void parsestr(String p);
 		public void parsedBUS(List<BusRoute> routes);
 		public void parsedHSR(List<HSRTrains> trains);
 	}
@@ -1282,9 +1342,9 @@ public class pop_transit extends Activity {
 		}
 	}
 
-	private class KHH_BUS_PARSER extends AsyncTask<String, Void, String> {
+	private class HTML_BUS_PARSER extends AsyncTask<String, Void, String> {
 		private AnalysisResult cb = null;
-		public KHH_BUS_PARSER(AnalysisResult analysisResult) {
+		public HTML_BUS_PARSER(AnalysisResult analysisResult) {
 			cb = analysisResult;
 		}
 
@@ -1317,7 +1377,7 @@ public class pop_transit extends Activity {
 
 		@Override
 		protected void onPostExecute(String result) {
-			cb.parsexml(result);
+			cb.parsestr(result);
 		}
 	}
 
