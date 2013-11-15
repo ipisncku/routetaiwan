@@ -736,7 +736,7 @@ public class pop_transit extends Activity {
 				Date date = new Date(System.currentTimeMillis()) ;
 				String str_date = formatter.format(date);
 				String url_runid = "http://www.taiwanbus.tw/aspx/dyBus/BusXMLLine.aspx?Mode=6&Cus=&RouteNo={0}";
-				ArrayList<String> runid = new ArrayList<String>();
+				final ArrayList<String> runid = new ArrayList<String>();
 				/* 拿到1915的run ID: http://www.taiwanbus.tw/aspx/dyBus/BusXMLLine.aspx?Mode=6&Cus=&RouteNo=1915 */
 				try {
 					String url = MessageFormat.format(url_runid, URLEncoder.encode(line, "UTF-8"), line);
