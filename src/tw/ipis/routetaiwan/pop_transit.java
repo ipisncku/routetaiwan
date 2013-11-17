@@ -445,18 +445,24 @@ public class pop_transit extends Activity {
 				Date date = new Date(System.currentTimeMillis()) ;
 				String str_now = formatter.format(date);
 				int now = Integer.parseInt(str_now);
+				String encode;
 
 				if(line.contentEquals("三鶯線先導公車"))
-					line = "三鶯捷運先導公車";
-				else if(now < 20 && now > 6 && line.contentEquals("橘18")) {
-					line = "橘18福隆路";		// 為了較好的效能..
-				}
+					encode = "三鶯捷運先導公車";
+				else if(line.contentEquals("108區"))
+					encode = "108區(二子坪)";
+				else if(line.contentEquals("小9"))
+					encode = "小9+%28台灣好行-北投竹子湖%29";
+				else if(now < 20 && now > 6 && line.contentEquals("橘18")) 
+					encode = "橘18福隆路";		// 為了較好的效能..
+				else
+					encode = line;
 
-				line.replace("內科通勤", "內科通勤專車");
+				encode.replace("內科通勤", "內科通勤專車");
 
 				String tpe_bus_url = "http://pda.5284.com.tw/MQS/businfo2.jsp?routeId={0}";
 				try {
-					final String url = MessageFormat.format(tpe_bus_url, URLEncoder.encode(line, "UTF-8"));
+					final String url = MessageFormat.format(tpe_bus_url, URLEncoder.encode(encode, "UTF-8"));
 					/* 設定activity title, ex: 226 即時資訊 */
 					this.setTitle(line + " " + getResources().getString(R.string.realtime_info));
 
@@ -1261,6 +1267,7 @@ public class pop_transit extends Activity {
 		bus_taipei.add(new bus_provider("大有巴士", "[0-9]{1,3}|[^0-9][0-9]{1,3}[^0-9]?|[0-9]{1,3}[^0-9]|[^0-9]+|市民小巴[0-9]+|內科通勤[0-9]{1,2}"));
 		bus_taipei.add(new bus_provider("基隆客運", "78[7-9]]|79[01]|808|82[5-9]|846|88[6-8]|891|藍41"));
 		bus_taipei.add(new bus_provider("東南客運", "小[1235][^0-9]?|小1[012][^0-9]?|棕5|棕1[09]|綠11|藍5[01]|紅29|3[27][^0-9]?|207|29[78][^0-9]?|55[25]|612[^0-9]?|內科通勤[0-9]{1,2}"));
+		bus_taipei.add(new bus_provider("皇家客運", "1717"));
 
 		/* 高雄公車 客運業者列表 */
 		bus_kaohsiung.add(new bus_provider("高雄市公車處", null));
