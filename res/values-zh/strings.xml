@@ -122,6 +122,8 @@
     
     <string name="departure">起點</string>
     <string name="destination">目的地</string>
+    <string name="choose_line">選擇路線</string>
+    <string name="carrier">客運業者</string>
     
     <string-array name="country_arrays">
         <item>繁體中文</item>

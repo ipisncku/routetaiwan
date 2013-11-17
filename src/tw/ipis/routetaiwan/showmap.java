@@ -700,9 +700,11 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 		imm.hideSoftInputFromWindow(etLocation.getWindowToken(), 0);
 
 		if(location!=null && !location.equals("")){
-			v.setOnClickListener(null);
+			v.setEnabled(false);
 			new Geocoder_get_address_by_name().execute(location);
 		}
+		else
+			etLocation.setError(getResources().getString(R.string.info_showmap_edit));
 	}
 	
 	private class Geocoder_get_address_by_name extends AsyncTask<String, Void, List<Address>>{
@@ -775,12 +777,7 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 					Toast.makeText(getBaseContext(), getResources().getString(R.string.info_no_result), Toast.LENGTH_SHORT).show();
 
 				ImageButton search_btn = (ImageButton)findViewById(R.id.search_location);
-				search_btn.setOnClickListener(new OnClickListener() {
-					@Override
-					public void onClick(View onclick) {
-						google_search(onclick);
-					}
-				});
+				search_btn.setEnabled(true);
 			}	
 		}
 	}

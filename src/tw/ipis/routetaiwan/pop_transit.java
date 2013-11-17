@@ -82,6 +82,7 @@ public class pop_transit extends Activity {
 	private static final int ID_HSR_TIME_DEPART = 0x12345004;
 	private static final int ID_HSR_TIME_TABLE_TITLE = 0x12345005;
 	private static final int ID_HSR_TIME_TABLE_TABLE = 0x12345006;
+	private static final int ID_INTERCITYBUS_CARRIER = 0x12345007;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -176,7 +177,7 @@ public class pop_transit extends Activity {
 				arr = arr.replaceAll("high speed rail ", "");
 				dept = dept.replaceAll(" station", "");
 				arr = arr.replaceAll(" station", "");
-				
+
 				Log.i(TAG, String.format("<%s> <%s>", dept, arr));
 
 				southbound = Arrays.asList(en_hsr_stations).indexOf(dept) < Arrays.asList(en_hsr_stations).indexOf(arr) ? true : false;
@@ -450,7 +451,7 @@ public class pop_transit extends Activity {
 				else if(now < 20 && now > 6 && line.contentEquals("橘18")) {
 					line = "橘18福隆路";		// 為了較好的效能..
 				}
-				
+
 				line.replace("內科通勤", "內科通勤專車");
 
 				String tpe_bus_url = "http://pda.5284.com.tw/MQS/businfo2.jsp?routeId={0}";
@@ -732,44 +733,111 @@ public class pop_transit extends Activity {
 				}
 			}
 			else if(line.matches("[0-9]{4}")) {
-				SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
-				Date date = new Date(System.currentTimeMillis()) ;
-				String str_date = formatter.format(date);
 				String url_runid = "http://www.taiwanbus.tw/aspx/dyBus/BusXMLLine.aspx?Mode=6&Cus=&RouteNo={0}";
 				final ArrayList<String> runid = new ArrayList<String>();
 				/* 拿到1915的run ID: http://www.taiwanbus.tw/aspx/dyBus/BusXMLLine.aspx?Mode=6&Cus=&RouteNo=1915 */
+
+				rl.removeAllViews();
+
+				rl.addView(process);
+				
+				final TextView tv = new TextView(this);
+				tv.setId(ID_INTERCITYBUS_CARRIER);
+				tv.setTextColor(Color.WHITE);
+				tv.setTextSize(16);
+				tv.setGravity(Gravity.LEFT);
+				RelativeLayout.LayoutParams tvparam = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+				tv.setLayoutParams(tvparam);
+				tv.setHorizontallyScrolling(false);
+				rl.addView(tv);
+
+				final ScrollView sv = new ScrollView(this);
+				tvparam = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
+				tvparam.addRule(RelativeLayout.BELOW, ID_INTERCITYBUS_CARRIER);
+				sv.setLayoutParams(tvparam);
+				rl.addView(sv);
+
+				final TableLayout tl = new TableLayout(this);
+				tl.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+				tl.setOrientation(TableLayout.VERTICAL);
+
+				sv.addView(tl);
+
+				/* 設定activity title, ex: 9117 時刻表 */
+				this.setTitle(line + " " + getResources().getString(R.string.realtime_info));
+
+				/* 資料由公路總局提供 */
+				show_info_provider(R.string.provide_by_bus);
+
 				try {
 					String url = MessageFormat.format(url_runid, URLEncoder.encode(line, "UTF-8"), line);
 					HTML_BUS_PARSER get_runid = new HTML_BUS_PARSER(
 							new AnalysisResult() {
 								@Override
 								public void parsestr(String result) {
-									String[] branches = result.split("|");
-									CharSequence[] headway;
+									result = result.replace('|', '&');
+									Log.i(TAG, "result=" + result);
+									final String[] branches = result.split("&");
+									List<String> listItems = new ArrayList<String>();
+
 									for(int i=0; i<branches.length; i++) {
-										String[] infos = branches[i].split(",");
+										Log.i(TAG, "branches[i]=" + branches[i]);
+										String[] infos1 = branches[i].split(",");
+										if(i == 0)
+											tv.setText(String.format("%s: %s", getResources().getString(R.string.carrier), infos1[4]));
 										/* 3126,32,0,台北→高雄,阿羅哈客運 */
-										headway[i] = infos[3];
-										runid.add(infos[0]);
+										if(i+1 < branches.length) {
+											String[] infos2 = branches[i+1].split(",");
+											if(infos1[2].equals(infos2[2])) {	// 有回頭車
+												Log.i(TAG, "有回頭車");
+												runid.add(String.format("%s,%s", infos1[0], infos2[0]));
+												listItems.add(infos1[3].replaceAll("→", "-"));
+												i++;
+												continue;
+											}
+										}
+										else {	// 沒有回頭車
+											Log.i(TAG, "沒有回頭車");
+											runid.add(String.format("%s", infos1[0]));
+											listItems.add(infos1[3]);
+										}
 									}
-									
-									if(branches.length > 2) {
+
+									if(runid.size() >= 2) {
 										// 有支線...
+										final CharSequence[] headway = listItems.toArray(new CharSequence[listItems.size()]);;
 										AlertDialog.Builder dialog = new AlertDialog.Builder(new ContextThemeWrapper(pop_transit.this, R.style.ThemeWithCorners));
-										dialog.setTitle(getResources().getString(R.string.language_settings));
+										dialog.setTitle(getResources().getString(R.string.choose_line));
 										dialog.setItems(headway, new DialogInterface.OnClickListener() {
-											public void onClick(DialogInterface dialog, int which) {
-												switch (which) {
-												case 0:
-													setLocale("zh_TW");
-													break;
-												case 1:
-													setLocale("en");
-													break;
-												}
+											public void onClick(DialogInterface dialog, int branch) {
+												String[] lines = runid.get(branch).split(",");
+
+												if(lines.length == 2)
+													get_real_time(headway[branch], lines[0], lines[1]);
+												else
+													get_real_time(headway[branch], lines[0], null);
 											}
 										});
+
+										dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {         
+										    @Override
+										    public void onCancel(DialogInterface dialog) {
+										        finish();
+										    }
+										});
 										dialog.show();
+									}
+									else if (runid.size() == 1){
+										String[] lines = runid.get(0).split(",");
+
+										if(lines.length == 2)
+											get_real_time(listItems.get(0), lines[0], lines[1]);
+										else
+											get_real_time(listItems.get(0), lines[0], null);
+									}
+									else {
+										Toast.makeText(pop_transit.this, getResources().getString(R.string.no_data) , Toast.LENGTH_LONG).show();
+										finish();
 									}
 								}
 
@@ -782,6 +850,53 @@ public class pop_transit extends Activity {
 								public void parsedHSR(List<HSRTrains> trains) {
 									return;
 								}
+
+								private void get_real_time(CharSequence headway, final String runid_go,	final String runid_back) {
+									/* 即時 http://www.taiwanbus.tw/aspx/dyBus/BusXMLLine.aspx?Mode=4&RunId=3362 */
+									Log.i(TAG, String.format("%s %s ", runid_go, runid_back));
+									String url = "http://www.taiwanbus.tw/aspx/dyBus/BusXMLLine.aspx?Mode=4&RunId={0}";
+									try {
+										final String url_go = MessageFormat.format(url, URLEncoder.encode(runid_go, "UTF-8"));
+										final String url_bk = runid_back == null ? null : MessageFormat.format(url, URLEncoder.encode(runid_back, "UTF-8"));
+										Log.i(TAG, String.format("%s", url_go));
+										Log.i(TAG, String.format("%s", url_bk));
+										runtask = new Runnable() {
+											public void run () {
+												INTERCITY_BUS_PARSER task = new INTERCITY_BUS_PARSER(new AnalysisResult() {
+													@Override
+													public void parsestr(String result) {
+														return;
+													}
+
+													@Override
+													public void parsedBUS(List<BusRoute> routes) {
+														rl.removeView(process);
+
+														find_start_dest(routes, dept, arr);
+														create_realtime_table(routes, tl, sv);
+														loading.setVisibility(ProgressBar.INVISIBLE);
+														return;
+													}
+
+													@Override
+													public void parsedHSR(List<HSRTrains> trains) {
+													}
+												});
+												if(url_bk != null)
+													task.execute(url_go, url_bk);
+												else
+													task.execute(url_go);
+												loading.setVisibility(ProgressBar.VISIBLE);
+												handler.postDelayed(this, 30000);
+											}
+										};
+										handler.post(runtask);
+									} catch (Exception e) {
+										e.printStackTrace();
+										Toast.makeText(pop_transit.this, getResources().getString(R.string.info_internal_error) , Toast.LENGTH_LONG).show();
+										finish();
+									}
+								}
 							});
 					get_runid.execute(url);
 				} catch (UnsupportedEncodingException e) {
@@ -789,24 +904,7 @@ public class pop_transit extends Activity {
 					Toast.makeText(this, getResources().getString(R.string.info_internal_error) , Toast.LENGTH_LONG).show();
 					finish();
 				}
-				
-				
-				
-				String bus_url = "http://web.taiwanbus.tw/eBUS/subsystem/Timetable/TimeTableAPIByWeek.aspx?RouteId={0}&RouteBranch=0&SearchDate={1}";
-				try {
-					String url = MessageFormat.format(bus_url, URLEncoder.encode(line, "UTF-8"), str_date);
 
-					/* 設定activity title, ex: 9117 時刻表 */
-					this.setTitle(line + " " + getResources().getString(R.string.time_table));
-
-					create_webview_by_url(url);
-					/* 資料由公路總局提供 */
-					show_info_provider(R.string.provide_by_bus);
-				} catch (UnsupportedEncodingException e) {
-					e.printStackTrace();
-					Toast.makeText(this, getResources().getString(R.string.info_internal_error) , Toast.LENGTH_LONG).show();
-					finish();
-				}
 			}
 			/* 其他狀況: 施工中... */
 			else {
@@ -1063,7 +1161,7 @@ public class pop_transit extends Activity {
 			else if(temp.Value.contentEquals("1"))
 				tv.setText(getResources().getString(R.string.almost_arriving));
 			else
-				tv.setText(temp.Value.contentEquals("null") ? temp.comeTime : temp.Value + getResources().getString(R.string.minute));
+				tv.setText(temp.Value.contentEquals("null") ? temp.comeTime : showtime(temp.Value));
 
 			/* 車子icon */
 			if(temp.isCar) {
@@ -1079,6 +1177,14 @@ public class pop_transit extends Activity {
 		tl.invalidate();
 		if(first_read && err_tag_fail)
 			Toast.makeText(this, getResources().getString(R.string.error_find_start_dest) , Toast.LENGTH_LONG).show();
+	}
+
+	private String showtime(String value) {
+		int val = Integer.parseInt(value);
+		if (val < 60)
+			return val + getResources().getString(R.string.minute);
+		else
+			return String.format("%d%s%d%s", val/60, getResources().getString(R.string.hour), val%60, getResources().getString(R.string.minute));
 	}
 
 	private void show_info_provider(int r_string_id) {
@@ -1208,7 +1314,7 @@ public class pop_transit extends Activity {
 	public void thsrc_current_status(String result) {
 		ImageView iv = (ImageView)findViewById(ID_HSR_STATUS);
 		TextView tv = (TextView)findViewById(ID_HSR_STATUS_DESCRIPTION);
-		
+
 		iv.setMaxHeight((int) (32 * getResources().getDisplayMetrics().density));
 		iv.setMaxWidth((int) (32 * getResources().getDisplayMetrics().density));
 
@@ -1562,6 +1668,79 @@ public class pop_transit extends Activity {
 								0, wait_time, time_come, ""));
 					}
 				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			return routes;
+		}
+
+		@Override
+		protected void onPostExecute(List<BusRoute> routes) {
+			cb.parsedBUS(routes);
+		}
+	}
+
+	private class INTERCITY_BUS_PARSER extends AsyncTask<String, Void, List<BusRoute>> {
+		private AnalysisResult cb = null;
+		public INTERCITY_BUS_PARSER(AnalysisResult analysisResult) {
+			cb = analysisResult;
+		}
+
+		@Override
+		protected List<BusRoute> doInBackground(String... urls) {
+			List<BusRoute> routes = new ArrayList<BusRoute>();
+			String response;
+			for (String url : urls) {
+				HttpGet httpGet = new HttpGet(url);
+				HttpClient client = new DefaultHttpClient();
+				try {
+					HttpResponse result = client.execute(httpGet);
+					StatusLine statusLine = result.getStatusLine();
+					int statusCode = statusLine.getStatusCode();
+					if (statusCode == 200) {
+						HttpEntity entity = result.getEntity();
+
+						response = EntityUtils.toString(entity);
+
+						response = response.replace('|', '&');
+						String[] stops_raw = response.split("&");
+						String time_raw = stops_raw[stops_raw.length - 1];
+						String[] time = time_raw.split(",");
+						int goback = 1;
+
+						if(Arrays.asList(urls).indexOf(url) == 0) goback = 1;
+						else goback = 2;
+
+						for(int i = 0; i<time.length; i++) {
+							time[i] = time[i].replaceAll("^[0-9]+@", "");
+
+							if(time[i].contentEquals("即將進站"))
+								time[i]  = "1";
+							else if(time[i].contentEquals("進站中"))
+								time[i] = "0";
+							else if(time[i].contains("時")) {
+								time[i] = time[i].replaceAll("分", "");
+								int index_of_hour = time[i].indexOf("時");
+								int hour = Integer.parseInt(time[i].substring(0, index_of_hour));
+								int min = Integer.parseInt(time[i].substring(index_of_hour + 1));
+								time[i] = String.valueOf(hour * 60 + min);
+							}
+							else if(time[i].contains("分"))
+								time[i] = time[i].replaceAll("分", "");
+							else
+								time[i] = "null";
+						}
+
+						for(int i = 0; i<stops_raw.length - 1; i++) {
+							routes.add(new BusRoute(stops_raw[i].split(",")[3], goback, 0
+									, time[i], getResources().getString(R.string.no_service), ""));
+						}
+
+					} else {
+						Log.e(TAG, "Failed to download file");
+					}
+				}
+				catch (Exception e) {
 					e.printStackTrace();
 				}
 			}

@@ -107,6 +107,8 @@
     
     <string name="departure">Departure</string>
     <string name="destination">Destination</string>
+    <string name="choose_line">Choose a line</string>
+    <string name="carrier">Carrier</string>
 
 <string-array name="country_arrays">
         <item>繁體中文</item>
