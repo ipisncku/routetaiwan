@@ -783,6 +783,8 @@ public class pop_transit extends Activity {
 									for(int i=0; i<branches.length; i++) {
 										Log.i(TAG, "branches[i]=" + branches[i]);
 										String[] infos1 = branches[i].split(",");
+										if(infos1.length < 5)
+											continue;
 										if(i == 0)
 											tv.setText(String.format("%s: %s", getResources().getString(R.string.carrier), infos1[4]));
 										/* 3126,32,0,台北→高雄,阿羅哈客運 */
@@ -1300,6 +1302,9 @@ public class pop_transit extends Activity {
 		original_sta.add("(松仁路)"); after_sta.add("(松仁)");
 		original_sta.add("松山火車站"); after_sta.add("松山車站");
 		original_sta.add("萬華火車站"); after_sta.add("萬華車站");
+		original_sta.add("桃園機場一航站(下車站)"); after_sta.add("第一航");
+		original_sta.add("桃園機場二航站(下車站)"); after_sta.add("第二航");
+		original_sta.add("(下車站)"); after_sta.add("");
 	}
 
 	private String string_replace(String station) {

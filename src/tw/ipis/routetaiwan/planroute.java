@@ -487,6 +487,8 @@ public class planroute extends Activity {
 		long now = System.currentTimeMillis() / 1000;
 		if(destination.isEmpty())
 			destination = "Taipei 101";
+		
+		destination = replace_name(destination);
 
 		try {
 			if (start.isEmpty()) {
@@ -516,6 +518,16 @@ public class planroute extends Activity {
 		/* Use the url for http request */
 		task = new DownloadWebPageTask();
 		task.execute(new String[] {request});
+	}
+
+	private String replace_name(String destination) {
+		if(destination.contains("桃園機場")) {
+			if(destination.contains("一航"))
+				destination = "桃園機場一航站";
+			else if(destination.contains("二航") || destination.matches("桃園機場"))
+				destination = "桃園機場二航站";
+		}
+		return destination;
 	}
 
 	private class DownloadWebPageTask extends AsyncTask<String, Void, String> {
