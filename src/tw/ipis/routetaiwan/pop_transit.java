@@ -452,7 +452,7 @@ public class pop_transit extends Activity {
 				else if(line.contentEquals("108區"))
 					encode = "108區(二子坪)";
 				else if(line.contentEquals("小9"))
-					encode = "小9+%28台灣好行-北投竹子湖%29";
+					encode = "小9 (台灣好行-北投竹子湖)";
 				else if(now < 20 && now > 6 && line.contentEquals("橘18")) 
 					encode = "橘18福隆路";		// 為了較好的效能..
 				else
