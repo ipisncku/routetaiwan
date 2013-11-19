@@ -586,34 +586,35 @@ public class pop_transit extends Activity {
 				}
 			}
 			else if(check_agency(agency, bus_kaohsiung, line, name)) {
-				/* Workaround...偉哉陳菊... */
-				if(line.contentEquals("168東"))
-					line = "環狀東線";
-				else if(line.contentEquals("168西"))
-					line = "環狀西線";
-				else if(line.contentEquals("205中華幹線"))
-					line = "中華幹線";
-				else if(line.contentEquals("70"))
-					line = "三多幹線";
-				else if(line.contentEquals("88"))
-					line = "建國幹線";
-				else if(line.contentEquals("92"))
-					line = "自由幹線";
-				else if(line.contentEquals("旗美快捷"))
-					line = "旗美國道快捷公車";
-				else if(line.contentEquals("旗山快捷"))
-					line = "旗山國道快捷公車";
-				else if(line.contains("五福幹線"))
-					line = "五福幹線";
-
-
 				SimpleDateFormat formatter = new SimpleDateFormat("H");
 				Date date = new Date(System.currentTimeMillis()) ;
 				String str_now = formatter.format(date);
 				int now = Integer.parseInt(str_now);
+				String encode;
+				/* Workaround...偉哉陳菊... */
+				if(line.contentEquals("168東"))
+					encode = "環狀東線";
+				else if(line.contentEquals("168西"))
+					encode = "環狀西線";
+				else if(line.contentEquals("205中華幹線"))
+					encode = "中華幹線";
+				else if(line.contentEquals("70三多幹線"))
+					encode = "三多幹線";
+				else if(line.contentEquals("88建國幹線"))
+					encode = "建國幹線";
+				else if(line.contentEquals("92自由幹線"))
+					encode = "自由幹線";
+				else if(line.contentEquals("旗美快捷"))
+					encode = "旗美國道快捷公車";
+				else if(line.contentEquals("旗山快捷"))
+					encode = "旗山國道快捷公車";
+				else if(line.contains("五福幹線"))
+					encode = "五福幹線";
+				else
+					encode = line;
 
 				if(now > 17 && line.contentEquals("紅36")) {
-					line = "紅36繞駛";		// 為了較好的效能..
+					encode = "紅36繞駛";		// 為了較好的效能..
 				}
 
 				//				String khh_bus_url = "http://122.146.229.210/bus/pda/businfo.aspx?Routeid={0}&GO_OR_BACK=1&Line=All&lang=Cht";
@@ -624,7 +625,7 @@ public class pop_transit extends Activity {
 				this.setTitle(line + " " + getResources().getString(R.string.realtime_info));
 
 				try {
-					final String url = MessageFormat.format(xml_bus_route, URLEncoder.encode(line, "UTF-8"));
+					final String url = MessageFormat.format(xml_bus_route, URLEncoder.encode(encode, "UTF-8"));
 					rl.removeAllViews();
 
 					rl.addView(process);
@@ -672,6 +673,7 @@ public class pop_transit extends Activity {
 
 				} catch (UnsupportedEncodingException e) {
 					e.printStackTrace();
+					finish();
 				}
 			}
 			else if(check_agency(agency, bus_taoyuang, line, name)) {
