@@ -52,6 +52,8 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.provider.Settings;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.Gravity;
@@ -116,7 +118,7 @@ public class planroute extends Activity {
 		gps_recving.setAdjustViewBounds(true);
 
 		start_positioning();
-
+		
 		from = (AutoCompleteTextView)findViewById(R.id.from);
 		to = (AutoCompleteTextView)findViewById(R.id.to);
 		
@@ -144,10 +146,32 @@ public class planroute extends Activity {
 			@Override
 			public void onFocusChange(View v, boolean hasFocus) 
 			{
-				if (hasFocus == true && from.getText().toString().length() == 0)
+				if (hasFocus == true && from.getText().toString().length() == 0) {
 					from.setError(getResources().getString(R.string.info_planroute_edit));
-				else
+					from.setDropDownVerticalOffset((int) (40 * getResources().getDisplayMetrics().density));
+					from.showDropDown();
+				}
+				else {
 					from.setError(null);
+					from.dismissDropDown();
+				}
+			}
+		});
+		
+		from.addTextChangedListener(new TextWatcher(){
+			@Override
+			public void afterTextChanged(Editable arg0) {
+			}
+
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count,
+					int after) {
+			}
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before,
+					int count) {
+				from.setError(null);
 			}
 		});
 
@@ -156,10 +180,32 @@ public class planroute extends Activity {
 			@Override
 			public void onFocusChange(View v, boolean hasFocus) 
 			{
-				if (hasFocus == true && to.getText().toString().length() == 0)
+				if (hasFocus == true && to.getText().toString().length() == 0) {
 					to.setError(getResources().getString(R.string.info_planroute_edit));
-				else
+					to.setDropDownVerticalOffset((int) (40 * getResources().getDisplayMetrics().density));
+					to.showDropDown();
+				}
+				else {
 					to.setError(null);
+					to.dismissDropDown();
+				}
+			}
+		});
+		
+		to.addTextChangedListener(new TextWatcher(){
+			@Override
+			public void afterTextChanged(Editable arg0) {
+			}
+
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count,
+					int after) {
+			}
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before,
+					int count) {
+				to.setError(null);
 			}
 		});
 

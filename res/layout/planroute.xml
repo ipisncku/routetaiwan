@@ -47,6 +47,8 @@
                         android:inputType="textPostalAddress"
                         android:selectAllOnFocus="true"
                         android:singleLine="true"
+                        android:completionThreshold="1"
+                        android:completionHint="@string/fav_pt_hint"
                         android:textColorHint="#c3c3c3" />
                 </TableRow>
 
@@ -82,6 +84,8 @@
                         android:inputType="textPostalAddress"
                         android:selectAllOnFocus="true"
                         android:singleLine="true"
+                        android:completionThreshold="1"
+                        android:completionHint="@string/fav_pt_hint"
                         android:textColorHint="#c3c3c3" />
                 </TableRow>
             </TableLayout>
