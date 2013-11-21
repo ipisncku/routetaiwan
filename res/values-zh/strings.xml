@@ -64,7 +64,7 @@
     <string name="save_result">儲存</string>
     <string name="cancel_result">清除</string>
     
-    <string name="edit_title">請輸入地點名稱</string>
+    <string name="edit_title">地點名稱</string>
     
     <string name="goto_planroute">規劃路徑</string>
     

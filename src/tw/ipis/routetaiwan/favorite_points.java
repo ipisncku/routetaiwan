@@ -11,7 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ContentResolver;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
@@ -25,11 +27,16 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.PhoneLookup;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnFocusChangeListener;
 import android.view.View.OnLongClickListener;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -211,18 +218,18 @@ public class favorite_points extends Activity {
 			TableRow tr_text = new TableRow(this);
 			tl_text.addView(tr_text);
 			tr_text.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
-			TextView tv = new TextView(this);
-			tr_text.addView(tv);
-			tv.setTextSize(20);
-			tv.setTextColor(Color.WHITE);
-			tv.setTypeface(null, Typeface.BOLD);
-			tv.setText(fp.name);
+			final TextView name = new TextView(this);
+			tr_text.addView(name);
+			name.setTextSize(20);
+			name.setTextColor(Color.WHITE);
+			name.setTypeface(null, Typeface.BOLD);
+			name.setText(fp.name);
 
 			if(fp.phonenum != null) {
 				tr_text = new TableRow(this);
 				tl_text.addView(tr_text);
 				tr_text.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
-				tv = new TextView(this);
+				TextView tv = new TextView(this);
 				tr_text.addView(tv);
 				tv.setTextSize(16);
 				tv.setTextColor(Color.WHITE);
@@ -245,6 +252,82 @@ public class favorite_points extends Activity {
 			expand_tl.setOrientation(TableLayout.VERTICAL);
 			TableRow btn_tr = CreateTableRow(expand_tl);
 			btn_tr.setBackgroundResource(R.drawable.fav_btn_bg);
+			
+			iv = new ImageView(this);
+			iv.setImageBitmap(null);
+			iv.setImageResource(R.drawable.edit);
+			iv.setMaxHeight((int) (basic_size * getResources().getDisplayMetrics().density));
+			iv.setMaxWidth((int) (basic_size * getResources().getDisplayMetrics().density));
+			iv.setAdjustViewBounds(true);
+			iv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.2f));
+			iv.setOnClickListener(new OnClickListener(){
+				public void onClick(View v) {
+					AlertDialog.Builder dialog = new AlertDialog.Builder(new ContextThemeWrapper(favorite_points.this, R.style.ThemeWithCorners));
+					dialog.setTitle(getResources().getString(R.string.edit_title));
+					final EditText editText = new EditText(favorite_points.this);
+					editText.setText(fp.name);
+					editText.selectAll();
+					editText.setOnFocusChangeListener(new OnFocusChangeListener() {
+
+						@Override
+						public void onFocusChange(View v, boolean hasFocus) {
+							if (hasFocus) {
+								v.setBackgroundColor(Color.WHITE);
+								((EditText) v).setTextColor(Color.BLACK);
+							} 
+						}
+					});
+
+					dialog.setView(editText);
+					dialog.setPositiveButton(getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int id) {
+							Intent intent = new Intent(favorite_points.this, FileIntentService.class);
+							
+							fp.set_name(editText.getText().toString());
+							
+							intent.putExtra("content", fp.obj2str());
+							intent.putExtra("filename", fp.file.getAbsolutePath());
+							startService(intent);
+							
+							name.setText(fp.name);
+						}
+					});
+					dialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int id) {
+							// do nothing
+						}
+					});
+
+					final AlertDialog diag = dialog.show();
+
+					editText.addTextChangedListener(new TextWatcher() {
+						@Override
+						public void afterTextChanged(Editable s) {
+						}
+						@Override
+						public void beforeTextChanged(CharSequence s, int start, int count,
+								int after) {
+						}
+						@Override
+						public void onTextChanged(CharSequence s, int start, int before,
+								int count) {
+							if(editText.getText().toString().contains(",")) {
+								editText.setError(getResources().getString(R.string.info_illegal_titlename));
+								diag.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+							}
+							else if(editText.getText().toString().isEmpty()) {
+								diag.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+							}
+							else {
+								editText.setError(null);
+								diag.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+							}
+						}
+
+					});
+				}
+			});
+			btn_tr.addView(iv);
 
 			iv = new ImageView(this);
 			iv.setImageBitmap(null);

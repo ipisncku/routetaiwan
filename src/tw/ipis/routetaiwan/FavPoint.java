@@ -41,6 +41,10 @@ public class FavPoint {
 		file = f;
 	}
 	
+	public void set_name(String n) {
+		name = n;
+	}
+	
 	public String obj2str() {
 		String result = null;
 		if(phonenum == null)
