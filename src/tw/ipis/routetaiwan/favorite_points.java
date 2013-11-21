@@ -13,7 +13,9 @@ import java.util.List;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnShowListener;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
@@ -36,6 +38,8 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.View.OnLongClickListener;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -58,11 +62,14 @@ public class favorite_points extends Activity {
 	private int num_of_points = 0;
 	private int img_base_pixel = 48;
 	private int basic_size = 24;
+	LinearLayout ll;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.favorite_point);
+		
+		ll = (LinearLayout)findViewById(R.id.ll_fav_points);
 		
 		File folder = new File(projectdir);
 		if (!folder.exists()) {
@@ -290,15 +297,26 @@ public class favorite_points extends Activity {
 							startService(intent);
 							
 							name.setText(fp.name);
+							editText.setImeOptions(EditorInfo.IME_ACTION_DONE);
 						}
 					});
 					dialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int id) {
-							// do nothing
+							editText.setImeOptions(EditorInfo.IME_ACTION_DONE);
 						}
 					});
-
-					final AlertDialog diag = dialog.show();
+					
+					final AlertDialog diag = dialog.create();
+					
+					diag.setOnShowListener(new OnShowListener()
+					{
+					    @Override
+					    public void onShow(final DialogInterface dialog)
+					    {
+					    	editText.requestFocus();
+					    	((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE)).showSoftInput(editText, 0);
+					    }
+					});
 
 					editText.addTextChangedListener(new TextWatcher() {
 						@Override
@@ -325,6 +343,7 @@ public class favorite_points extends Activity {
 						}
 
 					});
+					diag.show();
 				}
 			});
 			btn_tr.addView(iv);
@@ -571,8 +590,6 @@ public class favorite_points extends Activity {
 	}
 
 	public void info_empty_folder() {
-		LinearLayout ll = (LinearLayout)findViewById(R.id.ll_fav_points);
-
 		if(empty != null)
 			ll.removeView(empty);
 		else

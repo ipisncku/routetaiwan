@@ -16,6 +16,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.DialogInterface.OnShowListener;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -46,6 +47,7 @@ import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -500,28 +502,37 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 				else {
 					Toast.makeText(showmap.this, getResources().getString(R.string.file_already_existed) , Toast.LENGTH_SHORT).show();
 				}
+				editText.setImeOptions(EditorInfo.IME_ACTION_DONE);
 			}
 		});
 		dialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int id) {
 				// do nothing
 				temp.remove();
+				editText.setImeOptions(EditorInfo.IME_ACTION_DONE);
 			}
 		});
 		
-		final AlertDialog diag = dialog.show();
+		final AlertDialog diag = dialog.create();
+		
+		diag.setOnShowListener(new OnShowListener()
+		{
+		    @Override
+		    public void onShow(final DialogInterface dialog)
+		    {
+		    	editText.requestFocus();
+		    	((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE)).showSoftInput(editText, 0);
+		    }
+		});
 		
 		editText.addTextChangedListener(new TextWatcher() {
-
 			@Override
 			public void afterTextChanged(Editable s) {
 			}
-
 			@Override
 			public void beforeTextChanged(CharSequence s, int start, int count,
 					int after) {
 			}
-
 			@Override
 			public void onTextChanged(CharSequence s, int start, int before,
 					int count) {
@@ -529,13 +540,16 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 					editText.setError(getResources().getString(R.string.info_illegal_titlename));
 					diag.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
 				}
+				else if(editText.getText().toString().isEmpty()) {
+					diag.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+				}
 				else {
 					editText.setError(null);
 					diag.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
 				}
 			}
-			
 		});
+		diag.show();
 	}
 	
 	public void send_sms(String title) {

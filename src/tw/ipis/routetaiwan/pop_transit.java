@@ -1522,6 +1522,8 @@ public class pop_transit extends Activity {
 						Elements tds = tr.select("td");
 
 						pure_text = tds.get(1).text().replaceAll("[0-9A-Z]{2,3}-[0-9A-Z]{2,3} ", "");
+//						if(tds.get(1).select("img[src^=bus]").size() != 0)
+//							Log.i(TAG, "get BUS!");
 
 						if(pure_text.contentEquals("將到站"))
 							wait_time = "1";
