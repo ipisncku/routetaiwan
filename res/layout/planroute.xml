@@ -48,7 +48,7 @@
                         android:selectAllOnFocus="true"
                         android:singleLine="true"
                         android:completionThreshold="1"
-                        android:completionHint="@string/fav_pt_hint"
+                        android:completionHint="@string/info_planroute_edit"
                         android:textColorHint="#c3c3c3" />
                 </TableRow>
 
@@ -85,7 +85,7 @@
                         android:selectAllOnFocus="true"
                         android:singleLine="true"
                         android:completionThreshold="1"
-                        android:completionHint="@string/fav_pt_hint"
+                        android:completionHint="@string/info_planroute_edit"
                         android:textColorHint="#c3c3c3" />
                 </TableRow>
             </TableLayout>

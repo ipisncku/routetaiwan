@@ -52,15 +52,15 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.provider.Settings;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.View.OnLongClickListener;
+import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -139,7 +139,7 @@ public class planroute extends Activity {
 			}
 		});
 		
-		new get_fav_points().execute();
+		set_fav_adapters();
 
 		from.setOnFocusChangeListener(new OnFocusChangeListener()
 		{
@@ -147,9 +147,10 @@ public class planroute extends Activity {
 			public void onFocusChange(View v, boolean hasFocus) 
 			{
 				if (hasFocus == true && from.getText().toString().length() == 0) {
-					from.setError(getResources().getString(R.string.info_planroute_edit));
-					from.setDropDownVerticalOffset((int) (40 * getResources().getDisplayMetrics().density));
-					from.showDropDown();
+					if(from.getAdapter() == null)
+						from.setError(getResources().getString(R.string.info_planroute_edit));
+					else
+						from.showDropDown();
 				}
 				else {
 					from.setError(null);
@@ -158,32 +159,30 @@ public class planroute extends Activity {
 			}
 		});
 		
-		from.addTextChangedListener(new TextWatcher(){
-			@Override
-			public void afterTextChanged(Editable arg0) {
-			}
+		from.setOnTouchListener(new OnTouchListener() {
 
 			@Override
-			public void beforeTextChanged(CharSequence s, int start, int count,
-					int after) {
-			}
-
-			@Override
-			public void onTextChanged(CharSequence s, int start, int before,
-					int count) {
-				from.setError(null);
+			public boolean onTouch(View arg0, MotionEvent arg1) {
+				if (from.getText().toString().length() == 0) {
+					if(from.getAdapter() == null)
+						from.setError(getResources().getString(R.string.info_planroute_edit));
+					else
+						from.showDropDown();
+				}
+				return false;
 			}
 		});
-
+		
 		to.setOnFocusChangeListener(new OnFocusChangeListener()
 		{
 			@Override
 			public void onFocusChange(View v, boolean hasFocus) 
 			{
 				if (hasFocus == true && to.getText().toString().length() == 0) {
-					to.setError(getResources().getString(R.string.info_planroute_edit));
-					to.setDropDownVerticalOffset((int) (40 * getResources().getDisplayMetrics().density));
-					to.showDropDown();
+					if(to.getAdapter() == null)
+						to.setError(getResources().getString(R.string.info_planroute_edit));
+					else
+						to.showDropDown();
 				}
 				else {
 					to.setError(null);
@@ -192,23 +191,20 @@ public class planroute extends Activity {
 			}
 		});
 		
-		to.addTextChangedListener(new TextWatcher(){
-			@Override
-			public void afterTextChanged(Editable arg0) {
-			}
+		to.setOnTouchListener(new OnTouchListener() {
 
 			@Override
-			public void beforeTextChanged(CharSequence s, int start, int count,
-					int after) {
-			}
-
-			@Override
-			public void onTextChanged(CharSequence s, int start, int before,
-					int count) {
-				to.setError(null);
+			public boolean onTouch(View arg0, MotionEvent arg1) {
+				if (to.getText().toString().length() == 0) {
+					if(to.getAdapter() == null)
+						to.setError(getResources().getString(R.string.info_planroute_edit));
+					else
+						to.showDropDown();
+				}
+				return false;
 			}
 		});
-
+		
 		/* Intent from showmap class */
 		Bundle Data = this.getIntent().getExtras();
 		if(Data != null) {
@@ -240,58 +236,103 @@ public class planroute extends Activity {
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
 	}
-
-	private class get_fav_points extends AsyncTask<Void, Void, String[]> {
-		@Override
-		protected String[] doInBackground(Void... params) {
-			File folder = new File(projectdir);
-			if (!folder.exists()) {
-				folder.mkdir();
-				return new String[0];
-			}
-			else {
-				favorite_points = new ArrayList<File>();
-				points = new ArrayList<FavPoint>();
-				/* Display result */
-				favorite_points = getListFiles(folder);
-				if(favorite_points.isEmpty()) {
-					return new String[0];
-				}
-				for(File fd : favorite_points) {
-					try {
-						String buf = getStringFromFile(fd);
-						FavPoint fp = decode_str_to_points(buf);
-						if(fp == null && fd.exists())
-							fd.delete();
-						else if(fp != null) {
-							fp.set_filename(fd);
-							points.add(fp);
-						}
-					} catch (Exception e) {
-						Log.e(TAG, "Cannot open file " + fd.getName());
-						e.printStackTrace();
-					}
-				}
-				if(points.size() > 0) {
-					String list[] = new String[points.size()];
-					for(int i=0; i<points.size(); i++) {
-						list[i] = points.get(i).name;
-					}
-					return list;
-				}
-				return new String[0];
-			}
+	
+	private void set_fav_adapters() {
+		File folder = new File(projectdir);
+		if (!folder.exists()) {
+			folder.mkdir();
+			return ;
 		}
-
-		@Override
-		protected void onPostExecute(String[] contact) {
-			if(contact.length > 0) {
-				adapter = new ArrayAdapter<String>(planroute.this, R.layout.contact_list, R.id.contact_name, contact);
-				from.setAdapter(adapter);
-				to.setAdapter(adapter);
+		else {
+			favorite_points = new ArrayList<File>();
+			points = new ArrayList<FavPoint>();
+			/* Display result */
+			favorite_points = getListFiles(folder);
+			if(favorite_points.isEmpty()) {
+				return ;
 			}
+			for(File fd : favorite_points) {
+				try {
+					String buf = getStringFromFile(fd);
+					FavPoint fp = decode_str_to_points(buf);
+					if(fp == null && fd.exists())
+						fd.delete();
+					else if(fp != null) {
+						fp.set_filename(fd);
+						points.add(fp);
+					}
+				} catch (Exception e) {
+					Log.e(TAG, "Cannot open file " + fd.getName());
+					e.printStackTrace();
+				}
+			}
+			
+			if(points.size() > 0) {
+				String list[] = new String[points.size()];
+				for(int i=0; i<points.size(); i++) {
+					list[i] = points.get(i).name;
+				}
+				if(list.length > 0) {
+					adapter = new ArrayAdapter<String>(planroute.this, R.layout.contact_list, R.id.contact_name, list);
+					from.setAdapter(adapter);
+					to.setAdapter(adapter);
+				}
+			}
+			return ;
 		}
 	}
+
+//	private class get_fav_points extends AsyncTask<Void, Void, String[]> {
+//		@Override
+//		protected String[] doInBackground(Void... params) {
+//			File folder = new File(projectdir);
+//			if (!folder.exists()) {
+//				folder.mkdir();
+//				return new String[0];
+//			}
+//			else {
+//				favorite_points = new ArrayList<File>();
+//				points = new ArrayList<FavPoint>();
+//				/* Display result */
+//				favorite_points = getListFiles(folder);
+//				if(favorite_points.isEmpty()) {
+//					return new String[0];
+//				}
+//				for(File fd : favorite_points) {
+//					try {
+//						String buf = getStringFromFile(fd);
+//						FavPoint fp = decode_str_to_points(buf);
+//						if(fp == null && fd.exists())
+//							fd.delete();
+//						else if(fp != null) {
+//							fp.set_filename(fd);
+//							points.add(fp);
+//						}
+//					} catch (Exception e) {
+//						Log.e(TAG, "Cannot open file " + fd.getName());
+//						e.printStackTrace();
+//					}
+//				}
+//				if(points.size() > 0) {
+//					String list[] = new String[points.size()];
+//					for(int i=0; i<points.size(); i++) {
+//						list[i] = points.get(i).name;
+//					}
+//					return list;
+//				}
+//				return new String[0];
+//			}
+//		}
+//
+//		@Override
+//		protected void onPostExecute(String[] contact) {
+//			if(contact.length > 0) {
+//				adapter = new ArrayAdapter<String>(planroute.this, R.layout.contact_list, R.id.contact_name, contact);
+//				from.setAdapter(adapter);
+//				to.setAdapter(adapter);
+//			}
+//		}
+//	}
 
 	public FavPoint decode_str_to_points(String buf) {
 		if(buf == null)
