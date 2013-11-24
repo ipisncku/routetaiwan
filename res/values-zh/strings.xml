@@ -125,6 +125,7 @@
     <string name="choose_line">選擇路線</string>
     <string name="carrier">客運業者</string>
     <string name="fav_pt_hint">喜愛點提示</string>
+    <string name="details">詳細資訊</string>
     
     <string-array name="country_arrays">
         <item>繁體中文</item>

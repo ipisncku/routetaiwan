@@ -968,7 +968,8 @@ public class planroute extends Activity {
 							createImageViewbyR(R.drawable.bus, tr, basic_pixel, basic_pixel);
 							text = new StringBuilder().append(text).append("bus,").append(step.transit_details.line.short_name + ",").append(step.transit_details.line.agencies[0].name + ",")
 									.append(step.transit_details.departure_stop.name + ",").append(step.transit_details.arrival_stop.name + ",")
-									.append(step.transit_details.line.name).toString();
+									.append(step.transit_details.line.name + ",")
+									.append(step.transit_details.departure_time.value).toString();
 							headsign = new StringBuilder().append(" (" + getResources().getString(R.string.go_to)).append(headsign + ") ").toString();
 							if(getResources().getString(R.string.locale).contentEquals("English")) {
 								trans = trans.replace("Take", "Take bus");
@@ -1495,6 +1496,7 @@ public class planroute extends Activity {
 				bundle.putString("dept", transit_detail[4]);
 				bundle.putString("arr", transit_detail[5]);
 				bundle.putString("headname", transit_detail[6]);
+				bundle.putLong("time", Long.parseLong(transit_detail[7]));
 			}
 			else {
 				bundle.putString("type", transit_detail[1]);	// type = null

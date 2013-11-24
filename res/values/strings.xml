@@ -72,7 +72,7 @@
     <string name="diag_no">No</string>
     <string name="file_already_existed">Route already existed.</string>
     <string name="realtime_under_construction">Under construction</string>
-    <string name="realtime_info">Real Time Information</string>
+    <string name="realtime_info">Realtime Info</string>
     <string name="arriving">Arriving</string>
     <string name="almost_arriving">1 min</string>
     <string name="hsr_status">HSR Service</string>
@@ -111,6 +111,7 @@
     <string name="carrier">Carrier</string>
     
     <string name="fav_pt_hint">Favorite Points hint</string>
+    <string name="details">Detail</string>
 
 <string-array name="country_arrays">
         <item>繁體中文</item>

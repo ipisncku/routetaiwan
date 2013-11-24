@@ -36,19 +36,33 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.format.Time;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
+import android.view.GestureDetector;
+import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.Gravity;
+import android.view.MotionEvent;
+import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
+import android.widget.TabHost;
+import android.widget.TabHost.TabContentFactory;
+import android.widget.TabHost.TabSpec;
+import android.widget.TabWidget;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TableRow.LayoutParams;
@@ -83,6 +97,9 @@ public class pop_transit extends Activity {
 	private static final int ID_HSR_TIME_TABLE_TITLE = 0x12345005;
 	private static final int ID_HSR_TIME_TABLE_TABLE = 0x12345006;
 	private static final int ID_INTERCITYBUS_CARRIER = 0x12345007;
+	private static final int ID_BUS_TIMETABLE_DATE = 0x12345008;
+	private GestureDetector gestureDetector;
+	View.OnTouchListener gestureListener;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -106,6 +123,7 @@ public class pop_transit extends Activity {
 				dept = Data.getString("dept");
 				arr = Data.getString("arr");
 				name = Data.getString("headname");
+				time = Data.getLong("time");
 			}
 			else if(type.contentEquals("tra")) {
 				car_class = Data.getString("class");
@@ -135,7 +153,7 @@ public class pop_transit extends Activity {
 		loading_param.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
 		loading_param.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
 		loading.setLayoutParams(loading_param);
-
+		
 		/* 台鐵 */
 		/* If type = "tra", then open webview for ex: http://twtraffic.tra.gov.tw/twrail/mobile/TrainDetail.aspx?searchdate=2013/10/03&traincode=117 */
 		if(type.contentEquals("tra")) {
@@ -301,16 +319,17 @@ public class pop_transit extends Activity {
 			tv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.30f));
 			tr.addView(tv);
 
+			/* 資料由台灣高鐵提供 */
+			show_info_provider(R.string.provide_by_thsr);
+			
 			/* 時刻表捲單 */
 			final ScrollView sv = new ScrollView(this);
 			sv.setId(ID_HSR_TIME_TABLE_TABLE);
 			RelativeLayout.LayoutParams svparam = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
 			svparam.addRule(RelativeLayout.BELOW, ID_HSR_TIME_TABLE_TITLE);
+			svparam.addRule(RelativeLayout.ABOVE, ID_PROVIDER_ANNOUNCEMENT);
 			sv.setLayoutParams(svparam);
 			rl.addView(sv);
-
-			/* 資料由台灣高鐵提供 */
-			show_info_provider(R.string.provide_by_thsr);
 
 			process_param = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
 			process_param.addRule(RelativeLayout.BELOW, ID_HSR_TIME_TABLE_TITLE);
@@ -426,13 +445,11 @@ public class pop_transit extends Activity {
 						tv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.30f));
 						tr.addView(tv);
 					}
-					/* 最後的空白行 */
-					TableRow tr = CreateTableRow(tl);
-					tr.addView(new TextView(pop_transit.this));
-					tr.setBackgroundColor(color);
-					sv.addView(tl);
-
 					loading.setVisibility(ProgressBar.INVISIBLE);
+				}
+
+				@Override
+				public void parsedTimeTable(List<TimeTable> time) {
 				}
 			});
 			timetable.execute(url);
@@ -472,8 +489,13 @@ public class pop_transit extends Activity {
 
 					rl.addView(process);
 
+					/* 資料由5284我愛巴士提供 */
+					show_info_provider(R.string.provide_by_5284);
+					
 					final ScrollView sv = new ScrollView(this);
-					sv.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+					RelativeLayout.LayoutParams param = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
+					param.addRule(RelativeLayout.ABOVE, ID_PROVIDER_ANNOUNCEMENT);
+					sv.setLayoutParams(param);
 					rl.addView(sv);
 
 					final TableLayout tl = new TableLayout(this);
@@ -481,9 +503,6 @@ public class pop_transit extends Activity {
 					tl.setOrientation(TableLayout.VERTICAL);
 
 					sv.addView(tl);
-
-					/* 資料由5284我愛巴士提供 */
-					show_info_provider(R.string.provide_by_5284);
 
 					/* Update every 30 seconds */
 					runtask = new Runnable() {
@@ -506,6 +525,10 @@ public class pop_transit extends Activity {
 
 								@Override
 								public void parsedHSR(List<HSRTrains> trains) {
+								}
+
+								@Override
+								public void parsedTimeTable(List<TimeTable> time) {
 								}
 							});
 							loading.setVisibility(ProgressBar.VISIBLE);
@@ -530,24 +553,24 @@ public class pop_transit extends Activity {
 					/* 設定activity title, ex: 226 即時資訊 */
 					this.setTitle(line + " " + getResources().getString(R.string.realtime_info));
 
-					//					create_webview_by_url(url);
-
 					rl.removeAllViews();
 
 					rl.addView(process);
-
+					
+					/* 資料由台中市政府提供 */
+					show_info_provider(R.string.provide_by_txg);
+					
 					final ScrollView sv = new ScrollView(this);
-					sv.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+					RelativeLayout.LayoutParams param = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
+					param.addRule(RelativeLayout.ABOVE, ID_PROVIDER_ANNOUNCEMENT);
+					sv.setLayoutParams(param);
 					rl.addView(sv);
 
 					final TableLayout tl = new TableLayout(this);
 					tl.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 					tl.setOrientation(TableLayout.VERTICAL);
-
+					
 					sv.addView(tl);
-
-					/* 資料由台中市政府提供 */
-					show_info_provider(R.string.provide_by_txg);
 
 					/* Update every 30 seconds */
 					runtask = new Runnable() {
@@ -570,6 +593,10 @@ public class pop_transit extends Activity {
 
 								@Override
 								public void parsedHSR(List<HSRTrains> trains) {
+								}
+
+								@Override
+								public void parsedTimeTable(List<TimeTable> time) {
 								}
 							});
 							task.execute(url_go, url_bk);
@@ -630,18 +657,20 @@ public class pop_transit extends Activity {
 
 					rl.addView(process);
 
+					/* 資料由高雄市政府提供 */
+					show_info_provider(R.string.provide_by_khh);
+					
 					final ScrollView sv = new ScrollView(this);
-					sv.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+					RelativeLayout.LayoutParams param = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
+					param.addRule(RelativeLayout.ABOVE, ID_PROVIDER_ANNOUNCEMENT);
+					sv.setLayoutParams(param);
 					rl.addView(sv);
-
+					
 					final TableLayout tl = new TableLayout(this);
 					tl.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 					tl.setOrientation(TableLayout.VERTICAL);
 
 					sv.addView(tl);
-
-					/* 資料由高雄市政府提供 */
-					show_info_provider(R.string.provide_by_khh);
 
 					/* Update every 30 seconds */
 					runtask = new Runnable() {
@@ -662,6 +691,10 @@ public class pop_transit extends Activity {
 										@Override
 										public void parsedHSR(List<HSRTrains> trains) {
 											return;
+										}
+
+										@Override
+										public void parsedTimeTable(List<TimeTable> time) {
 										}
 									});
 							task.execute(url);
@@ -691,8 +724,13 @@ public class pop_transit extends Activity {
 
 					rl.addView(process);
 
+					/* 資料由桃園縣政府提供 */
+					show_info_provider(R.string.provide_by_tyn);
+					
 					final ScrollView sv = new ScrollView(this);
-					sv.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+					RelativeLayout.LayoutParams param = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
+					param.addRule(RelativeLayout.ABOVE, ID_PROVIDER_ANNOUNCEMENT);
+					sv.setLayoutParams(param);
 					rl.addView(sv);
 
 					final TableLayout tl = new TableLayout(this);
@@ -700,9 +738,6 @@ public class pop_transit extends Activity {
 					tl.setOrientation(TableLayout.VERTICAL);
 
 					sv.addView(tl);
-
-					/* 資料由桃園縣政府提供 */
-					show_info_provider(R.string.provide_by_tyn);
 
 					/* Update every 30 seconds */
 					runtask = new Runnable() {
@@ -726,6 +761,10 @@ public class pop_transit extends Activity {
 								@Override
 								public void parsedHSR(List<HSRTrains> trains) {
 								}
+
+								@Override
+								public void parsedTimeTable(List<TimeTable> time) {
+								}
 							});
 							task.execute(url_go, url_bk);
 							loading.setVisibility(ProgressBar.VISIBLE);
@@ -743,6 +782,7 @@ public class pop_transit extends Activity {
 			else if(line.matches("[0-9]{4}")) {
 				String url_runid = "http://www.taiwanbus.tw/aspx/dyBus/BusXMLLine.aspx?Mode=6&Cus=&RouteNo={0}";
 				final ArrayList<String> runid = new ArrayList<String>();
+				final long depart_time = time;
 				/* 拿到1915的run ID: http://www.taiwanbus.tw/aspx/dyBus/BusXMLLine.aspx?Mode=6&Cus=&RouteNo=1915 */
 
 				rl.removeAllViews();
@@ -758,25 +798,108 @@ public class pop_transit extends Activity {
 				tv.setLayoutParams(tvparam);
 				tv.setHorizontallyScrolling(false);
 				rl.addView(tv);
-
+				
 				final ScrollView sv = new ScrollView(this);
 				tvparam = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
-				tvparam.addRule(RelativeLayout.BELOW, ID_INTERCITYBUS_CARRIER);
 				sv.setLayoutParams(tvparam);
-				rl.addView(sv);
+				
+				final RelativeLayout rl_time = new RelativeLayout(this);
+				rl_time.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+				
+				final TextView timetv = new TextView(this);
+				timetv.setId(ID_BUS_TIMETABLE_DATE);
+				timetv.setTextColor(Color.WHITE);
+				timetv.setTextSize(16);
+				timetv.setGravity(Gravity.LEFT);
+				tvparam = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
+				timetv.setLayoutParams(tvparam);
+				rl_time.addView(timetv);
+				
+				final ScrollView sv_timetb = new ScrollView(this);
+				tvparam = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
+				tvparam.addRule(RelativeLayout.BELOW, ID_BUS_TIMETABLE_DATE);
+				sv_timetb.setLayoutParams(tvparam);
+				
+				final TableLayout tl_timetb = new TableLayout(this);
+				tl_timetb.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+				tl_timetb.setOrientation(TableLayout.VERTICAL);
 
 				final TableLayout tl = new TableLayout(this);
 				tl.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 				tl.setOrientation(TableLayout.VERTICAL);
 
 				sv.addView(tl);
+				sv_timetb.addView(tl_timetb);
+				rl_time.addView(sv_timetb);
 
 				/* 設定activity title, ex: 9117 時刻表 */
-				this.setTitle(line + " " + getResources().getString(R.string.realtime_info));
+				this.setTitle(line + " " + getResources().getString(R.string.details));
 
 				/* 資料由公路總局提供 */
 				show_info_provider(R.string.provide_by_bus);
+				
+				final TabHost tabs = new TabHost(pop_transit.this, null);
+				RelativeLayout.LayoutParams param = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+				param.addRule(RelativeLayout.BELOW, ID_INTERCITYBUS_CARRIER);
+				param.addRule(RelativeLayout.ABOVE, ID_PROVIDER_ANNOUNCEMENT);
+				tabs.setLayoutParams(param);
+				tabs.setId(android.R.id.tabhost);
+				rl.addView(tabs);
+				
+				LinearLayout lineLayout = new LinearLayout(this);
+				lineLayout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+						LinearLayout.LayoutParams.MATCH_PARENT));
+				lineLayout.setOrientation( LinearLayout.VERTICAL);
+				lineLayout.setGravity( Gravity.TOP );
+				
+				TabWidget tabWidget = new TabWidget(pop_transit.this);
+				param = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+				tabWidget.setLayoutParams(param);
+				tabWidget.setId(android.R.id.tabs);
+				lineLayout.addView(tabWidget);
+				
+				FrameLayout tabContent = new FrameLayout(pop_transit.this);
+				tabContent.setLayoutParams(param);
+				tabContent.setId(android.R.id.tabcontent);
+				lineLayout.addView(tabContent);
+				
+				tabs.addView(lineLayout);
+				tabs.setup();
+				
+				Drawable dr = getResources().getDrawable(R.drawable.busstop);
+				Bitmap bitmap = ((BitmapDrawable) dr).getBitmap();
+				
+				Drawable drawable = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(bitmap, 
+						(int) (32 * getResources().getDisplayMetrics().density), (int) (32 * getResources().getDisplayMetrics().density), true)); 
+				
+				TabSpec tspec1 = tabs.newTabSpec("Tab1");
+				tspec1.setIndicator(getResources().getString(R.string.realtime_info), drawable);
+				tspec1.setContent(new PreExistingViewFactory(sv));
+				tabs.addTab(tspec1);
+				
+				dr = getResources().getDrawable(R.drawable.timetable);
+				bitmap = ((BitmapDrawable) dr).getBitmap();
+				
+				drawable = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(bitmap, 
+						(int) (32 * getResources().getDisplayMetrics().density), (int) (32 * getResources().getDisplayMetrics().density), true)); 
 
+				TabSpec tspec2 = tabs.newTabSpec("Tab2");
+				tspec2.setIndicator(getResources().getString(R.string.time_table), drawable);
+				tspec2.setContent(new PreExistingViewFactory(rl_time));
+				tabs.addTab(tspec2);
+				
+				gestureDetector = new GestureDetector(this, new MyGestureDetector(tabs));
+		        gestureListener = new View.OnTouchListener() {
+		            public boolean onTouch(View v, MotionEvent event) {
+		                return gestureDetector.onTouchEvent(event);
+		            }
+		        };
+		        sv.setOnTouchListener(gestureListener);
+		        rl_time.setOnTouchListener(gestureListener);
+				
+				tabs.setLongClickable(true);
+				tabs.setOnTabChangedListener(new AnimatedTabHostListener(getBaseContext(), tabs));
+				
 				try {
 					String url = MessageFormat.format(url_runid, URLEncoder.encode(line, "UTF-8"), line);
 					HTML_BUS_PARSER get_runid = new HTML_BUS_PARSER(
@@ -800,7 +923,7 @@ public class pop_transit extends Activity {
 											String[] infos2 = branches[i+1].split(",");
 											if(infos1[2].equals(infos2[2])) {	// 有回頭車
 												Log.i(TAG, "有回頭車");
-												runid.add(String.format("%s,%s", infos1[0], infos2[0]));
+												runid.add(String.format("%s,%s,%s", infos1[2], infos1[0], infos2[0]));
 												listItems.add(infos1[3].replaceAll("→", "-"));
 												i++;
 												continue;
@@ -808,7 +931,7 @@ public class pop_transit extends Activity {
 										}
 										else {	// 沒有回頭車
 											Log.i(TAG, "沒有回頭車");
-											runid.add(String.format("%s", infos1[0]));
+											runid.add(String.format("%s,%s", infos1[2], infos1[0]));
 											listItems.add(infos1[3]);
 										}
 									}
@@ -822,10 +945,10 @@ public class pop_transit extends Activity {
 											public void onClick(DialogInterface dialog, int branch) {
 												String[] lines = runid.get(branch).split(",");
 
-												if(lines.length == 2)
-													get_real_time(headway[branch], lines[0], lines[1]);
+												if(lines.length == 3)
+													get_real_time(headway[branch], lines[0], lines[1], lines[2]);
 												else
-													get_real_time(headway[branch], lines[0], null);
+													get_real_time(headway[branch], lines[0], lines[1], null);
 											}
 										});
 
@@ -840,10 +963,10 @@ public class pop_transit extends Activity {
 									else if (runid.size() == 1){
 										String[] lines = runid.get(0).split(",");
 
-										if(lines.length == 2)
-											get_real_time(listItems.get(0), lines[0], lines[1]);
+										if(lines.length == 3)
+											get_real_time(listItems.get(0), lines[0], lines[1], lines[2]);
 										else
-											get_real_time(listItems.get(0), lines[0], null);
+											get_real_time(listItems.get(0), lines[0], lines[1], null);
 									}
 									else {
 										Toast.makeText(pop_transit.this, getResources().getString(R.string.no_data) , Toast.LENGTH_LONG).show();
@@ -861,15 +984,46 @@ public class pop_transit extends Activity {
 									return;
 								}
 
-								private void get_real_time(CharSequence headway, final String runid_go,	final String runid_back) {
+								private void get_real_time(CharSequence headway, final String catgory, final String runid_go, final String runid_back) {
 									/* 即時 http://www.taiwanbus.tw/aspx/dyBus/BusXMLLine.aspx?Mode=4&RunId=3362 */
 									Log.i(TAG, String.format("%s %s ", runid_go, runid_back));
 									String url = "http://www.taiwanbus.tw/aspx/dyBus/BusXMLLine.aspx?Mode=4&RunId={0}";
+									String url_time_table = "http://web.taiwanbus.tw/eBUS/subsystem/Timetable/TimeTableAPIByWeek.aspx?inputType=R01&RouteId={0}%20&RouteBranch={1}&SearchDate={2}"; 
 									try {
+										/* 時刻表 */
+										SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
+										final long millis = depart_time * 1000;
+										Date date = new Date(millis) ;
+										final String str_date = formatter.format(date);
+										final String url_tt = MessageFormat.format(url_time_table, URLEncoder.encode(line, "UTF-8"), catgory, str_date);
+										Log.i(TAG, url_tt);
+										INTERCITY_TIME_TABLE get_timetable = new INTERCITY_TIME_TABLE(
+												new AnalysisResult() {
+													@Override
+													public void parsestr(String result) {
+													}
+
+													@Override
+													public void parsedBUS(List<BusRoute> routes) {
+														return;
+													}
+
+													@Override
+													public void parsedHSR(List<HSRTrains> trains) {
+														return;
+													}
+
+													@Override
+													public void parsedTimeTable(List<TimeTable> time) {
+														timetv.setText(str_date);
+														create_time_table(time, tl_timetb, sv_timetb, millis);
+													}
+												});
+										get_timetable.execute(url_tt);
+
+										/* 即時資訊 */
 										final String url_go = MessageFormat.format(url, URLEncoder.encode(runid_go, "UTF-8"));
 										final String url_bk = runid_back == null ? null : MessageFormat.format(url, URLEncoder.encode(runid_back, "UTF-8"));
-										Log.i(TAG, String.format("%s", url_go));
-										Log.i(TAG, String.format("%s", url_bk));
 										runtask = new Runnable() {
 											public void run () {
 												INTERCITY_BUS_PARSER task = new INTERCITY_BUS_PARSER(new AnalysisResult() {
@@ -881,7 +1035,7 @@ public class pop_transit extends Activity {
 													@Override
 													public void parsedBUS(List<BusRoute> routes) {
 														rl.removeView(process);
-
+														
 														find_start_dest(routes, dept, arr);
 														create_realtime_table(routes, tl, sv);
 														loading.setVisibility(ProgressBar.INVISIBLE);
@@ -890,6 +1044,10 @@ public class pop_transit extends Activity {
 
 													@Override
 													public void parsedHSR(List<HSRTrains> trains) {
+													}
+
+													@Override
+													public void parsedTimeTable(List<TimeTable> time) {
 													}
 												});
 												if(url_bk != null)
@@ -906,6 +1064,10 @@ public class pop_transit extends Activity {
 										Toast.makeText(pop_transit.this, getResources().getString(R.string.info_internal_error) , Toast.LENGTH_LONG).show();
 										finish();
 									}
+								}
+
+								@Override
+								public void parsedTimeTable(List<TimeTable> time) {
 								}
 							});
 					get_runid.execute(url);
@@ -1074,6 +1236,138 @@ public class pop_transit extends Activity {
 			err_tag_fail=true;
 		}
 	}  
+	
+	private void create_time_table(List<TimeTable> routes, TableLayout tl, final ScrollView sv, long millis) {
+		TableLayout t1 = null, t2 = null;
+		String depart_sta = null;
+		TextView tv_depart = null, tv_carrier = null, tv_back = null;
+		Time depart = new Time();
+		depart.set(millis);
+				
+		if(routes.size() == 0)
+			return;
+		
+		depart_sta = routes.get(0).depart_station;
+		TableRow tr_tl = CreateTableRow(tl);
+		t1 = new TableLayout(this);
+		t1.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+		t1.setOrientation(TableLayout.VERTICAL);
+		
+		TableRow tr = CreateTableRow(t1);
+		tr.setBackgroundColor(Color.BLACK);
+		tv_depart = new TextView(this);
+		tv_depart.setTextColor(Color.WHITE);
+		if(getResources().getString(R.string.locale).contentEquals("English"))
+			tv_depart.setText(String.format("%s%s", depart_sta, getResources().getString(R.string.estimate)));
+		else
+			tv_depart.setText(String.format("%s%s", depart_sta, getResources().getString(R.string.departure_time)));
+		tv_depart.setTextSize(16);
+		tv_depart.setHorizontallyScrolling(false);
+		tv_depart.setWidth(0);
+		tv_depart.setGravity(Gravity.CENTER);
+		tv_depart.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.50f));
+		
+		tv_carrier = new TextView(this);
+		tv_carrier.setTextColor(Color.WHITE);
+		tv_carrier.setText(getResources().getString(R.string.carrier));
+		tv_carrier.setTextSize(16);
+		tv_carrier.setHorizontallyScrolling(false);
+		tv_carrier.setWidth(0);
+		tv_carrier.setGravity(Gravity.CENTER);
+		tv_carrier.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.50f));
+		
+		tr.addView(tv_depart);
+		tr.addView(tv_carrier);
+		tr_tl.addView(t1);
+		
+		if(routes.get(0).hasback) {	// 2 tables
+			t2 = new TableLayout(this);
+			t2.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+			t2.setOrientation(TableLayout.VERTICAL);
+			
+			tr = CreateTableRow(t2);
+			tr.setBackgroundColor(Color.BLACK);
+			tv_back = new TextView(this);
+			tv_back.setTextColor(Color.WHITE);
+			tv_back.setTextSize(16);
+			tv_back.setHorizontallyScrolling(false);
+			tv_back.setWidth(0);
+			tv_back.setGravity(Gravity.CENTER);
+			tv_back.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.50f));
+			
+			tv_carrier = new TextView(this);
+			tv_carrier.setTextColor(Color.WHITE);
+			tv_carrier.setText(getResources().getString(R.string.carrier));
+			tv_carrier.setTextSize(16);
+			tv_carrier.setHorizontallyScrolling(false);
+			tv_carrier.setWidth(0);
+			tv_carrier.setGravity(Gravity.CENTER);
+			tv_carrier.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.50f));
+			
+			tr.addView(tv_back);
+			tr.addView(tv_carrier);
+			tr_tl.addView(t2);
+		}
+		
+		for(int i = 0; i<routes.size(); i++) {
+			if(routes.get(i).depart_station.contentEquals(depart_sta)) {
+				if(routes.get(i).check_weekday(depart.weekDay) == false)
+					continue;
+				tr = CreateTableRow(t1);
+
+				TextView tv = new TextView(this);
+				tv.setTextColor(Color.WHITE);
+				tv.setText(routes.get(i).time);
+				tv.setTextSize(16);
+				tv.setHorizontallyScrolling(false);
+				tv.setWidth(0);
+				tv.setGravity(Gravity.CENTER);
+				tv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.50f));
+				tr.addView(tv);
+
+				tv = new TextView(this);
+				tv.setTextColor(Color.WHITE);
+				tv.setText(routes.get(i).carrier);
+				tv.setTextSize(16);
+				tv.setHorizontallyScrolling(false);
+				tv.setWidth(0);
+				tv.setGravity(Gravity.CENTER);
+				tv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.50f));
+				tr.addView(tv);
+			}
+			else {
+				if(tv_back.getText().toString().isEmpty())
+					tv_back.setText(routes.get(i).carrier);
+				if(routes.get(i).check_weekday(depart.weekDay) == false)
+					continue;
+				tr = CreateTableRow(t2);
+				
+				TextView tv = new TextView(this);
+				tv.setTextColor(Color.BLACK);
+				tv.setText(routes.get(i).time);
+				tv.setTextSize(16);
+				tv.setHorizontallyScrolling(false);
+				tv.setWidth(0);
+				tv.setGravity(Gravity.CENTER);
+				tv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.50f));
+				tr.addView(tv);
+
+				tv = new TextView(this);
+				tv.setTextColor(Color.BLACK);
+				tv.setText(routes.get(i).carrier);
+				tv.setTextSize(16);
+				tv.setHorizontallyScrolling(false);
+				tv.setWidth(0);
+				tv.setGravity(Gravity.CENTER);
+				tv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.50f));
+				tr.addView(tv);
+			}
+		}
+		Log.i(TAG, "draw!, sv child = " + sv.getChildCount());
+		Log.i(TAG, "draw!, tl child = " + tl.getChildCount());
+		Log.i(TAG, "draw!, t1 child = " + t1.getChildCount());
+		Log.i(TAG, "draw!, t2 child = " + t2.getChildCount());
+	}
 
 	private void create_realtime_table(List<BusRoute> routes, TableLayout tl, final ScrollView sv) {
 		boolean first_read = false;
@@ -1124,9 +1418,6 @@ public class pop_transit extends Activity {
 
 				timetable.add(tr);
 			}
-			/* 故意多一行空白在最後一行 */
-			tr = CreateTableRow(tl);
-			tr.addView(new TextView(this));
 		}
 
 		for (int i = 0; i<routes.size(); i++) {
@@ -1347,7 +1638,7 @@ public class pop_transit extends Activity {
 	}
 
 	@SuppressLint("SetJavaScriptEnabled")
-	public boolean create_webview_by_url(String url) {
+	public WebView create_webview_by_url(String url) {
 		WebView wv = new WebView(this);
 		wv.getSettings().setJavaScriptEnabled(true);
 		wv.getSettings().setLoadWithOverviewMode(true);
@@ -1374,14 +1665,14 @@ public class pop_transit extends Activity {
 		wv.loadUrl(url);
 		loading.setVisibility(ProgressBar.VISIBLE);
 
-		RelativeLayout rl = (RelativeLayout)findViewById(R.id.rl_pop_transit);
-		RelativeLayout.LayoutParams webview_param = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
-		webview_param.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-		wv.setLayoutParams(webview_param);
+//		RelativeLayout rl = (RelativeLayout)findViewById(R.id.rl_pop_transit);
+//		RelativeLayout.LayoutParams webview_param = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
+//		webview_param.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+//		wv.setLayoutParams(webview_param);
+//
+//		rl.addView(wv);
 
-		rl.addView(wv);
-
-		return true;
+		return wv;
 	}
 
 	/* time format sould be HH:MM */
@@ -1398,6 +1689,7 @@ public class pop_transit extends Activity {
 		public void parsestr(String p);
 		public void parsedBUS(List<BusRoute> routes);
 		public void parsedHSR(List<HSRTrains> trains);
+		public void parsedTimeTable(List<TimeTable> time);
 	}
 
 	private class HSR_TIMETABLE_PARSER extends AsyncTask<String, Void, List<HSRTrains>> {
@@ -1802,6 +2094,80 @@ public class pop_transit extends Activity {
 			thsrc_current_status(result);
 		}
 	}
+	
+	private class INTERCITY_TIME_TABLE extends AsyncTask<String, Void, List<TimeTable>> {
+		private AnalysisResult cb = null;
+		public INTERCITY_TIME_TABLE(AnalysisResult analysisResult) {
+			cb = analysisResult;
+		}
+
+		@Override
+		protected List<TimeTable> doInBackground(String... urls) {
+			List<TimeTable> timetable = new ArrayList<TimeTable>();
+			for (String url : urls) {
+				try {
+					org.jsoup.nodes.Document doc;
+					String depart_station;
+
+					doc = Jsoup.connect(url).userAgent("Mozilla").get();
+
+					Elements tables = doc.select("table[style=border-collapse:collapse;]");
+					
+					Log.i(TAG, "table size = " + tables.size());
+					
+					//					for (org.jsoup.nodes.Element bound : tables) {
+					for(int i = 0; i < tables.size(); i++) {
+						Elements title = tables.get(i).select("tr.font02").select("th");
+						depart_station = title.get(1).text();
+						Log.i(TAG, "出發站: " + depart_station);
+
+						Elements trs = tables.get(0).select("tr.font03, tr.font04");
+
+						for(int j = 0; j < trs.size(); j++) {
+							TimeTable car;
+							org.jsoup.nodes.Element bound = trs.get(j);
+							Elements tds = bound.select("td");
+							Log.i(TAG, String.format("%s,%s,%s", tds.get(1).text(), tds.get(2).text(), tds.get(3).text()));
+							if(tds.get(2).text().contentEquals("每日行駛")) {
+								car = new TimeTable(time2str(tds.get(1).text()), true, depart_station, tds.get(3).text(), trs.size() >=2 ? true: false);
+							}
+							else {
+								car = new TimeTable(time2str(tds.get(1).text()), false, depart_station, tds.get(3).text(), trs.size() >=2 ? true: false);
+								if(tds.get(2).text().contains("日"))
+									car.set_sun(true);
+								if(tds.get(2).text().contains("一"))
+									car.set_mon(true);
+								if(tds.get(2).text().contains("二"))
+									car.set_tue(true);
+								if(tds.get(2).text().contains("三"))
+									car.set_wed(true);
+								if(tds.get(2).text().contains("四"))
+									car.set_thu(true);
+								if(tds.get(2).text().contains("五"))
+									car.set_fri(true);
+								if(tds.get(2).text().contains("六"))
+									car.set_sat(true);
+							}
+							timetable.add(car);
+						}
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
+					return timetable;
+				}
+			}
+			return timetable;
+		}
+
+		@Override
+		protected void onPostExecute(List<TimeTable> timetable) {
+			cb.parsedTimeTable(timetable);
+		}
+	}
+	
+	private String time2str(String time) {
+		return String.format("%s:%s", time.substring(0, 1), time.substring(2, 3));
+	}
 
 	public class bus_provider {
 		String provider;
@@ -1819,4 +2185,78 @@ public class pop_transit extends Activity {
 		}
 	}
 
+	class PreExistingViewFactory implements TabContentFactory{
+		private final View preExisting;
+		protected PreExistingViewFactory(View view){
+			preExisting = view;
+		}
+		public View createTabContent(String tag) {
+			return preExisting;
+		}
+	}
+	
+	/**
+	 * A gesture listener that listens for a left or right swipe and uses the swip gesture to navigate a TabHost that
+	 * uses an AnimatedTabHost listener.
+	 * 
+	 * @author Daniel Kvist
+	 * 
+	 */
+	class MyGestureDetector extends SimpleOnGestureListener
+	{
+		private static final int SWIPE_MIN_DISTANCE = 120;
+		private static final int SWIPE_MAX_OFF_PATH = 150;
+		private static final int SWIPE_THRESHOLD_VELOCITY = 200;
+		private int maxTabs;
+		TabHost tabHost;
+
+		/**
+		 * An empty constructor that uses the tabhosts content view to decide how many tabs there are.
+		 */
+		public MyGestureDetector(TabHost tab)
+		{
+			tabHost = tab;
+			maxTabs = tabHost.getTabWidget().getChildCount();
+		}
+
+		/**
+		 * Listens for the onFling event and performs some calculations between the touch down point and the touch up
+		 * point. It then uses that information to calculate if the swipe was long enough. It also uses the swiping
+		 * velocity to decide if it was a "true" swipe or just some random touching.
+		 */
+		@Override
+		public boolean onFling(MotionEvent event1, MotionEvent event2, float velocityX, float velocityY)
+		{
+			int newTab = 0;
+			Log.i("-swipe-", "in onfling");
+			int currentTab = tabHost.getCurrentTab();
+			
+			if (Math.abs(event1.getY() - event2.getY()) > SWIPE_MAX_OFF_PATH)
+			{
+				return false;
+			}
+			if (event1.getX() - event2.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY)
+			{
+				// Swipe right to left
+				newTab = currentTab + 1;
+				Log.i("-swipe-", "to left");
+			}
+			else if (event2.getX() - event1.getX() > SWIPE_MIN_DISTANCE	&& Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY)
+			{
+				// Swipe left to right
+				newTab = currentTab - 1;
+				Log.i("-swipe-", "to to right");
+			}
+			
+			if (newTab < 0 || newTab > (maxTabs - 1))
+			{
+				Log.i("-swipe-", "gg " + newTab + "/" + maxTabs);
+				return false;
+			}
+			
+			tabHost.setCurrentTab(newTab);
+			
+			return super.onFling(event1, event2, velocityX, velocityY);
+		}
+	}
 }
