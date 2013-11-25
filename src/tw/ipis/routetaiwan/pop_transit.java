@@ -803,18 +803,6 @@ public class pop_transit extends Activity {
 				tvparam = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
 				sv.setLayoutParams(tvparam);
 				
-				final RelativeLayout rl_time = new RelativeLayout(this);
-				rl_time.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-				
-				final TextView timetv = new TextView(this);
-				timetv.setId(ID_BUS_TIMETABLE_DATE);
-				timetv.setTextColor(Color.WHITE);
-				timetv.setTextSize(16);
-				timetv.setGravity(Gravity.LEFT);
-				tvparam = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
-				timetv.setLayoutParams(tvparam);
-				rl_time.addView(timetv);
-				
 				final ScrollView sv_timetb = new ScrollView(this);
 				tvparam = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
 				tvparam.addRule(RelativeLayout.BELOW, ID_BUS_TIMETABLE_DATE);
@@ -823,6 +811,8 @@ public class pop_transit extends Activity {
 				final TableLayout tl_timetb = new TableLayout(this);
 				tl_timetb.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 				tl_timetb.setOrientation(TableLayout.VERTICAL);
+				tl_timetb.setWeightSum(1.0f);
+				tl_timetb.setStretchAllColumns(true);
 
 				final TableLayout tl = new TableLayout(this);
 				tl.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
@@ -830,7 +820,6 @@ public class pop_transit extends Activity {
 
 				sv.addView(tl);
 				sv_timetb.addView(tl_timetb);
-				rl_time.addView(sv_timetb);
 
 				/* 設定activity title, ex: 9117 時刻表 */
 				this.setTitle(line + " " + getResources().getString(R.string.details));
@@ -885,7 +874,7 @@ public class pop_transit extends Activity {
 
 				TabSpec tspec2 = tabs.newTabSpec("Tab2");
 				tspec2.setIndicator(getResources().getString(R.string.time_table), drawable);
-				tspec2.setContent(new PreExistingViewFactory(rl_time));
+				tspec2.setContent(new PreExistingViewFactory(sv_timetb));
 				tabs.addTab(tspec2);
 				
 				gestureDetector = new GestureDetector(this, new MyGestureDetector(tabs));
@@ -895,7 +884,7 @@ public class pop_transit extends Activity {
 		            }
 		        };
 		        sv.setOnTouchListener(gestureListener);
-		        rl_time.setOnTouchListener(gestureListener);
+		        sv_timetb.setOnTouchListener(gestureListener);
 				
 				tabs.setLongClickable(true);
 				tabs.setOnTabChangedListener(new AnimatedTabHostListener(getBaseContext(), tabs));
@@ -1015,7 +1004,6 @@ public class pop_transit extends Activity {
 
 													@Override
 													public void parsedTimeTable(List<TimeTable> time) {
-														timetv.setText(str_date);
 														create_time_table(time, tl_timetb, sv_timetb, millis);
 													}
 												});
@@ -1238,9 +1226,7 @@ public class pop_transit extends Activity {
 	}  
 	
 	private void create_time_table(List<TimeTable> routes, TableLayout tl, final ScrollView sv, long millis) {
-		TableLayout t1 = null, t2 = null;
 		String depart_sta = null;
-		TextView tv_depart = null, tv_carrier = null, tv_back = null;
 		Time depart = new Time();
 		depart.set(millis);
 				
@@ -1248,125 +1234,135 @@ public class pop_transit extends Activity {
 			return;
 		
 		depart_sta = routes.get(0).depart_station;
-		TableRow tr_tl = CreateTableRow(tl);
-		t1 = new TableLayout(this);
-		t1.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
-		t1.setOrientation(TableLayout.VERTICAL);
 		
-		TableRow tr = CreateTableRow(t1);
-		tr.setBackgroundColor(Color.BLACK);
-		tv_depart = new TextView(this);
-		tv_depart.setTextColor(Color.WHITE);
-		if(getResources().getString(R.string.locale).contentEquals("English"))
-			tv_depart.setText(String.format("%s%s", depart_sta, getResources().getString(R.string.estimate)));
-		else
-			tv_depart.setText(String.format("%s%s", depart_sta, getResources().getString(R.string.departure_time)));
-		tv_depart.setTextSize(16);
-		tv_depart.setHorizontallyScrolling(false);
-		tv_depart.setWidth(0);
-		tv_depart.setGravity(Gravity.CENTER);
-		tv_depart.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.50f));
-		
-		tv_carrier = new TextView(this);
-		tv_carrier.setTextColor(Color.WHITE);
-		tv_carrier.setText(getResources().getString(R.string.carrier));
-		tv_carrier.setTextSize(16);
-		tv_carrier.setHorizontallyScrolling(false);
-		tv_carrier.setWidth(0);
-		tv_carrier.setGravity(Gravity.CENTER);
-		tv_carrier.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.50f));
-		
-		tr.addView(tv_depart);
-		tr.addView(tv_carrier);
-		tr_tl.addView(t1);
-		
-		if(routes.get(0).hasback) {	// 2 tables
-			t2 = new TableLayout(this);
-			t2.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
-			t2.setOrientation(TableLayout.VERTICAL);
-			
-			tr = CreateTableRow(t2);
-			tr.setBackgroundColor(Color.BLACK);
-			tv_back = new TextView(this);
-			tv_back.setTextColor(Color.WHITE);
-			tv_back.setTextSize(16);
-			tv_back.setHorizontallyScrolling(false);
-			tv_back.setWidth(0);
-			tv_back.setGravity(Gravity.CENTER);
-			tv_back.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.50f));
-			
-			tv_carrier = new TextView(this);
-			tv_carrier.setTextColor(Color.WHITE);
-			tv_carrier.setText(getResources().getString(R.string.carrier));
-			tv_carrier.setTextSize(16);
-			tv_carrier.setHorizontallyScrolling(false);
-			tv_carrier.setWidth(0);
-			tv_carrier.setGravity(Gravity.CENTER);
-			tv_carrier.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.50f));
-			
-			tr.addView(tv_back);
-			tr.addView(tv_carrier);
-			tr_tl.addView(t2);
-		}
+		/* 2013/11/25 */
+		TableRow tr_date = CreateTableRow(tl);
+		TextView timetv = new TextView(this);
+		timetv.setId(ID_BUS_TIMETABLE_DATE);
+		tr_date.setBackgroundColor(Color.WHITE);
+		timetv.setTextColor(Color.BLACK);
+		timetv.setTextSize(20);
+		timetv.setText(String.format("%04d/%02d/%02d (%s)", depart.year, depart.month, depart.monthDay, weekday2str(depart.weekDay)));
+		TableRow.LayoutParams layoutparams = new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 1.0f);
+		layoutparams.span = 4;
+		timetv.setLayoutParams(layoutparams);
+		timetv.setGravity(Gravity.CENTER);
+		tr_date.addView(timetv);
 		
 		for(int i = 0; i<routes.size(); i++) {
+			if(routes.get(i).check_weekday(depart.weekDay) == false)
+				routes.remove(i--);
+		}
+		
+		/* 台北轉運站 */
+		TableRow tr_depart = CreateTableRow(tl);
+		TextView tv_depart = new TextView(this);
+		tr_depart.setBackgroundColor(Color.BLACK);
+		tv_depart.setTextColor(Color.WHITE);
+		tv_depart.setText(depart_sta);
+		tv_depart.setTextSize(16);
+		tv_depart.setWidth(0);
+		tv_depart.setGravity(Gravity.CENTER);
+		tv_depart.setLayoutParams(layoutparams);
+		tr_depart.addView(tv_depart);
+		
+		if(routes.size() == 0) {
+			tr_depart = CreateTableRow(tl);
+			tv_depart = new TextView(this);
+			tr_depart.setBackgroundColor(Color.WHITE);
+			tv_depart.setTextColor(Color.BLACK);
+			tv_depart.setText(getResources().getString(R.string.no_service_today));
+			tv_depart.setTextSize(16);
+			tv_depart.setWidth(0);
+			tv_depart.setGravity(Gravity.CENTER);
+			tv_depart.setLayoutParams(layoutparams);
+			tr_depart.addView(tv_depart);
+			return;
+		}
+		
+		int i = 0;
+		while(i < routes.size()) {
+			TextView tv1, tv2, tv3, tv4;
+			
 			if(routes.get(i).depart_station.contentEquals(depart_sta)) {
-				if(routes.get(i).check_weekday(depart.weekDay) == false)
-					continue;
-				tr = CreateTableRow(t1);
+				TableRow tr_times = CreateTableRow(tl);
+				tr_times.setBackgroundColor(Color.WHITE);
 
-				TextView tv = new TextView(this);
-				tv.setTextColor(Color.WHITE);
-				tv.setText(routes.get(i).time);
-				tv.setTextSize(16);
-				tv.setHorizontallyScrolling(false);
-				tv.setWidth(0);
-				tv.setGravity(Gravity.CENTER);
-				tv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.50f));
-				tr.addView(tv);
-
-				tv = new TextView(this);
-				tv.setTextColor(Color.WHITE);
-				tv.setText(routes.get(i).carrier);
-				tv.setTextSize(16);
-				tv.setHorizontallyScrolling(false);
-				tv.setWidth(0);
-				tv.setGravity(Gravity.CENTER);
-				tv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.50f));
-				tr.addView(tv);
+				tv1 = create_textview(tr_times);
+				tv2 = create_textview(tr_times);
+				tv3 = create_textview(tr_times);
+				tv4 = create_textview(tr_times);
+				
+				fillin_time(tv1, routes.get(i++), depart);
+				if(i < routes.size() && routes.get(i).depart_station.contentEquals(depart_sta))
+					fillin_time(tv2, routes.get(i++), depart);
+				if(i < routes.size() && routes.get(i).depart_station.contentEquals(depart_sta))
+					fillin_time(tv3, routes.get(i++), depart);
+				if(i < routes.size() && routes.get(i).depart_station.contentEquals(depart_sta))
+					fillin_time(tv4, routes.get(i++), depart);
 			}
 			else {
-				if(tv_back.getText().toString().isEmpty())
-					tv_back.setText(routes.get(i).carrier);
-				if(routes.get(i).check_weekday(depart.weekDay) == false)
-					continue;
-				tr = CreateTableRow(t2);
-				
-				TextView tv = new TextView(this);
-				tv.setTextColor(Color.BLACK);
-				tv.setText(routes.get(i).time);
-				tv.setTextSize(16);
-				tv.setHorizontallyScrolling(false);
-				tv.setWidth(0);
-				tv.setGravity(Gravity.CENTER);
-				tv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.50f));
-				tr.addView(tv);
-
-				tv = new TextView(this);
-				tv.setTextColor(Color.BLACK);
-				tv.setText(routes.get(i).carrier);
-				tv.setTextSize(16);
-				tv.setHorizontallyScrolling(false);
-				tv.setWidth(0);
-				tv.setGravity(Gravity.CENTER);
-				tv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.50f));
-				tr.addView(tv);
+				depart_sta = routes.get(i).depart_station;
+				/* 返程站 */
+				tr_depart = CreateTableRow(tl);
+				tv_depart = new TextView(this);
+				tr_depart.setBackgroundColor(Color.BLACK);
+				tv_depart.setTextColor(Color.WHITE);
+				tv_depart.setText(depart_sta);
+				tv_depart.setTextSize(16);
+				tv_depart.setWidth(0);
+				tv_depart.setGravity(Gravity.CENTER);
+				tv_depart.setLayoutParams(layoutparams);
+				tr_depart.addView(tv_depart);
 			}
 		}
-		Log.i(TAG, "draw!, sv child = " + sv.getChildCount());
-		Log.i(TAG, "draw!, tl child = " + tl.getChildCount());
-		Log.i(TAG, "draw!, t1 child = " + t1.getChildCount());
-		Log.i(TAG, "draw!, t2 child = " + t2.getChildCount());
+	}
+	
+	private String weekday2str(int weekday) {
+		switch (weekday) {
+		case 0:
+			return getResources().getString(R.string.sun);
+		case 1:
+			return getResources().getString(R.string.mon);
+		case 2:
+			return getResources().getString(R.string.tue);
+		case 3:
+			return getResources().getString(R.string.wed);
+		case 4:
+			return getResources().getString(R.string.thu);
+		case 5:
+			return getResources().getString(R.string.fri);
+		case 6:
+			return getResources().getString(R.string.sat);
+		default:
+			return "";
+				
+		}
+	}
+	
+	private TextView create_textview(TableRow tr) {
+		TextView tv = new TextView(this);
+		tv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.25f));
+		tv.setGravity(Gravity.CENTER);
+		tr.addView(tv);
+		return tv;
+	}
+	
+	private void fillin_time(TextView tv, TimeTable tt, Time depart) {
+		Time now = new Time();
+		now.setToNow();
+		if(depart.yearDay > now.yearDay)
+			tv.setTextColor(Color.BLACK);
+		else {
+			int current_time = now.hour * 60 + now.minute;
+			if(tt.time >= current_time)
+				tv.setTextColor(Color.BLACK);
+			else
+				tv.setTextColor(Color.LTGRAY);
+		}
+		tv.setText(tt.minutes2str());
+		tv.setTextSize(16);
+		tv.setWidth(0);
 	}
 
 	private void create_realtime_table(List<BusRoute> routes, TableLayout tl, final ScrollView sv) {
@@ -2113,26 +2109,23 @@ public class pop_transit extends Activity {
 
 					Elements tables = doc.select("table[style=border-collapse:collapse;]");
 					
-					Log.i(TAG, "table size = " + tables.size());
-					
-					//					for (org.jsoup.nodes.Element bound : tables) {
 					for(int i = 0; i < tables.size(); i++) {
 						Elements title = tables.get(i).select("tr.font02").select("th");
 						depart_station = title.get(1).text();
 						Log.i(TAG, "出發站: " + depart_station);
 
-						Elements trs = tables.get(0).select("tr.font03, tr.font04");
+						Elements trs = tables.get(i).select("tr.font03, tr.font04");
 
 						for(int j = 0; j < trs.size(); j++) {
 							TimeTable car;
 							org.jsoup.nodes.Element bound = trs.get(j);
 							Elements tds = bound.select("td");
-							Log.i(TAG, String.format("%s,%s,%s", tds.get(1).text(), tds.get(2).text(), tds.get(3).text()));
+							Log.i(TAG, String.format("%s,%s", tds.get(1).text(), tds.get(2).text()));
 							if(tds.get(2).text().contentEquals("每日行駛")) {
-								car = new TimeTable(time2str(tds.get(1).text()), true, depart_station, tds.get(3).text(), trs.size() >=2 ? true: false);
+								car = new TimeTable(string_2_minutes_of_day(time2str(tds.get(1).text())), true, depart_station, tds.get(3).text(), trs.size() >=2 ? true: false);
 							}
 							else {
-								car = new TimeTable(time2str(tds.get(1).text()), false, depart_station, tds.get(3).text(), trs.size() >=2 ? true: false);
+								car = new TimeTable(string_2_minutes_of_day(time2str(tds.get(1).text())), false, depart_station, tds.get(3).text(), trs.size() >=2 ? true: false);
 								if(tds.get(2).text().contains("日"))
 									car.set_sun(true);
 								if(tds.get(2).text().contains("一"))
@@ -2166,7 +2159,7 @@ public class pop_transit extends Activity {
 	}
 	
 	private String time2str(String time) {
-		return String.format("%s:%s", time.substring(0, 1), time.substring(2, 3));
+		return String.format("%s:%s", time.substring(0, 2), time.substring(2));
 	}
 
 	public class bus_provider {
@@ -2228,34 +2221,29 @@ public class pop_transit extends Activity {
 		public boolean onFling(MotionEvent event1, MotionEvent event2, float velocityX, float velocityY)
 		{
 			int newTab = 0;
-			Log.i("-swipe-", "in onfling");
+			boolean swipe = false;
 			int currentTab = tabHost.getCurrentTab();
 			
 			if (Math.abs(event1.getY() - event2.getY()) > SWIPE_MAX_OFF_PATH)
-			{
 				return false;
-			}
 			if (event1.getX() - event2.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY)
 			{
 				// Swipe right to left
 				newTab = currentTab + 1;
-				Log.i("-swipe-", "to left");
+				swipe = true;
 			}
 			else if (event2.getX() - event1.getX() > SWIPE_MIN_DISTANCE	&& Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY)
 			{
 				// Swipe left to right
 				newTab = currentTab - 1;
-				Log.i("-swipe-", "to to right");
+				swipe = true;
 			}
 			
 			if (newTab < 0 || newTab > (maxTabs - 1))
-			{
-				Log.i("-swipe-", "gg " + newTab + "/" + maxTabs);
 				return false;
-			}
 			
-			tabHost.setCurrentTab(newTab);
-			
+			if(swipe)
+				tabHost.setCurrentTab(newTab);
 			return super.onFling(event1, event2, velocityX, velocityY);
 		}
 	}

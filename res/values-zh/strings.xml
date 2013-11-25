@@ -126,6 +126,15 @@
     <string name="carrier">客運業者</string>
     <string name="fav_pt_hint">喜愛點提示</string>
     <string name="details">詳細資訊</string>
+    <string name="no_service_today">本日無發車</string>
+    
+    <string name="sun">日</string>
+    <string name="mon">一</string>
+    <string name="tue">二</string>
+    <string name="wed">三</string>
+    <string name="thu">四</string>
+    <string name="fri">五</string>
+    <string name="sat">六</string>
     
     <string-array name="country_arrays">
         <item>繁體中文</item>

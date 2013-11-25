@@ -1,14 +1,13 @@
 package tw.ipis.routetaiwan;
 
-
 public class TimeTable {
 	boolean sun, mon, tue, wed, thu, fri, sat;
-	String time;
+	int time;	/* minutes since 00:00 */
 	String depart_station;
 	String carrier;
 	boolean hasback;
 	
-	public TimeTable(String t, boolean bool, String depart_sta, String carr, boolean back) {
+	public TimeTable(int t, boolean bool, String depart_sta, String carr, boolean back) {
 		sun = mon = tue = wed = thu = fri = sat = bool;
 		time = t;
 		depart_station = depart_sta;
@@ -63,5 +62,12 @@ public class TimeTable {
 		default:
 			return false;
 		}
+	}
+	
+	public String minutes2str() {
+		if(time < 0)
+			return "-";
+		else 
+			return String.format("%02d:%02d", time / 60, time % 60);
 	}
 }

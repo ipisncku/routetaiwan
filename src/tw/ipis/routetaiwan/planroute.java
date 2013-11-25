@@ -932,6 +932,7 @@ public class planroute extends Activity {
 							step.transit_details.line.short_name = step.transit_details.line.short_name.replaceAll("莒光號", "Chu-Kuang Express");
 							step.transit_details.line.short_name = step.transit_details.line.short_name.replaceAll("復興/區間", "Local Train");
 							step.transit_details.line.short_name = step.transit_details.line.short_name.replaceAll("捷運淡水線", "Tamsui (Red/Green) Line");
+							step.transit_details.line.short_name = step.transit_details.line.short_name.replaceAll("台北捷運信義線", "Xinyi (Red) Line");
 							step.transit_details.line.short_name = step.transit_details.line.short_name.replaceAll("台北捷運中和新蘆線", "Zhonghe-XinLu (Orange) Line");
 							step.transit_details.line.short_name = step.transit_details.line.short_name.replaceAll("台北捷運板南線", "Bannan (Blue) Line");
 							step.transit_details.line.short_name = step.transit_details.line.short_name.replaceAll("台北捷運文湖線", "Wenhu (Brown) Line");
