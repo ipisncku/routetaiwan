@@ -18,7 +18,7 @@ import android.widget.TabHost.OnTabChangeListener;
 public class AnimatedTabHostListener implements OnTabChangeListener
 {
 
-	private static final int ANIMATION_TIME = 500;
+	private static final int ANIMATION_TIME = 300;
 	private TabHost tabHost;
 	private View previousView;
 	private View currentView;

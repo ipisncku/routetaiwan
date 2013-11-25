@@ -780,7 +780,11 @@ public class pop_transit extends Activity {
 				}
 			}
 			else if(line.matches("[0-9]{4}")) {
-				String url_runid = "http://www.taiwanbus.tw/aspx/dyBus/BusXMLLine.aspx?Mode=6&Cus=&RouteNo={0}";
+				String url_runid;
+				if(getResources().getString(R.string.locale).contentEquals("English"))
+					url_runid = "http://www.taiwanbus.tw/aspx/dyBus/BusXMLLinee.aspx?Mode=6&Cus=&RouteNo={0}";
+				else
+					url_runid = "http://www.taiwanbus.tw/aspx/dyBus/BusXMLLine.aspx?Mode=6&Cus=&RouteNo={0}";
 				final ArrayList<String> runid = new ArrayList<String>();
 				final long depart_time = time;
 				/* 拿到1915的run ID: http://www.taiwanbus.tw/aspx/dyBus/BusXMLLine.aspx?Mode=6&Cus=&RouteNo=1915 */
@@ -903,10 +907,16 @@ public class pop_transit extends Activity {
 									for(int i=0; i<branches.length; i++) {
 										Log.i(TAG, "branches[i]=" + branches[i]);
 										String[] infos1 = branches[i].split(",");
-										if(infos1.length < 5)
-											continue;
-										if(i == 0)
-											tv.setText(String.format("%s: %s", getResources().getString(R.string.carrier), infos1[4]));
+										if(getResources().getString(R.string.locale).contentEquals("English")) {
+											if(infos1.length < 4)
+												continue;
+										}
+										else {
+											if(infos1.length < 5)
+												continue;
+											if(i == 0)
+												tv.setText(String.format("%s: %s", getResources().getString(R.string.carrier), infos1[4]));
+										}
 										/* 3126,32,0,台北→高雄,阿羅哈客運 */
 										if(i+1 < branches.length) {
 											String[] infos2 = branches[i+1].split(",");
@@ -976,8 +986,16 @@ public class pop_transit extends Activity {
 								private void get_real_time(CharSequence headway, final String catgory, final String runid_go, final String runid_back) {
 									/* 即時 http://www.taiwanbus.tw/aspx/dyBus/BusXMLLine.aspx?Mode=4&RunId=3362 */
 									Log.i(TAG, String.format("%s %s ", runid_go, runid_back));
-									String url = "http://www.taiwanbus.tw/aspx/dyBus/BusXMLLine.aspx?Mode=4&RunId={0}";
-									String url_time_table = "http://web.taiwanbus.tw/eBUS/subsystem/Timetable/TimeTableAPIByWeek.aspx?inputType=R01&RouteId={0}%20&RouteBranch={1}&SearchDate={2}"; 
+									String url, url_time_table;
+									if(getResources().getString(R.string.locale).contentEquals("English")) {
+										url = "http://www.taiwanbus.tw/aspx/dyBus/BusXMLLinee.aspx?Mode=4&RunId={0}";
+										url_time_table = "http://web.taiwanbus.tw/eBUS/subsystem/Timetable/TimeTableAPIByWeek.aspx?inputType=R01&RouteId={0}%20&RouteBranch={1}&SearchDate={2}&Language=en";
+									}
+									else {
+										url = "http://www.taiwanbus.tw/aspx/dyBus/BusXMLLine.aspx?Mode=4&RunId={0}";
+										url_time_table = "http://web.taiwanbus.tw/eBUS/subsystem/Timetable/TimeTableAPIByWeek.aspx?inputType=R01&RouteId={0}%20&RouteBranch={1}&SearchDate={2}";
+									}
+									 
 									try {
 										/* 時刻表 */
 										SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
@@ -1004,7 +1022,9 @@ public class pop_transit extends Activity {
 
 													@Override
 													public void parsedTimeTable(List<TimeTable> time) {
-														create_time_table(time, tl_timetb, sv_timetb, millis);
+														String carrier = create_time_table(time, tl_timetb, sv_timetb, millis);
+														if(getResources().getString(R.string.locale).contentEquals("English"))
+															tv.setText(String.format("%s: %s", getResources().getString(R.string.carrier), carrier));
 													}
 												});
 										get_timetable.execute(url_tt);
@@ -1225,15 +1245,16 @@ public class pop_transit extends Activity {
 		}
 	}  
 	
-	private void create_time_table(List<TimeTable> routes, TableLayout tl, final ScrollView sv, long millis) {
-		String depart_sta = null;
+	private String create_time_table(List<TimeTable> routes, TableLayout tl, final ScrollView sv, long millis) {
+		String depart_sta = null, carrier = null;
 		Time depart = new Time();
 		depart.set(millis);
 				
 		if(routes.size() == 0)
-			return;
+			return "";
 		
 		depart_sta = routes.get(0).depart_station;
+		carrier = routes.get(0).carrier;
 		
 		/* 2013/11/25 */
 		TableRow tr_date = CreateTableRow(tl);
@@ -1277,7 +1298,7 @@ public class pop_transit extends Activity {
 			tv_depart.setGravity(Gravity.CENTER);
 			tv_depart.setLayoutParams(layoutparams);
 			tr_depart.addView(tv_depart);
-			return;
+			return carrier;
 		}
 		
 		int i = 0;
@@ -1316,6 +1337,7 @@ public class pop_transit extends Activity {
 				tr_depart.addView(tv_depart);
 			}
 		}
+		return carrier;
 	}
 	
 	private String weekday2str(int weekday) {
@@ -2018,9 +2040,9 @@ public class pop_transit extends Activity {
 						for(int i = 0; i<time.length; i++) {
 							time[i] = time[i].replaceAll("^[0-9]+@", "");
 
-							if(time[i].contentEquals("即將進站"))
+							if(time[i].contentEquals("即將進站") || time[i].contentEquals("Coming"))
 								time[i]  = "1";
-							else if(time[i].contentEquals("進站中"))
+							else if(time[i].contentEquals("進站中") || time[i].contentEquals("InStop"))
 								time[i] = "0";
 							else if(time[i].contains("時")) {
 								time[i] = time[i].replaceAll("分", "");
@@ -2031,6 +2053,8 @@ public class pop_transit extends Activity {
 							}
 							else if(time[i].contains("分"))
 								time[i] = time[i].replaceAll("分", "");
+							else if(time[i].contains("min."))
+								time[i] = time[i].replaceAll("min.", "");
 							else
 								time[i] = "null";
 						}
@@ -2121,24 +2145,24 @@ public class pop_transit extends Activity {
 							org.jsoup.nodes.Element bound = trs.get(j);
 							Elements tds = bound.select("td");
 							Log.i(TAG, String.format("%s,%s", tds.get(1).text(), tds.get(2).text()));
-							if(tds.get(2).text().contentEquals("每日行駛")) {
+							if(tds.get(2).text().contentEquals("每日行駛") || tds.get(2).text().contentEquals("Daily")) {
 								car = new TimeTable(string_2_minutes_of_day(time2str(tds.get(1).text())), true, depart_station, tds.get(3).text(), trs.size() >=2 ? true: false);
 							}
 							else {
 								car = new TimeTable(string_2_minutes_of_day(time2str(tds.get(1).text())), false, depart_station, tds.get(3).text(), trs.size() >=2 ? true: false);
-								if(tds.get(2).text().contains("日"))
+								if(tds.get(2).text().contains("日") || tds.get(2).text().contains("Sun"))
 									car.set_sun(true);
-								if(tds.get(2).text().contains("一"))
+								if(tds.get(2).text().contains("一") || tds.get(2).text().contains("Mon"))
 									car.set_mon(true);
-								if(tds.get(2).text().contains("二"))
+								if(tds.get(2).text().contains("二") || tds.get(2).text().contains("The") || tds.get(2).text().contains("Tue"))	/* 真的是The... */
 									car.set_tue(true);
-								if(tds.get(2).text().contains("三"))
+								if(tds.get(2).text().contains("三") || tds.get(2).text().contains("Wed"))
 									car.set_wed(true);
-								if(tds.get(2).text().contains("四"))
+								if(tds.get(2).text().contains("四") || tds.get(2).text().contains("Thu"))
 									car.set_thu(true);
-								if(tds.get(2).text().contains("五"))
+								if(tds.get(2).text().contains("五") || tds.get(2).text().contains("Fri"))
 									car.set_fri(true);
-								if(tds.get(2).text().contains("六"))
+								if(tds.get(2).text().contains("六") || tds.get(2).text().contains("Sat"))
 									car.set_sat(true);
 							}
 							timetable.add(car);
