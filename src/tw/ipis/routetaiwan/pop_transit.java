@@ -221,8 +221,8 @@ public class pop_transit extends Activity {
 			ImageView iv = new ImageView(this);
 			iv.setId(ID_HSR_STATUS);
 			iv.setBackgroundColor(Color.TRANSPARENT);
-			iv.setMaxHeight(30);
-			iv.setMaxWidth(30);
+			iv.setMaxHeight((int) (20 * getResources().getDisplayMetrics().density));
+			iv.setMaxWidth((int) (20 * getResources().getDisplayMetrics().density));
 			iv.setAdjustViewBounds(true);
 			iv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.05f));
 			tr.addView(iv);
@@ -269,8 +269,8 @@ public class pop_transit extends Activity {
 			iv.setImageResource(R.drawable.marker);
 			iv.setAlpha(0);
 			iv.setBackgroundColor(Color.TRANSPARENT);
-			iv.setMaxHeight(30);
-			iv.setMaxWidth(30);
+			iv.setMaxHeight((int) (20 * getResources().getDisplayMetrics().density));
+			iv.setMaxWidth((int) (20 * getResources().getDisplayMetrics().density));
 			iv.setAdjustViewBounds(true);
 			iv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.05f));
 			tr.addView(iv);
@@ -395,8 +395,8 @@ public class pop_transit extends Activity {
 						else
 							iv.setImageResource(0);
 						iv.setBackgroundColor(Color.TRANSPARENT);
-						iv.setMaxHeight(30);
-						iv.setMaxWidth(30);
+						iv.setMaxHeight((int) (20 * getResources().getDisplayMetrics().density));
+						iv.setMaxWidth((int) (20 * getResources().getDisplayMetrics().density));
 						iv.setAdjustViewBounds(true);
 						iv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.05f));
 						tr.addView(iv);
@@ -445,6 +445,7 @@ public class pop_transit extends Activity {
 						tv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.30f));
 						tr.addView(tv);
 					}
+					sv.addView(tl);
 					loading.setVisibility(ProgressBar.INVISIBLE);
 				}
 
@@ -623,20 +624,10 @@ public class pop_transit extends Activity {
 					encode = "環狀東線";
 				else if(line.contentEquals("168西"))
 					encode = "環狀西線";
-				else if(line.contentEquals("205中華幹線"))
-					encode = "中華幹線";
-				else if(line.contentEquals("70三多幹線"))
-					encode = "三多幹線";
-				else if(line.contentEquals("88建國幹線"))
-					encode = "建國幹線";
-				else if(line.contentEquals("92自由幹線"))
-					encode = "自由幹線";
 				else if(line.contentEquals("旗美快捷"))
 					encode = "旗美國道快捷公車";
 				else if(line.contentEquals("旗山快捷"))
 					encode = "旗山國道快捷公車";
-				else if(line.contains("五福幹線"))
-					encode = "五福幹線";
 				else
 					encode = line;
 
@@ -1679,7 +1670,7 @@ public class pop_transit extends Activity {
 				loading.setVisibility(ProgressBar.INVISIBLE);
 			}
 		});
-
+		Log.i(TAG, url);
 		wv.loadUrl(url);
 		loading.setVisibility(ProgressBar.VISIBLE);
 

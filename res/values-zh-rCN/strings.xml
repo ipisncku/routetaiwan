@@ -136,6 +136,8 @@
     <string name="fri">五</string>
     <string name="sat">六</string>
     
+    <string name="ferry">渡輪</string>
+    
     <string-array name="country_arrays">
         <item>繁體中文</item>
         <item>English</item>

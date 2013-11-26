@@ -172,6 +172,8 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 				marker = add_marker(p, R.drawable.map_destination, tl, d);
 			else if (t.contentEquals("drive"))
 				marker = add_marker(p, R.drawable.map_drive, tl, d);
+			else if (t.contentEquals("ferry"))
+				marker = add_marker(p, R.drawable.map_ship, tl, d);
 			else
 				continue;
 			

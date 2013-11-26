@@ -414,6 +414,20 @@ public class myfavorite extends Activity {
 									step.start_location, step.end_location);
 
 						}
+						else if(type.contentEquals("FERRY")) {
+							String description = new StringBuilder().append(getResources().getString(R.string.taketransit))
+							.append(getResources().getString(R.string.ferry))
+							.append(" (" + getResources().getString(R.string.go_to)).append(headsign + ") ")
+							.append(trans_to)
+							.append("\n(" + step.transit_details.num_stops + getResources().getString(R.string.stops) + ", " +step.duration.text + ")").toString();
+							createImageViewbyR(R.drawable.ship, tr, basic_pixel, basic_pixel);
+							
+							ArrayList<MarkP> markers = new ArrayList<MarkP>();
+							markers.add(new MarkP("ferry", getResources().getString(R.string.taketransit) + getResources().getString(R.string.ferry), step.transit_details.num_stops + getResources().getString(R.string.stops) + ", " +step.duration.text, step.start_location));
+							markers.add(new MarkP("end", getResources().getString(R.string.destination), null, step.end_location));
+							
+							createTextView(description, tr, Color.rgb(0,0,0), 0.85f, Gravity.LEFT | Gravity.CENTER_VERTICAL, "all," + step.polyline.points, markers);							
+						}
 						else if(type.contentEquals("DRIVING")) {
 							createImageViewbyR(R.drawable.drive, tr, basic_pixel, basic_pixel);
 							createTextView(new StringBuilder().append(step.html_instructions).append("\n(" + step.distance.text + ", " +step.duration.text + ")").toString()

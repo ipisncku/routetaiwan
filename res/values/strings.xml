@@ -121,6 +121,8 @@
     <string name="thu">Thu</string>
     <string name="fri">Fri</string>
     <string name="sat">Sat</string>
+    
+    <string name="ferry">ferry</string>
 
 <string-array name="country_arrays">
         <item>繁體中文</item>
