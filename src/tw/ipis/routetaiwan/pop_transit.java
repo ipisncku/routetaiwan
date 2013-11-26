@@ -163,8 +163,53 @@ public class pop_transit extends Activity {
 			String tra_real_time_url = "http://twtraffic.tra.gov.tw/twrail/mobile/TrainDetail.aspx?searchdate={0}&traincode={1}";
 			String url = MessageFormat.format(tra_real_time_url, str_date, line);
 
-			create_webview_by_url(url);
+			HTML_BUS_PARSER task = new HTML_BUS_PARSER(
+					new AnalysisResult() {
+						@Override
+						public void parsestr(String result) {
+							ArrayList<TrainTable> traininfo = parse_train_info(result);
+							loading.setVisibility(ProgressBar.INVISIBLE);
+						}
 
+						@Override
+						public void parsedBUS(List<BusRoute> routes) {
+							return;
+						}
+
+						@Override
+						public void parsedHSR(List<HSRTrains> trains) {
+							return;
+						}
+
+						@Override
+						public void parsedTimeTable(List<TimeTable> time) {
+						}
+						
+						private ArrayList<TrainTable> parse_train_info(String result) {
+							ArrayList<TrainTable> info = new ArrayList<TrainTable>();
+							String raw = result.substring(result.indexOf("TRSearchResult"), result.indexOf("</script></form>"));
+							String rawinfo[] = raw.split("TRSearchResult.push");
+							int i = 0;
+							
+							while(i < rawinfo.length) {
+								boolean train_here = false;
+								if(strrefine(rawinfo[i]).contentEquals("30")) {
+									train_here = true;
+									i++;
+								}
+								
+							}
+							return info;
+						}
+						private String strrefine(String raw) {
+							/* Input: ('台北') */
+							return raw.substring(raw.indexOf('\'') + 1, raw.lastIndexOf('\''));
+						}
+						
+					});
+			task.execute(url);
+			
+			
 			/* 設定activity title, ex: 自強 123 */
 			this.setTitle(car_class + " " + line);
 
