@@ -315,7 +315,10 @@ public class pop_transit extends Activity {
 
 								private ArrayList<TrainTable> parse_train_info(String result) {
 									ArrayList<TrainTable> info = new ArrayList<TrainTable>();
-									String raw = result.substring(result.indexOf("TRSearchResult"), result.indexOf("</script></form>")).replace("TRSearchResult.push", "&").replace("TRSearchResult.pop();", "");
+									int str_start = result.indexOf("TRSearchResult");
+									int str_end = result.indexOf("</script></form>");
+									if(str_start < 0 || str_end < 0) return info;
+									String raw = result.substring(str_start, str_end).replace("TRSearchResult.push", "&").replace("TRSearchResult.pop();", "");
 									String rawinfo[] = raw.split("&");
 									int i = 1;
 									int delaytime = 0;
