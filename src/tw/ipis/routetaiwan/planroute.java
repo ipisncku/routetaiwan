@@ -1042,7 +1042,11 @@ public class planroute extends Activity {
 							}
 							else if(agencyname.contentEquals("台灣鐵路管理局")) {
 								createImageViewbyR(R.drawable.train, tr, basic_pixel, basic_pixel);
-								text = new StringBuilder().append(text).append("tra,").append(train_num(step.transit_details.headsign) + ",").append(step.transit_details.line.short_name).toString();
+								text = new StringBuilder().append(text).append("tra,")
+								.append(train_num(step.transit_details.headsign) + ",")
+								.append(step.transit_details.line.short_name + ",")
+								.append(step.transit_details.departure_stop.name+",")
+								.append(step.transit_details.arrival_stop.name).toString();
 								dires.routes[i].legs[j].mark.add(new MarkP("tra"
 										, getResources().getString(R.string.taketransit) + step.transit_details.line.short_name
 										, step.transit_details.headsign
@@ -1498,6 +1502,8 @@ public class planroute extends Activity {
 				bundle.putString("type", transit_detail[1]);
 				bundle.putString("line", transit_detail[2]);
 				bundle.putString("class", transit_detail[3]);
+				bundle.putString("dept", transit_detail[4]);
+				bundle.putString("arr", transit_detail[5]);
 				bundle.putLong("time", System.currentTimeMillis());
 			}
 			else if(transit_detail[1].contentEquals("hsr")) {

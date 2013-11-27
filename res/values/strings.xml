@@ -123,6 +123,12 @@
     <string name="sat">Sat</string>
     
     <string name="ferry">ferry</string>
+    <string name="current_status">Current Status</string>
+    <string name="on_time">On time</string>
+    <string name="delay">Delay</string>
+    <string name="station">Station</string>
+    <string name="train_arr_time">Arrive</string>
+    <string name="train_dep_time">Depart</string>
 
 <string-array name="country_arrays">
         <item>繁體中文</item>

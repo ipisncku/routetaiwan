@@ -137,6 +137,12 @@
     <string name="sat">六</string>
     
     <string name="ferry">渡輪</string>
+    <string name="current_status">目前狀態</string>
+    <string name="on_time">準點</string>
+    <string name="delay">晚</string>
+    <string name="station">站名</string>
+    <string name="train_arr_time">到站</string>
+    <string name="train_dep_time">離站</string>
     
     <string-array name="country_arrays">
         <item>繁體中文</item>

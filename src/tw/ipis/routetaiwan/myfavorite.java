@@ -403,7 +403,11 @@ public class myfavorite extends Activity {
 							}
 							else if(agencyname.contentEquals("台灣鐵路管理局")) {
 								createImageViewbyR(R.drawable.train, tr, basic_pixel, basic_pixel);
-								text = new StringBuilder().append(text).append("tra,").append(train_num(step.transit_details.headsign) + ",").append(step.transit_details.line.short_name).toString();
+								text = new StringBuilder().append(text).append("tra,")
+								.append(train_num(step.transit_details.headsign) + ",")
+								.append(step.transit_details.line.short_name + ",")
+								.append(step.transit_details.departure_stop.name+",")
+								.append(step.transit_details.arrival_stop.name).toString();
 							}
 							else
 								createTextView("車", tr, Color.rgb(0,0,0), 0.1f, Gravity.CENTER, "transit,null", step.transit_details.departure_stop.name, step.transit_details.arrival_stop.name);
