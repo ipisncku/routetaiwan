@@ -157,7 +157,7 @@ public class pop_transit extends Activity {
 		loading_param.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
 		loading_param.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
 		loading.setLayoutParams(loading_param);
-				
+		
 		/* 台鐵 */
 		/* If type = "tra", then open webview for ex: http://twtraffic.tra.gov.tw/twrail/mobile/TrainDetail.aspx?searchdate=2013/10/03&traincode=117 */
 		if(type.contentEquals("tra")) {
@@ -165,191 +165,201 @@ public class pop_transit extends Activity {
 			Date date = new Date(System.currentTimeMillis()) ;
 			String str_date = formatter.format(date);
 			String tra_real_time_url = "http://twtraffic.tra.gov.tw/twrail/mobile/TrainDetail.aspx?searchdate={0}&traincode={1}";
-			String url = MessageFormat.format(tra_real_time_url, str_date, line);
-			
+			final String url = MessageFormat.format(tra_real_time_url, str_date, line);
+			String current_status = getResources().getString(R.string.current_status) + ":";
+
 			/* 設定activity title, ex: 自強 123 */
 			this.setTitle(car_class + " " + line);
 
 			/* 資料由台鐵提供 */
 			show_info_provider(R.string.provide_by_tra);
 			loading.setVisibility(ProgressBar.VISIBLE);
+			
+			rl.removeView(process);
 
-			HTML_BUS_PARSER task = new HTML_BUS_PARSER(
-					new AnalysisResult() {
-						@Override
-						public void parsestr(String result) {
-							ArrayList<TrainTable> traininfo = parse_train_info(result);
-							if(traininfo.isEmpty()) {
-								TextView tv = new TextView(pop_transit.this);
-								tv.setText(getResources().getString(R.string.no_data));
-								tv.setTextColor(Color.WHITE);
-								tv.setTextSize(20);
-								tv.setGravity(Gravity.LEFT);
-								tv.setHorizontallyScrolling(false);
-								RelativeLayout.LayoutParams tvparam = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-								tvparam.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-								tv.setLayoutParams(tvparam);
-								rl.addView(tv);
-							}
-							else {
-								String current_status = getResources().getString(R.string.current_status) + ":";
-								loading.setVisibility(ProgressBar.INVISIBLE);
-								rl.removeView(process);
+			final TextView status = new TextView(pop_transit.this);
+			status.setText(current_status);
+			status.setId(ID_TRA_STATUS_DESCRIPTION);
+			status.setTextColor(Color.WHITE);
+			status.setTextSize(20);
+			status.setGravity(Gravity.LEFT);
+			status.setHorizontallyScrolling(false);
+			RelativeLayout.LayoutParams tvparam = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+			tvparam.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+			status.setLayoutParams(tvparam);
+			rl.addView(status);
 
-								TextView tv = new TextView(pop_transit.this);
-								if(traininfo.get(0).delaymins == 0)
-									current_status = String.format("%s %s", current_status, getResources().getString(R.string.on_time));
-								else if(traininfo.get(0).delaymins > 0)
-									current_status = String.format("%s %s %d %s", current_status, 
-											getResources().getString(R.string.delay), traininfo.get(0).delaymins, getResources().getString(R.string.minute));
-								tv.setText(current_status);
-								tv.setId(ID_TRA_STATUS_DESCRIPTION);
-								tv.setTextColor(Color.WHITE);
-								tv.setTextSize(20);
-								tv.setGravity(Gravity.LEFT);
-								tv.setHorizontallyScrolling(false);
-								RelativeLayout.LayoutParams tvparam = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-								tvparam.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-								tv.setLayoutParams(tvparam);
-								rl.addView(tv);
-								
-								TableLayout title = new TableLayout(pop_transit.this);
-								title.setId(ID_TRA_TIMETABLE_TITLE);
-								RelativeLayout.LayoutParams tlparam = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-								tlparam.addRule(RelativeLayout.BELOW, ID_TRA_STATUS_DESCRIPTION);
-								title.setLayoutParams(tlparam);
-								title.setOrientation(TableLayout.VERTICAL);
-								rl.addView(title);
-								
-								TableRow tr_title = CreateTableRow(title);
-								tr_title.setBackgroundColor(Color.BLACK);
-								
-								ImageView iv = new ImageView(pop_transit.this);
-								iv.setImageResource(R.drawable.transparent);
-								iv.setBackgroundColor(Color.TRANSPARENT);
-								iv.setMaxHeight((int) (20 * getResources().getDisplayMetrics().density));
-								iv.setMaxWidth((int) (20 * getResources().getDisplayMetrics().density));
-								iv.setAdjustViewBounds(true);
-								iv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.10f));
-								tr_title.addView(iv);
+			TableLayout title = new TableLayout(pop_transit.this);
+			title.setId(ID_TRA_TIMETABLE_TITLE);
+			RelativeLayout.LayoutParams tlparam = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+			tlparam.addRule(RelativeLayout.BELOW, ID_TRA_STATUS_DESCRIPTION);
+			title.setLayoutParams(tlparam);
+			title.setOrientation(TableLayout.VERTICAL);
+			rl.addView(title);
 
-								// 站名
-								tv = new TextView(pop_transit.this);
-								tv.setTextColor(Color.WHITE);
-								tv.setText(getResources().getString(R.string.station));
-								tv.setTextSize(16);
-								tv.setHorizontallyScrolling(false);
-								tv.setWidth(0);
-								tv.setGravity(Gravity.CENTER);
-								tv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.25f));
-								tr_title.addView(tv);
+			TableRow tr_title = CreateTableRow(title);
+			tr_title.setBackgroundColor(Color.BLACK);
 
-								// 到站時間
-								tv = new TextView(pop_transit.this);
-								tv.setTextColor(Color.WHITE);
-								tv.setText(getResources().getString(R.string.train_arr_time));
-								tv.setTextSize(16);
-								tv.setHorizontallyScrolling(false);
-								tv.setWidth(0);
-								tv.setGravity(Gravity.CENTER);
-								tv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.25f));
-								tr_title.addView(tv);
+			ImageView iv = new ImageView(pop_transit.this);
+			iv.setImageResource(R.drawable.start);
+			iv.setAlpha(0);
+			iv.setBackgroundColor(Color.TRANSPARENT);
+			iv.setMaxHeight((int) (20 * getResources().getDisplayMetrics().density));
+			iv.setMaxWidth((int) (20 * getResources().getDisplayMetrics().density));
+			iv.setAdjustViewBounds(true);
+			iv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.10f));
+			tr_title.addView(iv);
 
-								// 離站時間
-								tv = new TextView(pop_transit.this);
-								tv.setTextColor(Color.WHITE);
-								tv.setText(getResources().getString(R.string.train_dep_time));
-								tv.setTextSize(16);
-								tv.setHorizontallyScrolling(false);
-								tv.setWidth(0);
-								tv.setGravity(Gravity.CENTER);
-								tv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.25f));
-								tr_title.addView(tv);
+			// 站名
+			TextView tv = new TextView(pop_transit.this);
+			tv.setTextColor(Color.WHITE);
+			tv.setText(getResources().getString(R.string.station));
+			tv.setTextSize(16);
+			tv.setHorizontallyScrolling(false);
+			tv.setWidth(0);
+			tv.setGravity(Gravity.CENTER);
+			tv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.25f));
+			tr_title.addView(tv);
 
-								// 車子icon
-								iv = new ImageView(pop_transit.this);
-								iv.setImageResource(R.drawable.transparent);
-								iv.setBackgroundColor(Color.TRANSPARENT);
-								iv.setMaxHeight((int) (20 * getResources().getDisplayMetrics().density));
-								iv.setMaxWidth((int) (20 * getResources().getDisplayMetrics().density));
-								iv.setAdjustViewBounds(true);
-								iv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.15f));
-								tr_title.addView(iv);
+			// 到站時間
+			tv = new TextView(pop_transit.this);
+			tv.setTextColor(Color.WHITE);
+			tv.setText(getResources().getString(R.string.train_arr_time));
+			tv.setTextSize(16);
+			tv.setHorizontallyScrolling(false);
+			tv.setWidth(0);
+			tv.setGravity(Gravity.CENTER);
+			tv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.25f));
+			tr_title.addView(tv);
 
-								final ScrollView sv = new ScrollView(pop_transit.this);
-								RelativeLayout.LayoutParams param = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
-								param.addRule(RelativeLayout.BELOW, ID_TRA_TIMETABLE_TITLE);
-								param.addRule(RelativeLayout.ABOVE, ID_PROVIDER_ANNOUNCEMENT);
-								sv.setLayoutParams(param);
-								rl.addView(sv);
+			// 離站時間
+			tv = new TextView(pop_transit.this);
+			tv.setTextColor(Color.WHITE);
+			tv.setText(getResources().getString(R.string.train_dep_time));
+			tv.setTextSize(16);
+			tv.setHorizontallyScrolling(false);
+			tv.setWidth(0);
+			tv.setGravity(Gravity.CENTER);
+			tv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.25f));
+			tr_title.addView(tv);
 
-								final TableLayout tl = new TableLayout(pop_transit.this);
-								tl.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-								tl.setOrientation(TableLayout.VERTICAL);
+			// 車子icon
+			iv = new ImageView(pop_transit.this);
+			iv.setImageResource(R.drawable.locomotive);
+			iv.setAlpha(0);
+			iv.setBackgroundColor(Color.TRANSPARENT);
+			iv.setMaxHeight((int) (20 * getResources().getDisplayMetrics().density));
+			iv.setMaxWidth((int) (20 * getResources().getDisplayMetrics().density));
+			iv.setAdjustViewBounds(true);
+			iv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.15f));
+			tr_title.addView(iv);
 
-								sv.addView(tl);
-								
-								tra_find_start_dest(traininfo, dept, arr);
-								create_tratime_table(traininfo, tl, sv);
-							}
-						}
+			final ScrollView sv = new ScrollView(pop_transit.this);
+			RelativeLayout.LayoutParams param = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
+			param.addRule(RelativeLayout.BELOW, ID_TRA_TIMETABLE_TITLE);
+			param.addRule(RelativeLayout.ABOVE, ID_PROVIDER_ANNOUNCEMENT);
+			sv.setLayoutParams(param);
+			rl.addView(sv);
 
-						@Override
-						public void parsedBUS(List<BusRoute> routes) {
-							return;
-						}
+			final TableLayout tl = new TableLayout(pop_transit.this);
+			tl.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+			tl.setOrientation(TableLayout.VERTICAL);
 
-						@Override
-						public void parsedHSR(List<HSRTrains> trains) {
-							return;
-						}
+			sv.addView(tl);
+			
+			process_param = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+			process_param.addRule(RelativeLayout.BELOW, ID_TRA_TIMETABLE_TITLE);
+			process_param.addRule(RelativeLayout.CENTER_HORIZONTAL);
+			process.setLayoutParams(process_param);
+			rl.addView(process);
 
-						@Override
-						public void parsedTimeTable(List<TimeTable> time) {
-						}
-						
-						private ArrayList<TrainTable> parse_train_info(String result) {
-							ArrayList<TrainTable> info = new ArrayList<TrainTable>();
-							String raw = result.substring(result.indexOf("TRSearchResult"), result.indexOf("</script></form>")).replace("TRSearchResult.push", "&").replace("TRSearchResult.pop();", "");
-							String rawinfo[] = raw.split("&");
-							int i = 1;
-							int delaytime = 0;
-
-							String delay = result.substring(result.indexOf("traindelaytime"), result.indexOf(";</script></form>")).replace("traindelaytime=", "");
-							if (delay.length() == 0)
-								delaytime = -1;
-							else
-								delaytime = Integer.parseInt(delay);
-							Log.i(TAG, "train delay=" + delay);
-							
-							while(i < rawinfo.length) {
-								boolean train_here = false;
-								if(strrefine(rawinfo[i]).contentEquals("30")) {
-									/*FIXME: 台鐵的蠢code有時後會出現兩個以上的30...*/
-									train_here = true;
-									i++;
+			runtask = new Runnable() {
+				@Override
+				public void run() {
+					HTML_BUS_PARSER task = new HTML_BUS_PARSER(
+							new AnalysisResult() {
+								@Override
+								public void parsestr(String result) {
+									rl.removeView(process);
+									ArrayList<TrainTable> traininfo = parse_train_info(result);
+									loading.setVisibility(ProgressBar.INVISIBLE);
+									if(traininfo.isEmpty()) {
+										status.setText(getResources().getString(R.string.no_data));
+									}
+									else {
+										String current_status = getResources().getString(R.string.current_status) + ":";
+										if(traininfo.get(0).delaymins == 0)
+											current_status = String.format("%s %s", current_status, getResources().getString(R.string.on_time));
+										else if(traininfo.get(0).delaymins > 0)
+											current_status = String.format("%s %s %d %s", current_status, 
+													getResources().getString(R.string.delay), traininfo.get(0).delaymins, getResources().getString(R.string.minute));
+										status.setText(current_status);
+										tra_find_start_dest(traininfo, dept, arr);
+										create_tratime_table(traininfo, tl, sv);
+									}
 								}
-								if(i + 3 < rawinfo.length) {
-									TrainTable train = new TrainTable(strrefine(rawinfo[i]), strrefine(rawinfo[i+1]), strrefine(rawinfo[i+2])
-											, train_here, strrefine(rawinfo[i+3]).contentEquals("x") ? true : false);
-									train.set_delay(delaytime);
-									Log.i(TAG, train.dumpitem());
-									i = i + 4;
-									info.add(train);
+
+								@Override
+								public void parsedBUS(List<BusRoute> routes) {
+									return;
 								}
-								else
-									break;
-							}
-							return info;
-						}
-						private String strrefine(String raw) {
-							/* Input: ('台北') */
-							String result = raw.substring(raw.indexOf('\'') + 1, raw.lastIndexOf('\''));
-							return result;
-						}
-						
-					});
-			task.execute(url);
+
+								@Override
+								public void parsedHSR(List<HSRTrains> trains) {
+									return;
+								}
+
+								@Override
+								public void parsedTimeTable(List<TimeTable> time) {
+								}
+
+								private ArrayList<TrainTable> parse_train_info(String result) {
+									ArrayList<TrainTable> info = new ArrayList<TrainTable>();
+									String raw = result.substring(result.indexOf("TRSearchResult"), result.indexOf("</script></form>")).replace("TRSearchResult.push", "&").replace("TRSearchResult.pop();", "");
+									String rawinfo[] = raw.split("&");
+									int i = 1;
+									int delaytime = 0;
+
+									String delay = result.substring(result.indexOf("traindelaytime"), result.indexOf(";</script></form>")).replace("traindelaytime=", "");
+									if (delay.length() == 0)
+										delaytime = -1;
+									else
+										delaytime = Integer.parseInt(delay);
+									Log.i(TAG, "train delay=" + delay);
+
+									while(i < rawinfo.length) {
+										boolean train_here = false;
+										if(strrefine(rawinfo[i]).contentEquals("30")) {
+											/*FIXME: 台鐵的蠢code有時後會出現兩個以上的30...*/
+											train_here = true;
+											i++;
+										}
+										if(i + 3 < rawinfo.length) {
+											TrainTable train = new TrainTable(strrefine(rawinfo[i]), strrefine(rawinfo[i+1]), strrefine(rawinfo[i+2])
+													, train_here, strrefine(rawinfo[i+3]).contentEquals("x") ? true : false);
+											train.set_delay(delaytime);
+											Log.i(TAG, train.dumpitem());
+											i = i + 4;
+											info.add(train);
+										}
+										else
+											break;
+									}
+									return info;
+								}
+								private String strrefine(String raw) {
+									/* Input: ('台北') */
+									String result = raw.substring(raw.indexOf('\'') + 1, raw.lastIndexOf('\''));
+									return result;
+								}
+
+							});
+					loading.setVisibility(ProgressBar.VISIBLE);
+					task.execute(url);
+					handler.postDelayed(this, 60000);
+				}
+			};
+			handler.post(runtask);
 		}
 		/* 高鐵 */
 		else if(type.contentEquals("hsr")) {
@@ -500,7 +510,7 @@ public class pop_transit extends Activity {
 
 			/* 資料由台灣高鐵提供 */
 			show_info_provider(R.string.provide_by_thsr);
-			
+
 			/* 時刻表捲單 */
 			final ScrollView sv = new ScrollView(this);
 			sv.setId(ID_HSR_TIME_TABLE_TABLE);
@@ -671,7 +681,7 @@ public class pop_transit extends Activity {
 
 					/* 資料由5284我愛巴士提供 */
 					show_info_provider(R.string.provide_by_5284);
-					
+
 					final ScrollView sv = new ScrollView(this);
 					RelativeLayout.LayoutParams param = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
 					param.addRule(RelativeLayout.ABOVE, ID_PROVIDER_ANNOUNCEMENT);
@@ -736,10 +746,10 @@ public class pop_transit extends Activity {
 					rl.removeAllViews();
 
 					rl.addView(process);
-					
+
 					/* 資料由台中市政府提供 */
 					show_info_provider(R.string.provide_by_txg);
-					
+
 					final ScrollView sv = new ScrollView(this);
 					RelativeLayout.LayoutParams param = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
 					param.addRule(RelativeLayout.ABOVE, ID_PROVIDER_ANNOUNCEMENT);
@@ -749,7 +759,7 @@ public class pop_transit extends Activity {
 					final TableLayout tl = new TableLayout(this);
 					tl.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 					tl.setOrientation(TableLayout.VERTICAL);
-					
+
 					sv.addView(tl);
 
 					/* Update every 30 seconds */
@@ -829,13 +839,13 @@ public class pop_transit extends Activity {
 
 					/* 資料由高雄市政府提供 */
 					show_info_provider(R.string.provide_by_khh);
-					
+
 					final ScrollView sv = new ScrollView(this);
 					RelativeLayout.LayoutParams param = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
 					param.addRule(RelativeLayout.ABOVE, ID_PROVIDER_ANNOUNCEMENT);
 					sv.setLayoutParams(param);
 					rl.addView(sv);
-					
+
 					final TableLayout tl = new TableLayout(this);
 					tl.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 					tl.setOrientation(TableLayout.VERTICAL);
@@ -896,7 +906,7 @@ public class pop_transit extends Activity {
 
 					/* 資料由桃園縣政府提供 */
 					show_info_provider(R.string.provide_by_tyn);
-					
+
 					final ScrollView sv = new ScrollView(this);
 					RelativeLayout.LayoutParams param = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
 					param.addRule(RelativeLayout.ABOVE, ID_PROVIDER_ANNOUNCEMENT);
@@ -962,7 +972,7 @@ public class pop_transit extends Activity {
 				rl.removeAllViews();
 
 				rl.addView(process);
-				
+
 				final TextView tv = new TextView(this);
 				tv.setId(ID_INTERCITYBUS_CARRIER);
 				tv.setTextColor(Color.WHITE);
@@ -972,16 +982,16 @@ public class pop_transit extends Activity {
 				tv.setLayoutParams(tvparam);
 				tv.setHorizontallyScrolling(false);
 				rl.addView(tv);
-				
+
 				final ScrollView sv = new ScrollView(this);
 				tvparam = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
 				sv.setLayoutParams(tvparam);
-				
+
 				final ScrollView sv_timetb = new ScrollView(this);
 				tvparam = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
 				tvparam.addRule(RelativeLayout.BELOW, ID_BUS_TIMETABLE_DATE);
 				sv_timetb.setLayoutParams(tvparam);
-				
+
 				final TableLayout tl_timetb = new TableLayout(this);
 				tl_timetb.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 				tl_timetb.setOrientation(TableLayout.VERTICAL);
@@ -1000,7 +1010,7 @@ public class pop_transit extends Activity {
 
 				/* 資料由公路總局提供 */
 				show_info_provider(R.string.provide_by_bus);
-				
+
 				final TabHost tabs = new TabHost(pop_transit.this, null);
 				RelativeLayout.LayoutParams param = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
 				param.addRule(RelativeLayout.BELOW, ID_INTERCITYBUS_CARRIER);
@@ -1008,41 +1018,41 @@ public class pop_transit extends Activity {
 				tabs.setLayoutParams(param);
 				tabs.setId(android.R.id.tabhost);
 				rl.addView(tabs);
-				
+
 				LinearLayout lineLayout = new LinearLayout(this);
 				lineLayout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
 						LinearLayout.LayoutParams.MATCH_PARENT));
 				lineLayout.setOrientation( LinearLayout.VERTICAL);
 				lineLayout.setGravity( Gravity.TOP );
-				
+
 				TabWidget tabWidget = new TabWidget(pop_transit.this);
 				param = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
 				tabWidget.setLayoutParams(param);
 				tabWidget.setId(android.R.id.tabs);
 				lineLayout.addView(tabWidget);
-				
+
 				FrameLayout tabContent = new FrameLayout(pop_transit.this);
 				tabContent.setLayoutParams(param);
 				tabContent.setId(android.R.id.tabcontent);
 				lineLayout.addView(tabContent);
-				
+
 				tabs.addView(lineLayout);
 				tabs.setup();
-				
+
 				Drawable dr = getResources().getDrawable(R.drawable.busstop);
 				Bitmap bitmap = ((BitmapDrawable) dr).getBitmap();
-				
+
 				Drawable drawable = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(bitmap, 
 						(int) (32 * getResources().getDisplayMetrics().density), (int) (32 * getResources().getDisplayMetrics().density), true)); 
-				
+
 				TabSpec tspec1 = tabs.newTabSpec("Tab1");
 				tspec1.setIndicator(getResources().getString(R.string.realtime_info), drawable);
 				tspec1.setContent(new PreExistingViewFactory(sv));
 				tabs.addTab(tspec1);
-				
+
 				dr = getResources().getDrawable(R.drawable.timetable);
 				bitmap = ((BitmapDrawable) dr).getBitmap();
-				
+
 				drawable = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(bitmap, 
 						(int) (32 * getResources().getDisplayMetrics().density), (int) (32 * getResources().getDisplayMetrics().density), true)); 
 
@@ -1050,19 +1060,19 @@ public class pop_transit extends Activity {
 				tspec2.setIndicator(getResources().getString(R.string.time_table), drawable);
 				tspec2.setContent(new PreExistingViewFactory(sv_timetb));
 				tabs.addTab(tspec2);
-				
+
 				gestureDetector = new GestureDetector(this, new MyGestureDetector(tabs));
-		        gestureListener = new View.OnTouchListener() {
-		            public boolean onTouch(View v, MotionEvent event) {
-		                return gestureDetector.onTouchEvent(event);
-		            }
-		        };
-		        sv.setOnTouchListener(gestureListener);
-		        sv_timetb.setOnTouchListener(gestureListener);
-				
+				gestureListener = new View.OnTouchListener() {
+					public boolean onTouch(View v, MotionEvent event) {
+						return gestureDetector.onTouchEvent(event);
+					}
+				};
+				sv.setOnTouchListener(gestureListener);
+				sv_timetb.setOnTouchListener(gestureListener);
+
 				tabs.setLongClickable(true);
 				tabs.setOnTabChangedListener(new AnimatedTabHostListener(getBaseContext(), tabs));
-				
+
 				try {
 					String url = MessageFormat.format(url_runid, URLEncoder.encode(line, "UTF-8"), line);
 					HTML_BUS_PARSER get_runid = new HTML_BUS_PARSER(
@@ -1122,10 +1132,10 @@ public class pop_transit extends Activity {
 										});
 
 										dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {         
-										    @Override
-										    public void onCancel(DialogInterface dialog) {
-										        finish();
-										    }
+											@Override
+											public void onCancel(DialogInterface dialog) {
+												finish();
+											}
 										});
 										dialog.show();
 									}
@@ -1165,7 +1175,7 @@ public class pop_transit extends Activity {
 										url = "http://www.taiwanbus.tw/aspx/dyBus/BusXMLLine.aspx?Mode=4&RunId={0}";
 										url_time_table = "http://web.taiwanbus.tw/eBUS/subsystem/Timetable/TimeTableAPIByWeek.aspx?inputType=R01&RouteId={0}%20&RouteBranch={1}&SearchDate={2}";
 									}
-									 
+
 									try {
 										/* 時刻表 */
 										SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
@@ -1213,7 +1223,7 @@ public class pop_transit extends Activity {
 													@Override
 													public void parsedBUS(List<BusRoute> routes) {
 														rl.removeView(process);
-														
+
 														find_start_dest(routes, dept, arr);
 														create_realtime_table(routes, tl, sv);
 														loading.setVisibility(ProgressBar.INVISIBLE);
@@ -1363,7 +1373,7 @@ public class pop_transit extends Activity {
 			return;
 		}  
 	}
-	
+
 	private void tra_find_start_dest(List<TrainTable> routes, String dept, String arr) {
 		dept = string_replace(dept);
 		arr = string_replace(arr);
@@ -1371,7 +1381,7 @@ public class pop_transit extends Activity {
 		dept = dept.replaceAll("[火]?車站","");
 		arr = arr.replaceAll("[火]?車站","");
 		Log.i(TAG, dept + " " + arr);
-		
+
 		for (TrainTable temp : routes) {
 			if(temp.station.contentEquals(dept))
 				temp.set_start();
@@ -1430,95 +1440,134 @@ public class pop_transit extends Activity {
 			err_tag_fail=true;
 		}
 	}  
-	
-	private void create_tratime_table(List<TrainTable> routes, TableLayout tl, final ScrollView sv) {
-		boolean first_read = true;
-		TrainTable train = null;
 
+	private void create_tratime_table(List<TrainTable> routes, TableLayout tl, final ScrollView sv) {
+		boolean first_read = false;
+		TrainTable train = null;
+		
+		if(timetable.isEmpty()) {
+			first_read = true;
+			for(int i = 0; i < routes.size(); i++){
+				TrainTable temp = routes.get(i);
+				final TableRow tr = CreateTableRow(tl);
+				tr.setBackgroundColor(Color.WHITE);
+				temp.set_tablerow(tr);
+				//  起訖站icon
+				ImageView iv = new ImageView(this);
+				if(temp.start)
+					iv.setImageResource(R.drawable.start);
+				else if (temp.destination)
+					iv.setImageResource(R.drawable.destination);
+				else {
+					iv.setImageResource(R.drawable.start);
+					iv.setAlpha(0);
+				}
+				iv.setMaxHeight((int) (20 * getResources().getDisplayMetrics().density));
+				iv.setMaxWidth((int) (20 * getResources().getDisplayMetrics().density));
+				iv.setAdjustViewBounds(true);
+				iv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.10f));
+				tr.addView(iv);
+
+				// 站名
+				TextView tv = new TextView(this);
+				tv.setTextColor(Color.BLACK);
+				tv.setText(temp.station);
+				tv.setTextSize(16);
+				tv.setHorizontallyScrolling(false);
+				tv.setWidth(0);
+				tv.setGravity(Gravity.CENTER);
+				tv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.25f));
+				tr.addView(tv);
+
+				// 到站時間
+				tv = new TextView(this);
+				tv.setTextColor(Color.BLACK);
+				tv.setText(temp.coming_time);
+				tv.setTextSize(16);
+				tv.setHorizontallyScrolling(false);
+				tv.setWidth(0);
+				tv.setGravity(Gravity.CENTER);
+				tv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.25f));
+				tr.addView(tv);
+
+				// 離站時間
+				tv = new TextView(this);
+				tv.setTextColor(Color.BLACK);
+				tv.setText(temp.depart_time);
+				tv.setTextSize(16);
+				tv.setHorizontallyScrolling(false);
+				tv.setWidth(0);
+				tv.setGravity(Gravity.CENTER);
+				tv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.25f));
+				tr.addView(tv);
+
+				// 車子icon
+				iv = new ImageView(this);
+				iv.setImageResource(R.drawable.track);
+				iv.setAlpha(0);
+				iv.setMaxHeight((int) (20 * getResources().getDisplayMetrics().density));
+				iv.setMaxWidth((int) (20 * getResources().getDisplayMetrics().density));
+				iv.setAdjustViewBounds(true);
+				iv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.15f));
+				tr.addView(iv);
+
+				timetable.add(tr);
+			}
+		}
+		
 		for(int i = 0; i < routes.size(); i++){
 			TrainTable temp = routes.get(i);
-			final TableRow tr = CreateTableRow(tl);
+			final TableRow tr = timetable.get(i);
 			tr.setBackgroundColor(Color.WHITE);
 			temp.set_tablerow(tr);
-		//  起訖站icon
-			ImageView iv = new ImageView(this);
+			//  起訖站icon
+			ImageView iv = (ImageView) tr.getChildAt(0);
 			if(temp.start)
 				iv.setImageResource(R.drawable.start);
 			else if (temp.destination)
 				iv.setImageResource(R.drawable.destination);
 			else {
-				iv.setImageResource(R.drawable.transparent);
-				iv.setBackgroundColor(Color.TRANSPARENT);
+				iv.setImageResource(R.drawable.start);
+				iv.setAlpha(0);
 			}
-			iv.setMaxHeight((int) (20 * getResources().getDisplayMetrics().density));
-			iv.setMaxWidth((int) (20 * getResources().getDisplayMetrics().density));
-			iv.setAdjustViewBounds(true);
-			iv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.10f));
-			tr.addView(iv);
 
 			// 站名
-			TextView tv = new TextView(this);
-			tv.setTextColor(Color.BLACK);
+			TextView tv = (TextView) tr.getChildAt(1);
 			tv.setText(temp.station);
-			tv.setTextSize(16);
-			tv.setHorizontallyScrolling(false);
-			tv.setWidth(0);
-			tv.setGravity(Gravity.CENTER);
-			tv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.25f));
-			tr.addView(tv);
 
 			// 到站時間
-			tv = new TextView(this);
-			tv.setTextColor(Color.BLACK);
+			tv = (TextView) tr.getChildAt(2);
 			tv.setText(temp.coming_time);
-			tv.setTextSize(16);
-			tv.setHorizontallyScrolling(false);
-			tv.setWidth(0);
-			tv.setGravity(Gravity.CENTER);
-			tv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.25f));
-			tr.addView(tv);
 
 			// 離站時間
-			tv = new TextView(this);
-			tv.setTextColor(Color.BLACK);
+			tv = (TextView) tr.getChildAt(3);
 			tv.setText(temp.depart_time);
-			tv.setTextSize(16);
-			tv.setHorizontallyScrolling(false);
-			tv.setWidth(0);
-			tv.setGravity(Gravity.CENTER);
-			tv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.25f));
-			tr.addView(tv);
 
 			// 車子icon
-			iv = new ImageView(this);
+			iv = (ImageView) tr.getChildAt(4);
+			iv.setAlpha((int)255);
 			if(temp.leaved)
 				iv.setImageResource(R.drawable.track);
 			else if(temp.istrain)
 				iv.setImageResource(R.drawable.locomotive);
 			else {
-				if( i+1 < routes.size() && routes.get(i+1).leaved)
+				if( i+1 < routes.size() && (routes.get(i+1).leaved || routes.get(i+1).istrain))
 					iv.setImageResource(R.drawable.track);
 				else {
-					iv.setImageResource(R.drawable.transparent);
-					iv.setBackgroundColor(Color.TRANSPARENT);
+					iv.setImageResource(R.drawable.track);
+					iv.setAlpha(0);
 				}
 			}
-			iv.setMaxHeight((int) (20 * getResources().getDisplayMetrics().density));
-			iv.setMaxWidth((int) (20 * getResources().getDisplayMetrics().density));
-			iv.setAdjustViewBounds(true);
-			iv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.15f));
-			tr.addView(iv);
-			
+
 			if(temp.istrain) {
 				if(train != null) {
-					ImageView track = (ImageView) train.tr.getChildAt(train.tr.getChildCount() - 1);
+					ImageView track = (ImageView) train.tr.getChildAt(4);
 					track.setImageResource(R.drawable.track);
 				}
 				train = temp;
 			}
-			
+
 			if(first_read && temp.start) {
-				first_read = false;
 				sv.post(new Runnable() {
 					@Override
 					public void run() {
@@ -1527,19 +1576,20 @@ public class pop_transit extends Activity {
 				});
 			}
 		}
+		tl.invalidate();
 	}
-	
+
 	private String create_time_table(List<TimeTable> routes, TableLayout tl, final ScrollView sv, long millis) {
 		String depart_sta = null, carrier = null;
 		Time depart = new Time();
 		depart.set(millis);
-				
+
 		if(routes.size() == 0)
 			return "";
-		
+
 		depart_sta = routes.get(0).depart_station;
 		carrier = routes.get(0).carrier;
-		
+
 		/* 2013/11/25 */
 		TableRow tr_date = CreateTableRow(tl);
 		TextView timetv = new TextView(this);
@@ -1553,12 +1603,12 @@ public class pop_transit extends Activity {
 		timetv.setLayoutParams(layoutparams);
 		timetv.setGravity(Gravity.CENTER);
 		tr_date.addView(timetv);
-		
+
 		for(int i = 0; i<routes.size(); i++) {
 			if(routes.get(i).check_weekday(depart.weekDay) == false)
 				routes.remove(i--);
 		}
-		
+
 		/* 台北轉運站 */
 		TableRow tr_depart = CreateTableRow(tl);
 		TextView tv_depart = new TextView(this);
@@ -1570,7 +1620,7 @@ public class pop_transit extends Activity {
 		tv_depart.setGravity(Gravity.CENTER);
 		tv_depart.setLayoutParams(layoutparams);
 		tr_depart.addView(tv_depart);
-		
+
 		if(routes.size() == 0) {
 			tr_depart = CreateTableRow(tl);
 			tv_depart = new TextView(this);
@@ -1584,11 +1634,11 @@ public class pop_transit extends Activity {
 			tr_depart.addView(tv_depart);
 			return carrier;
 		}
-		
+
 		int i = 0;
 		while(i < routes.size()) {
 			TextView tv1, tv2, tv3, tv4;
-			
+
 			if(routes.get(i).depart_station.contentEquals(depart_sta)) {
 				TableRow tr_times = CreateTableRow(tl);
 				tr_times.setBackgroundColor(Color.WHITE);
@@ -1597,7 +1647,7 @@ public class pop_transit extends Activity {
 				tv2 = create_textview(tr_times);
 				tv3 = create_textview(tr_times);
 				tv4 = create_textview(tr_times);
-				
+
 				fillin_time(tv1, routes.get(i++), depart);
 				if(i < routes.size() && routes.get(i).depart_station.contentEquals(depart_sta))
 					fillin_time(tv2, routes.get(i++), depart);
@@ -1623,7 +1673,7 @@ public class pop_transit extends Activity {
 		}
 		return carrier;
 	}
-	
+
 	private String weekday2str(int weekday) {
 		switch (weekday) {
 		case 0:
@@ -1642,10 +1692,10 @@ public class pop_transit extends Activity {
 			return getResources().getString(R.string.sat);
 		default:
 			return "";
-				
+
 		}
 	}
-	
+
 	private TextView create_textview(TableRow tr) {
 		TextView tv = new TextView(this);
 		tv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.25f));
@@ -1653,7 +1703,7 @@ public class pop_transit extends Activity {
 		tr.addView(tv);
 		return tv;
 	}
-	
+
 	private void fillin_time(TextView tv, TimeTable tt, Time depart) {
 		Time now = new Time();
 		now.setToNow();
@@ -1900,6 +1950,7 @@ public class pop_transit extends Activity {
 		original_sta.add("台中"); after_sta.add("臺中");
 		original_sta.add("台北"); after_sta.add("臺北");
 		original_sta.add("台東"); after_sta.add("臺東");
+		original_sta.add("台南"); after_sta.add("臺南");
 		original_sta.add("台視"); after_sta.add("臺視");
 		original_sta.add("台安醫院"); after_sta.add("臺安醫院");
 		original_sta.add("(松壽路)"); after_sta.add("(松壽)");
@@ -1969,12 +2020,12 @@ public class pop_transit extends Activity {
 		wv.loadUrl(url);
 		loading.setVisibility(ProgressBar.VISIBLE);
 
-//		RelativeLayout rl = (RelativeLayout)findViewById(R.id.rl_pop_transit);
-//		RelativeLayout.LayoutParams webview_param = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
-//		webview_param.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-//		wv.setLayoutParams(webview_param);
-//
-//		rl.addView(wv);
+		//		RelativeLayout rl = (RelativeLayout)findViewById(R.id.rl_pop_transit);
+		//		RelativeLayout.LayoutParams webview_param = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
+		//		webview_param.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+		//		wv.setLayoutParams(webview_param);
+		//
+		//		rl.addView(wv);
 
 		return wv;
 	}
@@ -2118,8 +2169,8 @@ public class pop_transit extends Activity {
 						Elements tds = tr.select("td");
 
 						pure_text = tds.get(1).text().replaceAll("[0-9A-Z]{2,3}-[0-9A-Z]{2,3} ", "");
-//						if(tds.get(1).select("img[src^=bus]").size() != 0)
-//							Log.i(TAG, "get BUS!");
+						//						if(tds.get(1).select("img[src^=bus]").size() != 0)
+						//							Log.i(TAG, "get BUS!");
 
 						if(pure_text.contentEquals("將到站"))
 							wait_time = "1";
@@ -2400,7 +2451,7 @@ public class pop_transit extends Activity {
 			thsrc_current_status(result);
 		}
 	}
-	
+
 	private class INTERCITY_TIME_TABLE extends AsyncTask<String, Void, List<TimeTable>> {
 		private AnalysisResult cb = null;
 		public INTERCITY_TIME_TABLE(AnalysisResult analysisResult) {
@@ -2418,7 +2469,7 @@ public class pop_transit extends Activity {
 					doc = Jsoup.connect(url).userAgent("Mozilla").get();
 
 					Elements tables = doc.select("table[style=border-collapse:collapse;]");
-					
+
 					for(int i = 0; i < tables.size(); i++) {
 						Elements title = tables.get(i).select("tr.font02").select("th");
 						depart_station = title.get(1).text();
@@ -2467,7 +2518,7 @@ public class pop_transit extends Activity {
 			cb.parsedTimeTable(timetable);
 		}
 	}
-	
+
 	private String time2str(String time) {
 		return String.format("%s:%s", time.substring(0, 2), time.substring(2));
 	}
@@ -2497,7 +2548,7 @@ public class pop_transit extends Activity {
 			return preExisting;
 		}
 	}
-	
+
 	/**
 	 * A gesture listener that listens for a left or right swipe and uses the swip gesture to navigate a TabHost that
 	 * uses an AnimatedTabHost listener.
@@ -2533,7 +2584,7 @@ public class pop_transit extends Activity {
 			int newTab = 0;
 			boolean swipe = false;
 			int currentTab = tabHost.getCurrentTab();
-			
+
 			if (Math.abs(event1.getY() - event2.getY()) > SWIPE_MAX_OFF_PATH)
 				return false;
 			if (event1.getX() - event2.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY)
@@ -2548,10 +2599,10 @@ public class pop_transit extends Activity {
 				newTab = currentTab - 1;
 				swipe = true;
 			}
-			
+
 			if (newTab < 0 || newTab > (maxTabs - 1))
 				return false;
-			
+
 			if(swipe)
 				tabHost.setCurrentTab(newTab);
 			return super.onFling(event1, event2, velocityX, velocityY);
