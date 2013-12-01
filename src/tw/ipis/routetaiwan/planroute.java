@@ -15,6 +15,7 @@ import java.text.Format;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -105,6 +106,8 @@ public class planroute extends Activity {
 	ArrayAdapter<String> adapter;
 	private int basic_pixel = 36;
 	private int basic_btn_pixel = 16;
+	private String[] hsr_stations = {"台北站", "板橋站", "桃園站", "新竹站", "台中站", "嘉義站", "台南站", "左營站"};
+	private String[] en_hsr_stations = {"Taipei", "Banciao", "Taoyuan", "Hsinchu", "Taichung", "Chiayi", "Tainan", "Zuoying"};
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -836,6 +839,7 @@ public class planroute extends Activity {
 
 	public boolean dumpdetails(DirectionResponseObject dires) {
 		ScrollView sv = (ScrollView) this.findViewById(R.id.routes);
+		String en_stations[] = getResources().getStringArray(R.array.en_station_id);
 
 		// Create a LinearLayout element
 		TableLayout tl_host = new TableLayout(this);
@@ -905,6 +909,13 @@ public class planroute extends Activity {
 				for (int k = 0; k < dires.routes[i].legs[j].steps.length; k++) {
 					Step step = dires.routes[i].legs[j].steps[k];
 					if(step.travel_mode.contentEquals("WALKING")) {
+						if(getResources().getString(R.string.locale).contentEquals("English") && step.html_instructions.contains("火車站")) {
+							String temp = step.html_instructions.replaceAll("火車站", "").replaceAll("[a-zA-Z ]", "");
+							int arr_station_seq = find_station_by_zhname(temp);
+							if(arr_station_seq >= 0)
+								step.html_instructions = "Walk to " + en_stations[arr_station_seq] + " station";
+						}
+						
 						String walk = new StringBuilder().append(step.html_instructions).append("\n(" + step.distance.text + ", " +step.duration.text + ")").toString();
 						tr = CreateTableRow(tl, 1.0f, i);
 						createImageViewbyR(R.drawable.walk, tr, basic_pixel, basic_pixel);
@@ -933,7 +944,7 @@ public class planroute extends Activity {
 							step.transit_details.line.short_name = step.transit_details.line.short_name.replaceAll("復興/區間", "Local Train");
 							step.transit_details.line.short_name = step.transit_details.line.short_name.replaceAll("捷運淡水線", "Tamsui (Red/Green) Line");
 							step.transit_details.line.short_name = step.transit_details.line.short_name.replaceAll("台北捷運信義線", "Xinyi (Red) Line");
-							step.transit_details.line.short_name = step.transit_details.line.short_name.replaceAll("台北捷運中和新蘆線", "Zhonghe-XinLu (Orange) Line");
+							step.transit_details.line.short_name = step.transit_details.line.short_name.replaceAll("台北捷運中和蘆洲線", "Zhonghe-XinLu (Orange) Line");
 							step.transit_details.line.short_name = step.transit_details.line.short_name.replaceAll("台北捷運板南線", "Bannan (Blue) Line");
 							step.transit_details.line.short_name = step.transit_details.line.short_name.replaceAll("台北捷運文湖線", "Wenhu (Brown) Line");
 							step.transit_details.line.short_name = step.transit_details.line.short_name.replaceAll("台北捷運小南門線", "Xiaonanmen (Light Green) Line");
@@ -959,7 +970,19 @@ public class planroute extends Activity {
 						
 						String headsign = step.transit_details.headsign;
 						
-						String trans_to = new StringBuilder().append(getResources().getString(R.string.to)).append(step.transit_details.arrival_stop.name).toString();
+						String arrival_stop = step.transit_details.arrival_stop.name;
+						if(getResources().getString(R.string.locale).contentEquals("English")) {
+							if(arrival_stop.contains("火車站")) {
+								int arr_station_seq = find_station_by_zhname(arrival_stop.replaceAll("火車站", ""));
+								if(arr_station_seq >= 0)
+									arrival_stop = en_stations[arr_station_seq] + " station";
+							}
+							else if(arrival_stop.contains("高鐵")) {
+								arrival_stop = en_hsr_stations[Arrays.asList(hsr_stations).indexOf(arrival_stop.replace("高鐵", ""))];
+								arrival_stop = "HSR " + arrival_stop + " station";
+							}
+						}
+						String trans_to = new StringBuilder().append(getResources().getString(R.string.to)).append(arrival_stop).toString();
 
 						String time_taken = new StringBuilder().append("\n(" + step.transit_details.num_stops + getResources().getString(R.string.stops) + ", " +step.duration.text + ")").toString();
 						transit++;
@@ -1062,7 +1085,6 @@ public class planroute extends Activity {
 									step.start_location, step.end_location);
 
 						}
-					
 						else if(type.contentEquals("FERRY")) {
 							String description = new StringBuilder().append(getResources().getString(R.string.taketransit))
 							.append(getResources().getString(R.string.ferry))
@@ -1075,7 +1097,7 @@ public class planroute extends Activity {
 							markers.add(new MarkP("ferry", getResources().getString(R.string.taketransit) + getResources().getString(R.string.ferry), step.transit_details.num_stops + getResources().getString(R.string.stops) + ", " +step.duration.text, step.start_location));
 							markers.add(new MarkP("end", getResources().getString(R.string.destination), null, step.end_location));
 							
-							createTextView(description, tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT | Gravity.CENTER_VERTICAL, "all," + step.polyline.points, markers);
+							createTextView(description, tr, Color.rgb(0,0,0), 0.85f, Gravity.LEFT | Gravity.CENTER_VERTICAL, "all," + step.polyline.points, markers);
 							
 							dires.routes[i].legs[j].mark.add(new MarkP("ferry", getResources().getString(R.string.taketransit) + getResources().getString(R.string.ferry), step.transit_details.num_stops + getResources().getString(R.string.stops) + ", " +step.duration.text, step.start_location));
 						}
@@ -1147,6 +1169,25 @@ public class planroute extends Activity {
 			//			Toast.makeText(this, getResources().getString(R.string.info_internal_error) , Toast.LENGTH_LONG).show();
 			return;
 		}
+	}
+	
+	private int find_station_by_zhname(String station) {
+		String zh_stations[] = getResources().getStringArray(R.array.zh_station);
+		int i = 0;
+		boolean matched = false;
+
+		Log.i(TAG, "station=" + station);
+
+		for(i = 0; i < zh_stations.length; i++) {
+			if(zh_stations[i].contentEquals(station)) {
+				matched = true;
+				break;
+			}
+		}
+		if(matched)
+			return i;
+		else
+			return -1;
 	}
 
 	private void display_help() {
