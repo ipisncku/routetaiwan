@@ -702,7 +702,9 @@ public class myfavorite extends Activity {
 				bundle.putString("type", transit_detail[1]);
 				bundle.putString("line", transit_detail[2]);
 				bundle.putString("class", transit_detail[3]);
-				bundle.putLong("time", System.currentTimeMillis());
+				bundle.putString("dept", transit_detail[4]);
+				bundle.putString("arr", transit_detail[5]);
+				bundle.putLong("time", Long.parseLong(transit_detail[6]));
 			}
 			else if(transit_detail[1].contentEquals("hsr")) {
 				bundle.putString("type", transit_detail[1]);
