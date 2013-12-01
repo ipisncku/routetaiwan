@@ -1175,6 +1175,9 @@ public class planroute extends Activity {
 		String zh_stations[] = getResources().getStringArray(R.array.zh_station);
 		int i = 0;
 		boolean matched = false;
+		
+		if(station.matches("臺[北中南東]"))
+			station = station.replace("臺", "台");
 
 		Log.i(TAG, "station=" + station);
 

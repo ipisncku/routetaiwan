@@ -229,6 +229,7 @@ public class pop_transit extends Activity {
 
 			TableRow tr_title = CreateTableRow(title);
 			tr_title.setBackgroundColor(Color.BLACK);
+			tr_title.setWeightSum(1.0f);
 
 			ImageView iv = new ImageView(pop_transit.this);
 			iv.setImageResource(R.drawable.start);
@@ -237,7 +238,7 @@ public class pop_transit extends Activity {
 			iv.setMaxHeight((int) (20 * getResources().getDisplayMetrics().density));
 			iv.setMaxWidth((int) (20 * getResources().getDisplayMetrics().density));
 			iv.setAdjustViewBounds(true);
-			iv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.10f));
+			iv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.05f));
 			tr_title.addView(iv);
 
 			// 站名
@@ -248,7 +249,7 @@ public class pop_transit extends Activity {
 			tv.setHorizontallyScrolling(false);
 			tv.setWidth(0);
 			tv.setGravity(Gravity.CENTER);
-			tv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.25f));
+			tv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.35f));
 			tr_title.addView(tv);
 
 			// 到站時間
@@ -281,7 +282,7 @@ public class pop_transit extends Activity {
 			iv.setMaxHeight((int) (20 * getResources().getDisplayMetrics().density));
 			iv.setMaxWidth((int) (20 * getResources().getDisplayMetrics().density));
 			iv.setAdjustViewBounds(true);
-			iv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.15f));
+			iv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.10f));
 			tr_title.addView(iv);
 
 			final ScrollView sv = new ScrollView(pop_transit.this);
@@ -310,7 +311,7 @@ public class pop_transit extends Activity {
 
 			/* 2013/12/01 */
 			TextView tv_date = new TextView(pop_transit.this);
-			tv_date.setText(str_date);
+			tv_date.setText(String.format("%s (%s)", str_date, weekday2str(date.weekDay)));
 			tv_date.setBackgroundColor(Color.BLACK);
 			tv_date.setId(ID_TRA_DATE_DESCRIPTION);
 			tv_date.setTextColor(Color.WHITE);
@@ -343,7 +344,7 @@ public class pop_transit extends Activity {
 			TableLayout title_timetable = new TableLayout(pop_transit.this);
 			title_timetable.setId(ID_TRA_TIMETABLE_TITLE);
 			tlparam = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-			tlparam.addRule(RelativeLayout.BELOW, ID_TRA_DATE_DESCRIPTION);
+			tlparam.addRule(RelativeLayout.BELOW, ID_TRA_DEPART_TIME);
 			title_timetable.setLayoutParams(tlparam);
 			title_timetable.setOrientation(TableLayout.VERTICAL);
 			timetable.addView(title_timetable);
@@ -1610,6 +1611,9 @@ public class pop_transit extends Activity {
 		String zh_stations[] = getResources().getStringArray(R.array.zh_station);
 		int i = 0;
 		boolean matched = false;
+		
+		if(station.matches("臺[北中南東]"))
+			station = station.replace("臺", "台");
 
 		Log.i(TAG, "station=" + station);
 
@@ -1879,6 +1883,7 @@ public class pop_transit extends Activity {
 	private void create_tratime_table(List<TrainTable> routes, TableLayout tl, final ScrollView sv) {
 		boolean first_read = false;
 		int train_index = 0;
+		String en_stations[] = getResources().getStringArray(R.array.en_station_id);
 
 		if(timetable.isEmpty()) {
 			first_read = true;
@@ -1886,6 +1891,7 @@ public class pop_transit extends Activity {
 				TrainTable temp = routes.get(i);
 				final TableRow tr = CreateTableRow(tl);
 				tr.setBackgroundColor(Color.WHITE);
+				tr.setWeightSum(1.0f);
 				temp.set_tablerow(tr);
 				//  起訖站icon
 				ImageView iv = new ImageView(this);
@@ -1900,18 +1906,23 @@ public class pop_transit extends Activity {
 				iv.setMaxHeight((int) (20 * getResources().getDisplayMetrics().density));
 				iv.setMaxWidth((int) (20 * getResources().getDisplayMetrics().density));
 				iv.setAdjustViewBounds(true);
-				iv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.10f));
+				iv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.05f));
 				tr.addView(iv);
 
 				// 站名
 				TextView tv = new TextView(this);
 				tv.setTextColor(Color.BLACK);
 				tv.setText(temp.station);
+				if(getResources().getString(R.string.locale).contentEquals("English")) {
+					int idx = find_station_by_zhname(string_replace(temp.station));
+					if(idx >= 0)
+						tv.setText(en_stations[idx]);
+				}
 				tv.setTextSize(16);
 				tv.setHorizontallyScrolling(false);
 				tv.setWidth(0);
 				tv.setGravity(Gravity.CENTER);
-				tv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.25f));
+				tv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.35f));
 				tr.addView(tv);
 
 				// 到站時間
@@ -1943,7 +1954,7 @@ public class pop_transit extends Activity {
 				iv.setMaxHeight((int) (20 * getResources().getDisplayMetrics().density));
 				iv.setMaxWidth((int) (20 * getResources().getDisplayMetrics().density));
 				iv.setAdjustViewBounds(true);
-				iv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.15f));
+				iv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.10f));
 				tr.addView(iv);
 
 				timetable.add(tr);
@@ -1953,33 +1964,33 @@ public class pop_transit extends Activity {
 		for(int i = 0; i < routes.size(); i++){
 			TrainTable temp = routes.get(i);
 			final TableRow tr = timetable.get(i);
-			tr.setBackgroundColor(Color.WHITE);
-			temp.set_tablerow(tr);
-			//  起訖站icon
-			ImageView iv = (ImageView) tr.getChildAt(0);
-			if(temp.start)
-				iv.setImageResource(R.drawable.start);
-			else if (temp.destination)
-				iv.setImageResource(R.drawable.destination);
-			else {
-				iv.setImageResource(R.drawable.start);
-				iv.setAlpha(0);
-			}
-
-			// 站名
-			TextView tv = (TextView) tr.getChildAt(1);
-			tv.setText(temp.station);
-
-			// 到站時間
-			tv = (TextView) tr.getChildAt(2);
-			tv.setText(temp.coming_time);
-
-			// 離站時間
-			tv = (TextView) tr.getChildAt(3);
-			tv.setText(temp.depart_time);
+//			tr.setBackgroundColor(Color.WHITE);
+//			temp.set_tablerow(tr);
+//			//  起訖站icon
+//			ImageView iv = (ImageView) tr.getChildAt(0);
+//			if(temp.start)
+//				iv.setImageResource(R.drawable.start);
+//			else if (temp.destination)
+//				iv.setImageResource(R.drawable.destination);
+//			else {
+//				iv.setImageResource(R.drawable.start);
+//				iv.setAlpha(0);
+//			}
+//
+//			// 站名
+//			TextView tv = (TextView) tr.getChildAt(1);
+//			tv.setText(temp.station);
+//
+//			// 到站時間
+//			tv = (TextView) tr.getChildAt(2);
+//			tv.setText(temp.coming_time);
+//
+//			// 離站時間
+//			tv = (TextView) tr.getChildAt(3);
+//			tv.setText(temp.depart_time);
 
 			// 車子icon
-			iv = (ImageView) tr.getChildAt(4);
+			ImageView iv = (ImageView) tr.getChildAt(4);
 			if(temp.istrain) {
 				iv.setAlpha((int)255);
 				iv.setImageResource(R.drawable.locomotive);
@@ -2506,7 +2517,6 @@ public class pop_transit extends Activity {
 						try {
 							Thread.sleep(3000);
 						} catch (InterruptedException e1) {
-							// TODO 自動產生的 catch 區塊
 							e1.printStackTrace();
 						} 
 					}
