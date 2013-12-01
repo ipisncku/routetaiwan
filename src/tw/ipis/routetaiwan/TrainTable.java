@@ -36,6 +36,10 @@ public class TrainTable {
 		destination = true;
 	}
 	
+	public void set_train() {
+		istrain = true;
+	}
+	
 	public void set_tablerow(TableRow t) {
 		tr = t;
 	}

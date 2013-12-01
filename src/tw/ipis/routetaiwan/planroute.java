@@ -1045,8 +1045,9 @@ public class planroute extends Activity {
 								text = new StringBuilder().append(text).append("tra,")
 								.append(train_num(step.transit_details.headsign) + ",")
 								.append(step.transit_details.line.short_name + ",")
-								.append(step.transit_details.departure_stop.name+",")
-								.append(step.transit_details.arrival_stop.name).toString();
+								.append(step.transit_details.departure_stop.name +",")
+								.append(step.transit_details.arrival_stop.name + ",")
+								.append(step.transit_details.departure_time.value).toString();
 								dires.routes[i].legs[j].mark.add(new MarkP("tra"
 										, getResources().getString(R.string.taketransit) + step.transit_details.line.short_name
 										, step.transit_details.headsign
@@ -1504,7 +1505,7 @@ public class planroute extends Activity {
 				bundle.putString("class", transit_detail[3]);
 				bundle.putString("dept", transit_detail[4]);
 				bundle.putString("arr", transit_detail[5]);
-				bundle.putLong("time", System.currentTimeMillis());
+				bundle.putLong("time", Long.parseLong(transit_detail[6]));
 			}
 			else if(transit_detail[1].contentEquals("hsr")) {
 				bundle.putString("type", transit_detail[1]);

@@ -129,6 +129,13 @@
     <string name="station">Station</string>
     <string name="train_arr_time">Arrive</string>
     <string name="train_dep_time">Depart</string>
+    
+    <string name="train_type">Type</string>
+    
+    <string name="TC">T.C.</string>
+    <string name="CK">C.K.</string>
+    <string name="Local">Local</string>
+    <string name="duration">Dur.</string>
 
 <string-array name="country_arrays">
         <item>繁體中文</item>

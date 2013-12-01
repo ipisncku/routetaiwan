@@ -144,6 +144,13 @@
     <string name="train_arr_time">到站</string>
     <string name="train_dep_time">離站</string>
     
+    <string name="train_type">車種</string>
+    
+    <string name="TC">自強</string>
+    <string name="CK">莒光</string>
+    <string name="Local">區間</string>
+    <string name="duration">時間</string>
+    
     <string-array name="country_arrays">
         <item>繁體中文</item>
         <item>English</item>
