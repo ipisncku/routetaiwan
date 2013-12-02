@@ -908,8 +908,9 @@ public class planroute extends Activity {
 					Step step = dires.routes[i].legs[j].steps[k];
 					if(step.travel_mode.contentEquals("WALKING")) {
 						if(getResources().getString(R.string.locale).contentEquals("English")
-								&&  step.html_instructions.matches("[a-zA-Z ]+[\\u4E00-\\u9FA5]+")) {	// 中文
+								&&  step.html_instructions.matches("[a-zA-Z ]+[\\u4E00-\\u9FA5]+.*")) {	// 中文
 								String temp = step.html_instructions.replaceAll("[a-zA-Z ]", "");
+								Log.i(TAG, "temp=" + temp);
 								step.html_instructions = String.format("%s %s", "Walk to", name_translate_english(temp));
 						}
 						
@@ -945,6 +946,7 @@ public class planroute extends Activity {
 							step.transit_details.line.short_name = step.transit_details.line.short_name.replaceAll("台北捷運板南線", "Bannan (Blue) Line");
 							step.transit_details.line.short_name = step.transit_details.line.short_name.replaceAll("台北捷運文湖線", "Wenhu (Brown) Line");
 							step.transit_details.line.short_name = step.transit_details.line.short_name.replaceAll("台北捷運小南門線", "Xiaonanmen (Light Green) Line");
+							step.transit_details.line.short_name = step.transit_details.line.short_name.replaceAll("台北捷運小碧潭支線", "Xiaobitan Branch Line");
 							step.transit_details.line.short_name = step.transit_details.line.short_name.replaceAll("高雄捷運紅線", "Red Line");
 							step.transit_details.line.short_name = step.transit_details.line.short_name.replaceAll("高雄捷運橘線", "Orange Line");
 						}
@@ -1162,7 +1164,8 @@ public class planroute extends Activity {
 				int idx2 = name.indexOf("站");
 				if(idx1 < idx2) {
 					String trans = en_hsr_stations[Arrays.asList(hsr_stations).indexOf(name.subSequence(idx1 + 2, idx2 + 1))]; 
-					out = String.format("%s %s %s%s", "HSR", trans, "station", name.length() > idx2 ? name.substring(idx2 + 1) : ""); 
+					out = String.format("%s%s %s %s%s", idx1 > 0 ? name.substring(0, idx1) : "",
+							"HSR", trans, "station", name.length() > idx2 ? name.substring(idx2 + 1) : ""); 
 				}
 			}
 			else if(name.contains("捷運") && name.contains("站")) {
@@ -1171,12 +1174,14 @@ public class planroute extends Activity {
 
 				int seq = Arrays.asList(zh_trtc).indexOf(name.subSequence(idx1 + 2, idx2 + 1));
 				if(seq >= 0) {
-					out = String.format("%s %s%s%s", "MRT", en_trtc[seq], en_trtc[seq].endsWith("Station") ? "" : " station", name.length() > idx2 ? name.substring(idx2 + 1) : "");
+					out = String.format("%s%s %s%s%s", idx1 > 0 ? name.substring(0, idx1) : "", 
+							"MRT", en_trtc[seq], en_trtc[seq].endsWith("Station") ? "" : " station", name.length() > idx2 ? name.substring(idx2 + 1) : "");
 				}
 				else {
 					seq = Arrays.asList(zh_krtc).indexOf(name.subSequence(idx1 + 2, idx2 + 1));
 					if(seq >= 0)
-						out = String.format("%s %s%s%s", "MRT", en_krtc[seq], en_krtc[seq].endsWith("Station") ? "" : " station", name.length() > idx2 ? name.substring(idx2 + 1) : "");
+						out = String.format("%s%s %s%s%s", idx1 > 0 ? name.substring(0, idx1) : "", 
+								"MRT", en_krtc[seq], en_krtc[seq].endsWith("Station") ? "" : " station", name.length() > idx2 ? name.substring(idx2 + 1) : "");
 				}
 			}
 			else {

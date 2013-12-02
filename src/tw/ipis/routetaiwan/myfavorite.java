@@ -321,7 +321,8 @@ public class myfavorite extends Activity {
 				for (int k = 0; k < routes.get(i).legs[j].steps.length; k++) {
 					Step step = routes.get(i).legs[j].steps[k];
 					if(step.travel_mode.contentEquals("WALKING")) {
-						if(getResources().getString(R.string.locale).contentEquals("English")) {
+						if(getResources().getString(R.string.locale).contentEquals("English")
+								&&  step.html_instructions.matches("[a-zA-Z ]+[\\u4E00-\\u9FA5]+.*")) {	// 中文
 								String temp = step.html_instructions.replaceAll("[a-zA-Z ]", "");
 								step.html_instructions = String.format("%s %s", "Walk to", name_translate_english(temp));
 						}
@@ -363,7 +364,10 @@ public class myfavorite extends Activity {
 							.append(step.transit_details.departure_stop.name + ",").append(step.transit_details.arrival_stop.name + ",")
 							.append(step.transit_details.line.name + ",")
 							.append(step.transit_details.departure_time.value).toString();
-							headsign = new StringBuilder().append(" (" + getResources().getString(R.string.go_to)).append(headsign + ") ").toString();
+							if(getResources().getString(R.string.locale).contentEquals("English"))
+								headsign = String.format(" (bound for %s) ", name_translate_english(headsign.replaceAll("[a-zA-Z, ]", "")));
+							else
+								headsign = new StringBuilder().append(" (" + getResources().getString(R.string.go_to)).append(headsign + ") ").toString();
 							if(getResources().getString(R.string.locale).contentEquals("English"))
 								trans = trans.replace("Take", "Take bus");
 							createTextView(trans + headsign + trans_to + time_taken, tr, Color.rgb(0,0,0), 0.85f, Gravity.LEFT | Gravity.CENTER_VERTICAL, text, step.transit_details.departure_stop.name, step.transit_details.arrival_stop.name);
@@ -399,7 +403,7 @@ public class myfavorite extends Activity {
 							text = new StringBuilder().append("all,").append(step.polyline.points).toString();
 							
 							if(getResources().getString(R.string.locale).contentEquals("English"))
-								headsign = String.format(" (bound for %s) ", name_translate_english(headsign.replaceAll("[a-zA-Z0-9, ]", "")));
+								headsign = String.format(" (bound for %s) ", name_translate_english(headsign.replaceAll("[a-zA-Z, ]", "")));
 							else
 								headsign = new StringBuilder().append(" (" + getResources().getString(R.string.go_to)).append(headsign + ") ").toString();
 							if(getResources().getString(R.string.locale).contentEquals("English")) {
@@ -507,7 +511,8 @@ public class myfavorite extends Activity {
 				int idx2 = name.indexOf("站");
 				if(idx1 < idx2) {
 					String trans = en_hsr_stations[Arrays.asList(hsr_stations).indexOf(name.subSequence(idx1 + 2, idx2 + 1))]; 
-					out = String.format("%s %s %s%s", "HSR", trans, "station", name.length() > idx2 ? name.substring(idx2 + 1) : ""); 
+					out = String.format("%s%s %s %s%s", idx1 > 0 ? name.substring(0, idx1) : "",
+							"HSR", trans, "station", name.length() > idx2 ? name.substring(idx2 + 1) : ""); 
 				}
 			}
 			else if(name.contains("捷運") && name.contains("站")) {
@@ -516,12 +521,14 @@ public class myfavorite extends Activity {
 
 				int seq = Arrays.asList(zh_trtc).indexOf(name.subSequence(idx1 + 2, idx2 + 1));
 				if(seq >= 0) {
-					out = String.format("%s %s%s%s", "MRT", en_trtc[seq], en_trtc[seq].endsWith("Station") ? "" : " station", name.length() > idx2 ? name.substring(idx2 + 1) : "");
+					out = String.format("%s%s %s%s%s", idx1 > 0 ? name.substring(0, idx1) : "", 
+							"MRT", en_trtc[seq], en_trtc[seq].endsWith("Station") ? "" : " station", name.length() > idx2 ? name.substring(idx2 + 1) : "");
 				}
 				else {
-					seq = Arrays.asList(zh_krtc).indexOf(name.replace("捷運", ""));
+					seq = Arrays.asList(zh_krtc).indexOf(name.subSequence(idx1 + 2, idx2 + 1));
 					if(seq >= 0)
-						out = String.format("%s %s%s%s", "MRT", en_krtc[seq], en_krtc[seq].endsWith("Station") ? "" : " station", name.length() > idx2 ? name.substring(idx2 + 1) : "");
+						out = String.format("%s%s %s%s%s", idx1 > 0 ? name.substring(0, idx1) : "", 
+								"MRT", en_krtc[seq], en_krtc[seq].endsWith("Station") ? "" : " station", name.length() > idx2 ? name.substring(idx2 + 1) : "");
 				}
 			}
 			else {
