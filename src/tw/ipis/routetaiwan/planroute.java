@@ -908,7 +908,7 @@ public class planroute extends Activity {
 					Step step = dires.routes[i].legs[j].steps[k];
 					if(step.travel_mode.contentEquals("WALKING")) {
 						if(getResources().getString(R.string.locale).contentEquals("English")
-								&&  step.html_instructions.matches("[\\u4e00-\\u9fa5]+")) {	// 中文
+								&&  step.html_instructions.matches("[a-zA-Z ]+[\\u4E00-\\u9FA5]+")) {	// 中文
 								String temp = step.html_instructions.replaceAll("[a-zA-Z ]", "");
 								step.html_instructions = String.format("%s %s", "Walk to", name_translate_english(temp));
 						}
