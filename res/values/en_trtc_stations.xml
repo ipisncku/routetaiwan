@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<string-array
+	<string-array name="en_trtc">
 		<item>Songshan Airport</item>
 		<item>Zhongshan Junior High School</item>
 		<item>Nanjing E. Rd.</item>

@@ -839,8 +839,6 @@ public class planroute extends Activity {
 
 	public boolean dumpdetails(DirectionResponseObject dires) {
 		ScrollView sv = (ScrollView) this.findViewById(R.id.routes);
-		String en_stations[] = getResources().getStringArray(R.array.en_station_id);
-
 		// Create a LinearLayout element
 		TableLayout tl_host = new TableLayout(this);
 		tl_host.setOrientation(TableLayout.VERTICAL);
@@ -909,11 +907,10 @@ public class planroute extends Activity {
 				for (int k = 0; k < dires.routes[i].legs[j].steps.length; k++) {
 					Step step = dires.routes[i].legs[j].steps[k];
 					if(step.travel_mode.contentEquals("WALKING")) {
-						if(getResources().getString(R.string.locale).contentEquals("English") && step.html_instructions.contains("火車站")) {
-							String temp = step.html_instructions.replaceAll("火車站", "").replaceAll("[a-zA-Z ]", "");
-							int arr_station_seq = find_station_by_zhname(temp);
-							if(arr_station_seq >= 0)
-								step.html_instructions = "Walk to " + en_stations[arr_station_seq] + " station";
+						if(getResources().getString(R.string.locale).contentEquals("English")
+								&&  step.html_instructions.matches("[\\u4e00-\\u9fa5]+")) {	// 中文
+								String temp = step.html_instructions.replaceAll("[a-zA-Z ]", "");
+								step.html_instructions = String.format("%s %s", "Walk to", name_translate_english(temp));
 						}
 						
 						String walk = new StringBuilder().append(step.html_instructions).append("\n(" + step.distance.text + ", " +step.duration.text + ")").toString();
@@ -937,7 +934,7 @@ public class planroute extends Activity {
 						String agencyname = step.transit_details.line.agencies[0].name;
 						String text = "transit,";
 						
-						if(getResources().getString(R.string.locale).contentEquals("English")) {
+						if(getResources().getString(R.string.locale).contentEquals("English") && step.transit_details.line.short_name != null) {
 							step.transit_details.line.short_name = step.transit_details.line.short_name.replaceAll("高鐵", "HSR");
 							step.transit_details.line.short_name = step.transit_details.line.short_name.replaceAll("自強號", "Tze-Chiang Limited Express");
 							step.transit_details.line.short_name = step.transit_details.line.short_name.replaceAll("莒光號", "Chu-Kuang Express");
@@ -955,33 +952,19 @@ public class planroute extends Activity {
 						if(getResources().getString(R.string.locale).contentEquals("English")) {
 							step.transit_details.headsign = step.transit_details.headsign.replaceAll("往", "bound for ");
 							step.transit_details.headsign = step.transit_details.headsign.replaceAll(",車次", ", Train ID ");
-							step.transit_details.headsign = step.transit_details.headsign.replaceAll("台北[ ]?,", "Taipei,");
-							step.transit_details.headsign = step.transit_details.headsign.replaceAll("台中[ ]?,", "Taichung,");
-							step.transit_details.headsign = step.transit_details.headsign.replaceAll("左營[ ]?,", "Zuoying,");
-							step.transit_details.headsign = step.transit_details.headsign.replaceAll("高雄[ ]?,", "Kaohsiung,");
-							step.transit_details.headsign = step.transit_details.headsign.replaceAll("新竹[ ]?,", "Hsinchu,");
-							step.transit_details.headsign = step.transit_details.headsign.replaceAll("嘉義[ ]?,", "Chiayi,");
-							step.transit_details.headsign = step.transit_details.headsign.replaceAll("花蓮[ ]?,", "Hualien,");
 							step.transit_details.headsign = step.transit_details.headsign.replaceAll(",山線", ", Mountain Line");
 							step.transit_details.headsign = step.transit_details.headsign.replaceAll(",海線", ", Coast Line");
 						}
 
-						String trans = new StringBuilder().append(getResources().getString(R.string.taketransit)).append(step.transit_details.line.short_name).toString();
+						String trans = String.format("%s%s", getResources().getString(R.string.taketransit)
+								, step.transit_details.line.short_name != null ? step.transit_details.line.short_name : ""); 
 						
 						String headsign = step.transit_details.headsign;
 						
 						String arrival_stop = step.transit_details.arrival_stop.name;
-						if(getResources().getString(R.string.locale).contentEquals("English")) {
-							if(arrival_stop.contains("火車站")) {
-								int arr_station_seq = find_station_by_zhname(arrival_stop.replaceAll("火車站", ""));
-								if(arr_station_seq >= 0)
-									arrival_stop = en_stations[arr_station_seq] + " station";
-							}
-							else if(arrival_stop.contains("高鐵")) {
-								arrival_stop = en_hsr_stations[Arrays.asList(hsr_stations).indexOf(arrival_stop.replace("高鐵", ""))];
-								arrival_stop = "HSR " + arrival_stop + " station";
-							}
-						}
+						if(getResources().getString(R.string.locale).contentEquals("English"))
+							arrival_stop = name_translate_english(arrival_stop);
+						
 						String trans_to = new StringBuilder().append(getResources().getString(R.string.to)).append(arrival_stop).toString();
 
 						String time_taken = new StringBuilder().append("\n(" + step.transit_details.num_stops + getResources().getString(R.string.stops) + ", " +step.duration.text + ")").toString();
@@ -994,11 +977,12 @@ public class planroute extends Activity {
 									.append(step.transit_details.departure_stop.name + ",").append(step.transit_details.arrival_stop.name + ",")
 									.append(step.transit_details.line.name + ",")
 									.append(step.transit_details.departure_time.value).toString();
-							headsign = new StringBuilder().append(" (" + getResources().getString(R.string.go_to)).append(headsign + ") ").toString();
-							if(getResources().getString(R.string.locale).contentEquals("English")) {
+							if(getResources().getString(R.string.locale).contentEquals("English"))
+								headsign = String.format(" (bound for %s) ", name_translate_english(headsign.replaceAll("[a-zA-Z, ]", "")));
+							else
+								headsign = new StringBuilder().append(" (" + getResources().getString(R.string.go_to)).append(headsign + ") ").toString();
+							if(getResources().getString(R.string.locale).contentEquals("English"))
 								trans = trans.replace("Take", "Take bus");
-							}
-							
 							createTextView(trans + headsign + trans_to + time_taken, tr, Color.rgb(0,0,0), 0.85f, Gravity.LEFT | Gravity.CENTER_VERTICAL, text, step.transit_details.departure_stop.name, step.transit_details.arrival_stop.name);
 
 							dires.routes[i].legs[j].mark.add(new MarkP("bus"
@@ -1045,7 +1029,11 @@ public class planroute extends Activity {
 							else
 								createTextView("車", tr, Color.rgb(0,0,0), 0.1f, Gravity.CENTER, "transit,null", (String)null, (String)null);
 							text = new StringBuilder().append("all,").append(step.polyline.points).toString();
-							headsign = new StringBuilder().append(" (" + getResources().getString(R.string.go_to)).append(headsign + ") ").toString();
+							
+							if(getResources().getString(R.string.locale).contentEquals("English"))
+								headsign = String.format(" (bound for %s) ", name_translate_english(headsign.replaceAll("[a-zA-Z, ]", "")));
+							else
+								headsign = new StringBuilder().append(" (" + getResources().getString(R.string.go_to)).append(headsign + ") ").toString();
 							if(getResources().getString(R.string.locale).contentEquals("English")) {
 								trans = trans.replace("Take", "Take MRT(subway)");
 							}
@@ -1079,7 +1067,10 @@ public class planroute extends Activity {
 							else
 								createTextView("車", tr, Color.rgb(0,0,0), 0.1f, Gravity.CENTER, "transit,null", step.transit_details.departure_stop.name, step.transit_details.arrival_stop.name);
 							
-							headsign = new StringBuilder().append(" (" + headsign + ") ").toString();
+							if(getResources().getString(R.string.locale).contentEquals("English"))
+								headsign = String.format(" (bound for %s%s) ", name_translate_english(headsign.replaceAll("[a-zA-Z0-9, ]", "")), headsign.substring(headsign.indexOf(',')));
+							else
+								headsign = new StringBuilder().append(" (" + getResources().getString(R.string.go_to)).append(headsign + ") ").toString();
 							
 							createTextView(trans + headsign + trans_to + time_taken, tr, Color.rgb(0,0,0), 0.85f, Gravity.LEFT | Gravity.CENTER_VERTICAL, text, 
 									step.start_location, step.end_location);
@@ -1148,6 +1139,53 @@ public class planroute extends Activity {
 		sv.addView(tl_host);
 
 		return true;
+	}
+	
+	private String name_translate_english(String name) {
+		String en_stations[] = getResources().getStringArray(R.array.en_station_id);
+		String zh_trtc[] = getResources().getStringArray(R.array.zh_trtc);
+		String en_trtc[] = getResources().getStringArray(R.array.en_trtc);
+		String zh_krtc[] = getResources().getStringArray(R.array.zh_krtc);
+		String en_krtc[] = getResources().getStringArray(R.array.en_krtc);
+		
+		String out = name;
+		
+		if(getResources().getString(R.string.locale).contentEquals("English")) {
+			if(name.contains("火車站")) {
+				int idx = name.indexOf("火車站");
+				int arr_station_seq = find_station_by_zhname(name.substring(0, idx));
+				if(arr_station_seq >= 0)
+					out = String.format("%s %s%s", en_stations[arr_station_seq], "station", name.length() > (idx + 3) ? name.substring(idx+3) : ""); 
+			}
+			else if(name.contains("高鐵") && name.contains("站")) {
+				int idx1 = name.indexOf("高鐵");
+				int idx2 = name.indexOf("站");
+				if(idx1 < idx2) {
+					String trans = en_hsr_stations[Arrays.asList(hsr_stations).indexOf(name.subSequence(idx1 + 2, idx2 + 1))]; 
+					out = String.format("%s %s %s%s", "HSR", trans, "station", name.length() > idx2 ? name.substring(idx2 + 1) : ""); 
+				}
+			}
+			else if(name.contains("捷運") && name.contains("站")) {
+				int idx1 = name.indexOf("捷運");
+				int idx2 = name.indexOf("站");
+
+				int seq = Arrays.asList(zh_trtc).indexOf(name.subSequence(idx1 + 2, idx2 + 1));
+				if(seq >= 0) {
+					out = String.format("%s %s%s%s", "MRT", en_trtc[seq], en_trtc[seq].endsWith("Station") ? "" : " station", name.length() > idx2 ? name.substring(idx2 + 1) : "");
+				}
+				else {
+					seq = Arrays.asList(zh_krtc).indexOf(name.subSequence(idx1 + 2, idx2 + 1));
+					if(seq >= 0)
+						out = String.format("%s %s%s%s", "MRT", en_krtc[seq], en_krtc[seq].endsWith("Station") ? "" : " station", name.length() > idx2 ? name.substring(idx2 + 1) : "");
+				}
+			}
+			else {
+				int arr_station_seq = find_station_by_zhname(name);
+				if(arr_station_seq >= 0)
+					out = String.format("%s", en_stations[arr_station_seq]); 
+			}
+		}
+		return out;
 	}
 
 	private String train_num(String ori) {

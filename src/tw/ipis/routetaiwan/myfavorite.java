@@ -84,11 +84,11 @@ public class myfavorite extends Activity {
 			dump_details(routes);
 		}
 	}
-	
+
 	@Override
 	protected void onResume() {
 		super.onResume();
-		
+
 		favorite_routes = new ArrayList<File>();
 		routes = new ArrayList<Route>();
 		File folder = new File(projectdir);
@@ -116,15 +116,15 @@ public class myfavorite extends Activity {
 			dump_details(routes);
 		}
 	}
-	
+
 	@Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-    }
-	
+	public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+	}
+
 	public void info_empty_folder() {
 		LinearLayout ll = (LinearLayout)findViewById(R.id.ll_favorites);
-		
+
 		if(empty != null)
 			ll.removeView(empty);
 		else
@@ -141,14 +141,14 @@ public class myfavorite extends Activity {
 		LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
 		param.gravity = Gravity.CENTER;
 		empty.setLayoutParams(param);
-		
+
 		textv = new TextView(this);
 		textv.setText(getResources().getString(R.string.no_data));
 		textv.setTextColor(Color.BLACK);
 		textv.setTextSize(20);
 		textv.setGravity(Gravity.CENTER);
 		textv.setHorizontallyScrolling(false);
-		
+
 		ll.addView(empty);
 		ll.addView(textv);
 	}
@@ -222,7 +222,7 @@ public class myfavorite extends Activity {
 		startAnimation.start();
 		return iv;
 	}
-	
+
 	private ImageView createImageViewbyR(int R, TableRow parent, int height, int width) {
 		ImageView iv = new ImageView(this);
 		iv.setImageBitmap(null);
@@ -257,14 +257,13 @@ public class myfavorite extends Activity {
 				Bundle bundle=new Bundle();
 				bundle.putString("filename", routes.get(num).filename);
 				launchpop.putExtras(bundle);
-				
+
 				startActivity(launchpop);
 				return true;
 			}
 		};
-		
-		tr.setBackgroundResource(R.drawable.seletor_trans);
 
+		tr.setBackgroundResource(R.drawable.seletor_trans);
 		if(weight != 0)
 			tr.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, weight));
 		else
@@ -282,7 +281,6 @@ public class myfavorite extends Activity {
 
 	private void dump_details(List<Route> routes) {
 		ScrollView sv = (ScrollView) this.findViewById(R.id.favorites);
-		String en_stations[] = getResources().getStringArray(R.array.en_station_id);
 
 		// Create a LinearLayout element
 		sv.removeAllViews();
@@ -323,20 +321,19 @@ public class myfavorite extends Activity {
 				for (int k = 0; k < routes.get(i).legs[j].steps.length; k++) {
 					Step step = routes.get(i).legs[j].steps[k];
 					if(step.travel_mode.contentEquals("WALKING")) {
-						if(getResources().getString(R.string.locale).contentEquals("English") && step.html_instructions.contains("火車站")) {
-							String temp = step.html_instructions.replaceAll("火車站", "").replaceAll("[a-zA-Z ]", "");
-							int arr_station_seq = find_station_by_zhname(temp);
-							if(arr_station_seq >= 0)
-								step.html_instructions = "Walk to " + en_stations[arr_station_seq] + " station";
+						if(getResources().getString(R.string.locale).contentEquals("English")) {
+								String temp = step.html_instructions.replaceAll("[a-zA-Z ]", "");
+								step.html_instructions = String.format("%s %s", "Walk to", name_translate_english(temp));
 						}
+
 						String walk = new StringBuilder().append(step.html_instructions).append("\n(" + step.distance.text + ", " +step.duration.text + ")").toString();
 						tr = CreateTableRow(tl, 1.0f, i);
 						createImageViewbyR(R.drawable.walk, tr, basic_pixel, basic_pixel);
-						
+
 						ArrayList<MarkP> markers = new ArrayList<MarkP>();
 						markers.add(new MarkP("walk", getResources().getString(R.string.departure), step.distance.text + ", " +step.duration.text, step.start_location));
 						markers.add(new MarkP("end", getResources().getString(R.string.destination), null, step.end_location));
-						
+
 						createTextView(walk, tr, Color.rgb(0,0,0), 0.85f, Gravity.LEFT | Gravity.CENTER_VERTICAL, "all," + step.polyline.points, markers);
 						createImageViewbyAnim(tr, basic_btn_pixel, basic_btn_pixel);
 					}
@@ -344,24 +341,16 @@ public class myfavorite extends Activity {
 						String type = step.transit_details.line.vehicle.type;
 						String agencyname = step.transit_details.line.agencies[0].name;
 						String text = "transit,";
-						
 
-						String trans = new StringBuilder().append(getResources().getString(R.string.taketransit)).append(step.transit_details.line.short_name).toString();
-						
+						String trans = String.format("%s%s", getResources().getString(R.string.taketransit)
+								, step.transit_details.line.short_name != null ? step.transit_details.line.short_name : ""); 
+
 						String headsign = step.transit_details.headsign;
-						
+
 						String arrival_stop = step.transit_details.arrival_stop.name;
-						if(getResources().getString(R.string.locale).contentEquals("English")) {
-							if(arrival_stop.contains("火車站")) {
-							int arr_station_seq = find_station_by_zhname(arrival_stop.replaceAll("火車站", ""));
-							if(arr_station_seq >= 0)
-								arrival_stop = en_stations[arr_station_seq] + " station";
-							}
-							else if(arrival_stop.contains("高鐵")) {
-								arrival_stop = en_hsr_stations[Arrays.asList(hsr_stations).indexOf(arrival_stop.replace("高鐵", ""))];
-								arrival_stop = "HSR " + arrival_stop + " station";
-							}
-						}
+						if(getResources().getString(R.string.locale).contentEquals("English"))
+							arrival_stop = name_translate_english(arrival_stop);
+						
 						String trans_to = new StringBuilder().append(getResources().getString(R.string.to)).append(arrival_stop).toString();
 
 						String time_taken = new StringBuilder().append("\n(" + step.transit_details.num_stops + getResources().getString(R.string.stops) + ", " +step.duration.text + ")").toString();
@@ -371,20 +360,19 @@ public class myfavorite extends Activity {
 						if(type.contentEquals("BUS")) {
 							createImageViewbyR(R.drawable.bus, tr, basic_pixel, basic_pixel);
 							text = new StringBuilder().append(text).append("bus,").append(step.transit_details.line.short_name + ",").append(step.transit_details.line.agencies[0].name + ",")
-									.append(step.transit_details.departure_stop.name + ",").append(step.transit_details.arrival_stop.name + ",")
-									.append(step.transit_details.line.name + ",")
-									.append(step.transit_details.departure_time.value).toString();
+							.append(step.transit_details.departure_stop.name + ",").append(step.transit_details.arrival_stop.name + ",")
+							.append(step.transit_details.line.name + ",")
+							.append(step.transit_details.departure_time.value).toString();
 							headsign = new StringBuilder().append(" (" + getResources().getString(R.string.go_to)).append(headsign + ") ").toString();
-							if(getResources().getString(R.string.locale).contentEquals("English")) {
+							if(getResources().getString(R.string.locale).contentEquals("English"))
 								trans = trans.replace("Take", "Take bus");
-							}
 							createTextView(trans + headsign + trans_to + time_taken, tr, Color.rgb(0,0,0), 0.85f, Gravity.LEFT | Gravity.CENTER_VERTICAL, text, step.transit_details.departure_stop.name, step.transit_details.arrival_stop.name);
 						}
 						else if(type.contentEquals("SUBWAY")) {
 							ArrayList<MarkP> markers = new ArrayList<MarkP>();
 							if(agencyname.contentEquals("台北捷運")) {
 								createImageViewbyR(R.drawable.trtc, tr, basic_pixel, basic_pixel);
-								
+
 								markers.add(new MarkP("trtc"
 										, getResources().getString(R.string.taketransit_mrt) + step.transit_details.line.short_name
 										, getResources().getString(R.string.go_to) + step.transit_details.headsign + getResources().getString(R.string.dirction)
@@ -396,7 +384,7 @@ public class myfavorite extends Activity {
 							}
 							else if(agencyname.contentEquals("高雄捷運")) {
 								createImageViewbyR(R.drawable.krtc, tr, basic_pixel, basic_pixel);
-								
+
 								markers.add(new MarkP("krtc"
 										, getResources().getString(R.string.taketransit_mrt) + step.transit_details.line.short_name
 										, getResources().getString(R.string.go_to) + step.transit_details.headsign + getResources().getString(R.string.dirction)
@@ -409,7 +397,11 @@ public class myfavorite extends Activity {
 							else
 								createTextView("車", tr, Color.rgb(0,0,0), 0.1f, Gravity.CENTER, "transit,null", (String)null, (String)null);
 							text = new StringBuilder().append("all,").append(step.polyline.points).toString();
-							headsign = new StringBuilder().append(" (" + getResources().getString(R.string.go_to)).append(headsign + ") ").toString();
+							
+							if(getResources().getString(R.string.locale).contentEquals("English"))
+								headsign = String.format(" (bound for %s) ", name_translate_english(headsign.replaceAll("[a-zA-Z0-9, ]", "")));
+							else
+								headsign = new StringBuilder().append(" (" + getResources().getString(R.string.go_to)).append(headsign + ") ").toString();
 							if(getResources().getString(R.string.locale).contentEquals("English")) {
 								trans = trans.replace("Take", "Take MRT(subway)");
 							}
@@ -419,24 +411,27 @@ public class myfavorite extends Activity {
 							if(agencyname.contentEquals("台灣高鐵")) {
 								createImageViewbyR(R.drawable.hsr, tr, basic_pixel, basic_pixel);
 								text = new StringBuilder().append(text).append("hsr,").append(train_num(step.transit_details.headsign)+",")
-										.append(step.transit_details.departure_time.value+",")
-										.append(step.transit_details.departure_stop.name+",")
-										.append(step.transit_details.arrival_stop.name).toString();
+								.append(step.transit_details.departure_time.value+",")
+								.append(step.transit_details.departure_stop.name+",")
+								.append(step.transit_details.arrival_stop.name).toString();
 							}
 							else if(agencyname.contentEquals("台灣鐵路管理局")) {
 								createImageViewbyR(R.drawable.train, tr, basic_pixel, basic_pixel);
 								text = new StringBuilder().append(text).append("tra,")
-										.append(train_num(step.transit_details.headsign) + ",")
-										.append(step.transit_details.line.short_name + ",")
-										.append(step.transit_details.departure_stop.name +",")
-										.append(step.transit_details.arrival_stop.name + ",")
-										.append(step.transit_details.departure_time.value).toString();
+								.append(train_num(step.transit_details.headsign) + ",")
+								.append(step.transit_details.line.short_name + ",")
+								.append(step.transit_details.departure_stop.name +",")
+								.append(step.transit_details.arrival_stop.name + ",")
+								.append(step.transit_details.departure_time.value).toString();
 							}
 							else
 								createTextView("車", tr, Color.rgb(0,0,0), 0.1f, Gravity.CENTER, "transit,null", step.transit_details.departure_stop.name, step.transit_details.arrival_stop.name);
-							
-							headsign = new StringBuilder().append(" (" + headsign + ") ").toString();
-							
+
+							if(getResources().getString(R.string.locale).contentEquals("English"))
+								headsign = String.format(" (bound for %s%s) ", name_translate_english(headsign.replaceAll("[a-zA-Z0-9, ]", "")), headsign.substring(headsign.indexOf(',')));
+							else
+								headsign = new StringBuilder().append(" (" + getResources().getString(R.string.go_to)).append(headsign + ") ").toString();
+
 							createTextView(trans + headsign + trans_to + time_taken, tr, Color.rgb(0,0,0), 0.85f, Gravity.LEFT | Gravity.CENTER_VERTICAL, text, 
 									step.start_location, step.end_location);
 
@@ -448,17 +443,17 @@ public class myfavorite extends Activity {
 							.append(trans_to)
 							.append("\n(" + step.transit_details.num_stops + getResources().getString(R.string.stops) + ", " +step.duration.text + ")").toString();
 							createImageViewbyR(R.drawable.ship, tr, basic_pixel, basic_pixel);
-							
+
 							ArrayList<MarkP> markers = new ArrayList<MarkP>();
 							markers.add(new MarkP("ferry", getResources().getString(R.string.taketransit) + getResources().getString(R.string.ferry), step.transit_details.num_stops + getResources().getString(R.string.stops) + ", " +step.duration.text, step.start_location));
 							markers.add(new MarkP("end", getResources().getString(R.string.destination), null, step.end_location));
-							
+
 							createTextView(description, tr, Color.rgb(0,0,0), 0.85f, Gravity.LEFT | Gravity.CENTER_VERTICAL, "all," + step.polyline.points, markers);							
 						}
 						else if(type.contentEquals("DRIVING")) {
 							createImageViewbyR(R.drawable.drive, tr, basic_pixel, basic_pixel);
 							createTextView(new StringBuilder().append(step.html_instructions).append("\n(" + step.distance.text + ", " +step.duration.text + ")").toString()
-									, tr, Color.rgb(0,0,0), 0.9f, Gravity.LEFT | Gravity.CENTER_VERTICAL, text, 
+									, tr, Color.rgb(0,0,0), 0.85f, Gravity.LEFT | Gravity.CENTER_VERTICAL, text, 
 									step.start_location, step.end_location);
 						}
 						createImageViewbyAnim(tr, basic_btn_pixel, basic_btn_pixel);
@@ -473,16 +468,16 @@ public class myfavorite extends Activity {
 					}
 				}
 				String str = getResources().getString(R.string.transit) + ": " + transit + "x";
-//				createTextView(str, transit_times, Color.rgb(0,0,0), 1.0f, Gravity.LEFT | Gravity.CENTER_VERTICAL, "all," + routes.get(i).overview_polyline.points, 
-//						routes.get(i).legs[j].mark);
+				//				createTextView(str, transit_times, Color.rgb(0,0,0), 1.0f, Gravity.LEFT | Gravity.CENTER_VERTICAL, "all," + routes.get(i).overview_polyline.points, 
+				//						routes.get(i).legs[j].mark);
 
 				String dur = String.format(" (%d" + getResources().getString(R.string.hour) + "%d" + getResources().getString(R.string.minute) + ")",
 						TimeUnit.SECONDS.toHours(duration), TimeUnit.SECONDS.toMinutes(duration % 3600));
 				title = new StringBuilder().append(convertTime(departure_time.value)).append(" - ")
-										.append(convertTime(arrival_time.value))
-										.append(dur)
-										.append("\n" + str).toString();
-				createTextView(title, time_row, Color.rgb(0,0,0), 1.0f, Gravity.LEFT | Gravity.CENTER_VERTICAL,
+				.append(convertTime(arrival_time.value))
+				.append(dur)
+				.append("\n" + str).toString();
+				createTextView(title, time_row, Color.rgb(0,0,0), 0.95f, Gravity.LEFT | Gravity.CENTER_VERTICAL,
 						"all," + routes.get(i).overview_polyline.points, routes.get(i).legs[j].mark);
 				createImageViewbyAnim(time_row, basic_btn_pixel, basic_btn_pixel);
 			}
@@ -490,12 +485,59 @@ public class myfavorite extends Activity {
 		}
 		sv.addView(tl_host);
 	}
-	
+
+	private String name_translate_english(String name) {
+		String en_stations[] = getResources().getStringArray(R.array.en_station_id);
+		String zh_trtc[] = getResources().getStringArray(R.array.zh_trtc);
+		String en_trtc[] = getResources().getStringArray(R.array.en_trtc);
+		String zh_krtc[] = getResources().getStringArray(R.array.zh_krtc);
+		String en_krtc[] = getResources().getStringArray(R.array.en_krtc);
+		
+		String out = name;
+		
+		if(getResources().getString(R.string.locale).contentEquals("English")) {
+			if(name.contains("火車站")) {
+				int idx = name.indexOf("火車站");
+				int arr_station_seq = find_station_by_zhname(name.substring(0, idx));
+				if(arr_station_seq >= 0)
+					out = String.format("%s %s%s", en_stations[arr_station_seq], "station", name.length() > (idx + 3) ? name.substring(idx+3) : ""); 
+			}
+			else if(name.contains("高鐵") && name.contains("站")) {
+				int idx1 = name.indexOf("高鐵");
+				int idx2 = name.indexOf("站");
+				if(idx1 < idx2) {
+					String trans = en_hsr_stations[Arrays.asList(hsr_stations).indexOf(name.subSequence(idx1 + 2, idx2 + 1))]; 
+					out = String.format("%s %s %s%s", "HSR", trans, "station", name.length() > idx2 ? name.substring(idx2 + 1) : ""); 
+				}
+			}
+			else if(name.contains("捷運") && name.contains("站")) {
+				int idx1 = name.indexOf("捷運");
+				int idx2 = name.indexOf("站");
+
+				int seq = Arrays.asList(zh_trtc).indexOf(name.subSequence(idx1 + 2, idx2 + 1));
+				if(seq >= 0) {
+					out = String.format("%s %s%s%s", "MRT", en_trtc[seq], en_trtc[seq].endsWith("Station") ? "" : " station", name.length() > idx2 ? name.substring(idx2 + 1) : "");
+				}
+				else {
+					seq = Arrays.asList(zh_krtc).indexOf(name.replace("捷運", ""));
+					if(seq >= 0)
+						out = String.format("%s %s%s%s", "MRT", en_krtc[seq], en_krtc[seq].endsWith("Station") ? "" : " station", name.length() > idx2 ? name.substring(idx2 + 1) : "");
+				}
+			}
+			else {
+				int arr_station_seq = find_station_by_zhname(name);
+				if(arr_station_seq >= 0)
+					out = String.format("%s", en_stations[arr_station_seq]); 
+			}
+		}
+		return out;
+	}
+
 	private int find_station_by_zhname(String station) {
 		String zh_stations[] = getResources().getStringArray(R.array.zh_station);
 		int i = 0;
 		boolean matched = false;
-		
+
 		if(station.matches("臺[北中南東]"))
 			station = station.replace("臺", "台");
 
@@ -512,7 +554,7 @@ public class myfavorite extends Activity {
 		else
 			return -1;
 	}
-	
+
 	private String train_num(String ori) {
 		// ori example: 往苗栗,車次1183,山線 or 往左營 ,車次151
 		return ori.replaceAll("[^0-9]", "");
@@ -689,12 +731,12 @@ public class myfavorite extends Activity {
 			bundle.putStringArrayList("descriptions", description);
 			bundle.putStringArrayList("locations", locations);
 			launchpop.putExtras(bundle);
-			
+
 			startActivity(launchpop);
 		}
 		else if(action.regionMatches(0, "transit", 0, 7)) {
 			String[] transit_detail = action.split(",");
-			
+
 			Intent launchpop = new Intent(this, pop_transit.class);
 			Bundle bundle=new Bundle();
 
@@ -725,7 +767,7 @@ public class myfavorite extends Activity {
 			else {
 				bundle.putString("type", transit_detail[1]);	// type = null
 			}
-			
+
 			launchpop.putExtras(bundle);
 
 			startActivity(launchpop);

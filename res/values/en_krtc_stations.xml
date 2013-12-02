@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<string-array
+	<string-array name="en_krtc">
 		<item>Siaogang</item>
 		<item>Kaohsiung International Airport</item>
 		<item>Caoya</item>
