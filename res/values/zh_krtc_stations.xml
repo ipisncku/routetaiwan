@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string-array
+		<item>小港</item>
+		<item>高雄國際機場</item>
+		<item>草衙</item>
+		<item>前鎮高中</item>
+		<item>凱旋</item>
+		<item>獅甲</item>
+		<item>三多商圈</item>
+		<item>中央公園</item>
+		<item>美麗島</item>
+		<item>高雄車</item>
+		<item>後驛</item>
+		<item>凹子底</item>
+		<item>巨蛋</item>
+		<item>生態園區</item>
+		<item>左營</item>
+		<item>世運</item>
+		<item>油廠國小</item>
+		<item>楠梓加工區</item>
+		<item>後勁</item>
+		<item>都會公園</item>
+		<item>青埔</item>
+		<item>橋頭糖廠</item>
+		<item>橋頭火車</item>
+		<item>南岡山</item>
+		<item>西子灣</item>
+		<item>鹽埕埔</item>
+		<item>市議會</item>
+		<item>信義國小</item>
+		<item>文化中心</item>
+		<item>五塊厝</item>
+		<item>技擊館</item>
+		<item>衛武營</item>
+		<item>鳳山西</item>
+		<item>鳳山</item>
+		<item>大東</item>
+		<item>鳳山國中</item>
+		<item>大寮</item>
+	</string-array>
+</resources>
