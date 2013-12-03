@@ -981,9 +981,9 @@ public class planroute extends Activity {
 									.append(step.transit_details.line.name + ",")
 									.append(step.transit_details.departure_time.value).toString();
 							if(getResources().getString(R.string.locale).contentEquals("English"))
-								headsign = String.format(" (bound for %s) ", name_translate_english(headsign.replaceAll("[a-zA-Z, ]", "")));
+								headsign = String.format(" (%s%s) ", getResources().getString(R.string.go_to), name_translate_english(headsign.replaceAll("[a-zA-Z, ]", "")));
 							else
-								headsign = new StringBuilder().append(" (" + getResources().getString(R.string.go_to)).append(headsign + ") ").toString();
+								headsign = String.format(" (%s%s) ", getResources().getString(R.string.go_to), headsign);
 							if(getResources().getString(R.string.locale).contentEquals("English"))
 								trans = trans.replace("Take", "Take bus");
 							createTextView(trans + headsign + trans_to + time_taken, tr, Color.rgb(0,0,0), 0.85f, Gravity.LEFT | Gravity.CENTER_VERTICAL, text, step.transit_details.departure_stop.name, step.transit_details.arrival_stop.name);
@@ -1034,9 +1034,9 @@ public class planroute extends Activity {
 							text = new StringBuilder().append("all,").append(step.polyline.points).toString();
 							
 							if(getResources().getString(R.string.locale).contentEquals("English"))
-								headsign = String.format(" (bound for %s) ", name_translate_english(headsign.replaceAll("[a-zA-Z, ]", "")));
+								headsign = String.format(" (%s%s) ", getResources().getString(R.string.go_to), name_translate_english(headsign.replaceAll("[a-zA-Z, ]", "")));
 							else
-								headsign = new StringBuilder().append(" (" + getResources().getString(R.string.go_to)).append(headsign + ") ").toString();
+								headsign = String.format(" (%s%s) ", getResources().getString(R.string.go_to), headsign);
 //							if(getResources().getString(R.string.locale).contentEquals("English")) {
 //								trans = trans.replace("Take", "Take MRT(subway)");
 //							}
@@ -1071,9 +1071,9 @@ public class planroute extends Activity {
 								createTextView("車", tr, Color.rgb(0,0,0), 0.1f, Gravity.CENTER, "transit,null", step.transit_details.departure_stop.name, step.transit_details.arrival_stop.name);
 							
 							if(getResources().getString(R.string.locale).contentEquals("English"))
-								headsign = String.format(" (bound for %s%s) ", name_translate_english(headsign.replaceAll("[a-zA-Z0-9, ]", "")), headsign.substring(headsign.indexOf(',')));
+								headsign = String.format(" (%s%s%s) ", getResources().getString(R.string.go_to), name_translate_english(headsign.replaceAll("[a-zA-Z0-9, ]", "")), headsign.substring(headsign.indexOf(',')));
 							else
-								headsign = new StringBuilder().append(" (" + getResources().getString(R.string.go_to)).append(headsign + ") ").toString();
+								headsign = String.format(" (%s) ", headsign);
 							
 							createTextView(trans + headsign + trans_to + time_taken, tr, Color.rgb(0,0,0), 0.85f, Gravity.LEFT | Gravity.CENTER_VERTICAL, text, 
 									step.start_location, step.end_location);
