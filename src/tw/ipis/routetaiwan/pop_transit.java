@@ -6,12 +6,9 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.text.MessageFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -106,6 +103,7 @@ public class pop_transit extends Activity {
 	private static final int ID_TRA_DEPART_TIME = 0x1234500C;
 	private GestureDetector gestureDetector;
 	View.OnTouchListener gestureListener;
+	Time Current_time;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -118,6 +116,10 @@ public class pop_transit extends Activity {
 		String type = Data.getString("type");
 
 		long time = 0;
+		long current_time_millis = System.currentTimeMillis();
+		Current_time = new Time();
+		Current_time.set(current_time_millis);
+		
 		station_name_replace();
 		if(type != null && !type.contentEquals("null")) {
 			line = Data.getString("line");
@@ -170,18 +172,11 @@ public class pop_transit extends Activity {
 		/* If type = "tra", then open webview for ex: http://twtraffic.tra.gov.tw/twrail/mobile/TrainDetail.aspx?searchdate=2013/10/03&traincode=117 */
 		if(type.contentEquals("tra")) {
 			Time date = new Time();
-			date.set(time * 1000) ;
+			date.set(current_time_millis > time * 1000 ? current_time_millis : time * 1000);
 			final String str_date = String.format("%d/%02d/%02d", date.year, date.month + 1, date.monthDay);
 			String depart_time = String.format("%02d:%02d", date.hour, date.minute);
 
-			Time date_3hr = new Time();
-			date_3hr.set((time + 3600 * 3) * 1000);
-
-			String depart_time_later;
-//			if(date_3hr.yearDay == date.yearDay)
-//				depart_time_later = String.format("%02d:%02d", date_3hr.hour, date_3hr.minute);
-//			else
-				depart_time_later = "23:59";
+			String depart_time_later = "23:59";
 
 			final String tra_real_time_url = "http://twtraffic.tra.gov.tw/twrail/mobile/TrainDetail.aspx?searchdate={0}&traincode={1}";
 			String tra_timetable_url = "http://163.29.3.99/mobile_en/clean/result.jsp?from1={0}&to1={1}&carclass=2&Date={2}&sTime={3}&eTime={4}&Dep=true&Submit=Submit";
@@ -323,7 +318,7 @@ public class pop_transit extends Activity {
 			tv_date.setLayoutParams(tvparam);
 			timetable.addView(tv_date);
 
-			/* 預計xx站出發時間: XX:XX */
+			/* 預計xx站出發時間: MM/dd HH:mm */
 			TextView tv_depart_time = new TextView(pop_transit.this);
 			if(getResources().getString(R.string.locale).contentEquals("English"))
 				tv_depart_time.setText(en_stations[dept_station_seq] + getResources().getString(R.string.estimate) + getResources().getString(R.string.departure_time) + ": " + depart_time);
@@ -634,10 +629,10 @@ public class pop_transit extends Activity {
 		}
 		/* 高鐵 */
 		else if(type.contentEquals("hsr")) {
-			SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
-			long millis = time * 1000;
-			Date date = new Date(millis) ;
-			String str_date = formatter.format(date);
+			Time date = new Time();
+			date.set(current_time_millis > time * 1000 ? current_time_millis : time * 1000);
+			
+			String str_date = String.format("%d%02d%02d", date.year, date.month + 1, date.monthDay);
 			String hsr_real_time_url = "http://www.thsrc.com.tw/tw/TimeTable/DailyTimeTable/{0}";
 			String url = MessageFormat.format(hsr_real_time_url, str_date);
 			Log.i(TAG, String.format("hsr url=%s", url));
@@ -645,8 +640,7 @@ public class pop_transit extends Activity {
 			/* 設定activity title, ex: 自強 123 */
 			this.setTitle(getResources().getString(R.string.hsr_status));
 
-			SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.TAIWAN);
-			String formattedDate = sdf.format(date);
+			String formattedDate = String.format("%02d:%02d", date.hour, date.minute);
 
 			final int current_min = string_2_minutes_of_day(formattedDate);
 			final boolean southbound;
@@ -701,14 +695,14 @@ public class pop_transit extends Activity {
 			rl.addView(tl);
 
 			/* 表格第二行 出發站和預計時間 */
-			/* 預計xx站出發時間 HH:MM */
+			/* 預計xx站出發時間 MM/dd HH:mm */
 			tv = new TextView(this);
 			tv.setId(ID_HSR_TIME_DEPART);
-			SimpleDateFormat boarding_time = new SimpleDateFormat("MM/dd HH:mm", Locale.TAIWAN);
+			String boarding_time = String.format("%02d/%02d %02d:%02d", date.month + 1, date.monthDay, date.hour, date.minute);
 			if(getResources().getString(R.string.locale).contentEquals("English"))
-				tv.setText(en_hsr_stations[seq_dept] + getResources().getString(R.string.estimate) + getResources().getString(R.string.departure_time) + ": " + boarding_time.format(date));
+				tv.setText(en_hsr_stations[seq_dept] + getResources().getString(R.string.estimate) + getResources().getString(R.string.departure_time) + ": " + boarding_time);
 			else 
-				tv.setText(dept + getResources().getString(R.string.estimate) + getResources().getString(R.string.departure_time) + ": " + boarding_time.format(date));
+				tv.setText(dept + getResources().getString(R.string.estimate) + getResources().getString(R.string.departure_time) + ": " + boarding_time);
 			tv.setTextColor(Color.WHITE);
 			tv.setTextSize(16);
 			tv.setGravity(Gravity.LEFT);
@@ -934,10 +928,6 @@ public class pop_transit extends Activity {
 		else {
 
 			if(check_agency(agency, bus_taipei, line, name)) {
-				SimpleDateFormat formatter = new SimpleDateFormat("H");
-				Date date = new Date(System.currentTimeMillis()) ;
-				String str_now = formatter.format(date);
-				int now = Integer.parseInt(str_now);
 				String encode;
 
 				if(line.contentEquals("三鶯線先導公車"))
@@ -946,7 +936,7 @@ public class pop_transit extends Activity {
 					encode = "108區(二子坪)";
 				else if(line.contentEquals("小9"))
 					encode = "小9 (台灣好行-北投竹子湖)";
-				else if(now < 20 && now > 6 && line.contentEquals("橘18")) 
+				else if(Current_time.hour < 20 && Current_time.hour > 6 && line.contentEquals("橘18")) 
 					encode = "橘18福隆路";		// 為了較好的效能..
 				else
 					encode = line;
@@ -1099,10 +1089,6 @@ public class pop_transit extends Activity {
 				}
 			}
 			else if(check_agency(agency, bus_kaohsiung, line, name)) {
-				SimpleDateFormat formatter = new SimpleDateFormat("H");
-				Date date = new Date(System.currentTimeMillis()) ;
-				String str_now = formatter.format(date);
-				int now = Integer.parseInt(str_now);
 				String encode;
 				/* Workaround...偉哉陳菊... */
 				if(line.contentEquals("168東"))
@@ -1116,7 +1102,7 @@ public class pop_transit extends Activity {
 				else
 					encode = line;
 
-				if(now > 17 && line.contentEquals("紅36")) {
+				if(Current_time.hour > 17 && line.contentEquals("紅36")) {
 					encode = "紅36繞駛";		// 為了較好的效能..
 				}
 
@@ -1266,13 +1252,15 @@ public class pop_transit extends Activity {
 				}
 			}
 			else if(line.matches("[0-9]{4}")) {
+				final Time date = new Time();
+				date.set(current_time_millis > time * 1000 ? current_time_millis : time * 1000);
+				
 				String url_runid;
 				if(getResources().getString(R.string.locale).contentEquals("English"))
 					url_runid = "http://www.taiwanbus.tw/aspx/dyBus/BusXMLLinee.aspx?Mode=6&Cus=&RouteNo={0}";
 				else
 					url_runid = "http://www.taiwanbus.tw/aspx/dyBus/BusXMLLine.aspx?Mode=6&Cus=&RouteNo={0}";
 				final ArrayList<String> runid = new ArrayList<String>();
-				final long depart_time = time;
 				/* 拿到1915的run ID: http://www.taiwanbus.tw/aspx/dyBus/BusXMLLine.aspx?Mode=6&Cus=&RouteNo=1915 */
 
 				rl.removeAllViews();
@@ -1484,10 +1472,7 @@ public class pop_transit extends Activity {
 
 									try {
 										/* 時刻表 */
-										SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
-										final long millis = depart_time * 1000;
-										Date date = new Date(millis) ;
-										final String str_date = formatter.format(date);
+										final String str_date = String.format("%d/%02d/%02d", date.year, date.month + 1, date.monthDay);
 										final String url_tt = MessageFormat.format(url_time_table, URLEncoder.encode(line, "UTF-8"), catgory, str_date);
 										Log.i(TAG, url_tt);
 										INTERCITY_TIME_TABLE get_timetable = new INTERCITY_TIME_TABLE(
@@ -1508,7 +1493,7 @@ public class pop_transit extends Activity {
 
 													@Override
 													public void parsedTimeTable(List<TimeTable> time) {
-														String carrier = create_time_table(time, tl_timetb, sv_timetb, millis);
+														String carrier = create_time_table(time, tl_timetb, sv_timetb, date);
 														if(getResources().getString(R.string.locale).contentEquals("English"))
 															tv.setText(String.format("%s: %s", getResources().getString(R.string.carrier), carrier));
 													}
@@ -2017,10 +2002,8 @@ public class pop_transit extends Activity {
 		tl.invalidate();
 	}
 
-	private String create_time_table(List<TimeTable> routes, TableLayout tl, final ScrollView sv, long millis) {
+	private String create_time_table(List<TimeTable> routes, TableLayout tl, final ScrollView sv, Time depart) {
 		String depart_sta = null, carrier = null;
-		Time depart = new Time();
-		depart.set(millis);
 
 		if(routes.size() == 0)
 			return "";

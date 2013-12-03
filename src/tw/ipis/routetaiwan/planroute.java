@@ -940,15 +940,16 @@ public class planroute extends Activity {
 							step.transit_details.line.short_name = step.transit_details.line.short_name.replaceAll("自強號", "Tze-Chiang Limited Express");
 							step.transit_details.line.short_name = step.transit_details.line.short_name.replaceAll("莒光號", "Chu-Kuang Express");
 							step.transit_details.line.short_name = step.transit_details.line.short_name.replaceAll("復興/區間", "Local Train");
-							step.transit_details.line.short_name = step.transit_details.line.short_name.replaceAll("捷運淡水線", "Tamsui (Red/Green) Line");
-							step.transit_details.line.short_name = step.transit_details.line.short_name.replaceAll("台北捷運信義線", "Xinyi (Red) Line");
-							step.transit_details.line.short_name = step.transit_details.line.short_name.replaceAll("台北捷運中和蘆洲線", "Zhonghe-XinLu (Orange) Line");
-							step.transit_details.line.short_name = step.transit_details.line.short_name.replaceAll("台北捷運板南線", "Bannan (Blue) Line");
-							step.transit_details.line.short_name = step.transit_details.line.short_name.replaceAll("台北捷運文湖線", "Wenhu (Brown) Line");
-							step.transit_details.line.short_name = step.transit_details.line.short_name.replaceAll("台北捷運小南門線", "Xiaonanmen (Light Green) Line");
-							step.transit_details.line.short_name = step.transit_details.line.short_name.replaceAll("台北捷運小碧潭支線", "Xiaobitan Branch Line");
-							step.transit_details.line.short_name = step.transit_details.line.short_name.replaceAll("高雄捷運紅線", "Red Line");
-							step.transit_details.line.short_name = step.transit_details.line.short_name.replaceAll("高雄捷運橘線", "Orange Line");
+							step.transit_details.line.short_name = step.transit_details.line.short_name.replaceAll("捷運淡水線", "MRT Tamsui (Red/Green) Line");
+							step.transit_details.line.short_name = step.transit_details.line.short_name.replaceAll("台北捷運信義線", "MRT Xinyi (Red) Line");
+							step.transit_details.line.short_name = step.transit_details.line.short_name.replaceAll("台北捷運中和蘆洲線", "MRT Zhonghe-XinLu (Orange) Line");
+							step.transit_details.line.short_name = step.transit_details.line.short_name.replaceAll("台北捷運板南線", "MRT Bannan (Blue) Line");
+							step.transit_details.line.short_name = step.transit_details.line.short_name.replaceAll("台北捷運文湖線", "MRT Wenhu (Brown) Line");
+							step.transit_details.line.short_name = step.transit_details.line.short_name.replaceAll("台北捷運小南門線", "MRT Xiaonanmen (Light Green) Line");
+							step.transit_details.line.short_name = step.transit_details.line.short_name.replaceAll("台北捷運小碧潭支線", "MRT Xiaobitan Branch Line");
+							step.transit_details.line.short_name = step.transit_details.line.short_name.replaceAll("貓空纜車", "Maokong Gondola");
+							step.transit_details.line.short_name = step.transit_details.line.short_name.replaceAll("高雄捷運紅線", "MRT Red Line");
+							step.transit_details.line.short_name = step.transit_details.line.short_name.replaceAll("高雄捷運橘線", "MRT Orange Line");
 						}
 						
 						if(getResources().getString(R.string.locale).contentEquals("English")) {
@@ -1036,9 +1037,9 @@ public class planroute extends Activity {
 								headsign = String.format(" (bound for %s) ", name_translate_english(headsign.replaceAll("[a-zA-Z, ]", "")));
 							else
 								headsign = new StringBuilder().append(" (" + getResources().getString(R.string.go_to)).append(headsign + ") ").toString();
-							if(getResources().getString(R.string.locale).contentEquals("English")) {
-								trans = trans.replace("Take", "Take MRT(subway)");
-							}
+//							if(getResources().getString(R.string.locale).contentEquals("English")) {
+//								trans = trans.replace("Take", "Take MRT(subway)");
+//							}
 							createTextView(trans + headsign + trans_to + time_taken, tr, Color.rgb(0,0,0), 0.85f, Gravity.LEFT | Gravity.CENTER_VERTICAL, text, markers);
 						}
 						else if(type.contentEquals("HEAVY_RAIL")) {
@@ -1182,6 +1183,16 @@ public class planroute extends Activity {
 					if(seq >= 0)
 						out = String.format("%s%s %s%s%s", idx1 > 0 ? name.substring(0, idx1) : "", 
 								"MRT", en_krtc[seq], en_krtc[seq].endsWith("Station") ? "" : " station", name.length() > idx2 ? name.substring(idx2 + 1) : "");
+				}
+			}
+			else if(name.contains("貓空纜車") && name.contains("站")) {
+				int idx1 = name.indexOf("貓空纜車");
+				int idx2 = name.indexOf("站");
+
+				int seq = Arrays.asList(zh_trtc).indexOf(name.subSequence(idx1 + 4, idx2 + 1));
+				if(seq >= 0) {
+					out = String.format("%s %s%s%s", idx1 > 0 ? name.substring(0, idx1) : "", 
+							en_trtc[seq], en_trtc[seq].endsWith("Station") ? "" : " station", name.length() > idx2 ? name.substring(idx2 + 1) : "");
 				}
 			}
 			else {
