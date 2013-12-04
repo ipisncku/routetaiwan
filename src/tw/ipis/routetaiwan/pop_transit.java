@@ -1092,9 +1092,21 @@ public class pop_transit extends Activity {
 				String encode;
 				/* Workaround...偉哉陳菊... */
 				if(line.contentEquals("168東"))
-					encode = "環狀東線";
+					encode = "168環東";
 				else if(line.contentEquals("168西"))
-					encode = "環狀西線";
+					encode = "168環西";
+				else if(line.contentEquals("民族幹線")) {
+					encode = "025民族";
+					line = "25民族幹線";
+				}
+				else if(line.contentEquals("36"))
+					encode = "36復興幹線";
+				else if(line.contentEquals("50"))
+					encode = "50五福";
+				else if(line.contentEquals("88"))
+					encode = "88建國";
+				else if(line.contentEquals("92"))
+					encode = "92自由";
 				else if(line.contentEquals("旗美快捷"))
 					encode = "旗美國道快捷公車";
 				else if(line.contentEquals("旗山快捷"))
