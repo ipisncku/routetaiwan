@@ -16,7 +16,7 @@
         <TableRow
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="1"
+            android:layout_weight="0.8"
             android:orientation="vertical" >
 
             <Button
@@ -32,14 +32,15 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:text="@string/add_to_arrival" />
-
+<!-- For PAD  -->
+<!--
             <Button
                 android:id="@+id/send_friend"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:text="@string/send_friend" />
-            
+-->
             <Button
                 android:id="@+id/save"
                 android:layout_width="match_parent"

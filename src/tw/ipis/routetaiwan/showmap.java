@@ -671,7 +671,7 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 				v.setOnClickListener(null);
 			}
 		});
-		
+/* For PAD		
 		dr = getResources().getDrawable(R.drawable.friend);
 		bitmap = ((BitmapDrawable) dr).getBitmap();
 		
@@ -689,7 +689,7 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 				v.setOnClickListener(null);
 			}
 		});
-		
+*/	
 		dr = getResources().getDrawable(R.drawable.favorite_32);
 		bitmap = ((BitmapDrawable) dr).getBitmap();
 		

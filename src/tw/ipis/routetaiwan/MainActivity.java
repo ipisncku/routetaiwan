@@ -60,7 +60,7 @@ public class MainActivity extends Activity {
 		TextView ver = (TextView)findViewById(R.id.ver);
 		try {
 			ver.setText(getResources().getString(R.string.version) + ":" + this.getPackageManager()
-					.getPackageInfo(this.getPackageName(), 0).versionName);
+					.getPackageInfo(this.getPackageName(), 0).versionName + "p");
 		} catch (Exception e) {
 			ver.setText(getResources().getString(R.string.version) + ":" + version);
 		} 

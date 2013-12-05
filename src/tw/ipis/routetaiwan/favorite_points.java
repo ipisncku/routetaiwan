@@ -370,7 +370,7 @@ public class favorite_points extends Activity {
 				}
 			});
 			btn_tr.addView(iv);
-
+/* For PAD
 			iv = new ImageView(this);
 			iv.setImageBitmap(null);
 			iv.setImageResource(R.drawable.friend);
@@ -392,7 +392,7 @@ public class favorite_points extends Activity {
 				}
 			});
 			btn_tr.addView(iv);
-
+*/
 			iv = new ImageView(this);
 			iv.setImageBitmap(null);
 			iv.setImageResource(R.drawable.button_map_32);
