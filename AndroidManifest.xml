@@ -1,9 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--  Phone version  -->
+<!--
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="tw.ipis.routetaiwan"
     android:versionCode="372"
     android:versionName="0.10.24" >
+-->
+<!--  Pad version  -->
 
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="tw.ipis.routetaiwan"
+    android:versionCode="371"
+    android:versionName="0.10.24" >
+    
     <uses-sdk
         android:minSdkVersion="15"
         android:targetSdkVersion="19" />
