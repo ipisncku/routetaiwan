@@ -8,30 +8,13 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true" />
-
-    <TableLayout
-        android:id="@+id/tl_planroute"
+    
+    <Button
+        android:id="@+id/np_btn_yes"
+        style="?android:attr/buttonBarButtonStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/numberPicker1"
-        android:stretchColumns="0,1">
-
-        <TableRow>
-
-            <Button
-                android:id="@+id/np_btn_yes"
-                style="?android:attr/buttonBarButtonStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/diag_yes" />
-
-            <Button
-                android:id="@+id/np_btn_no"
-                style="?android:attr/buttonBarButtonStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/diag_no" />
-        </TableRow>
-    </TableLayout>
+        android:text="@string/diag_yes" />
 
 </RelativeLayout>

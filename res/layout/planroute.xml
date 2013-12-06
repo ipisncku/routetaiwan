@@ -92,6 +92,14 @@
                 
                 <TableRow>
 
+                    <View
+                        android:id="@+id/line2"
+                        android:layout_width="match_parent"
+                        android:layout_height="5dp"
+                        android:background="#00000000" />
+                </TableRow>
+                
+                <TableRow>
                     <TextView
                         android:id="@+id/texttime"
                         android:layout_width="wrap_content"
@@ -102,22 +110,37 @@
                         android:textAppearance="?android:attr/textAppearanceMedium"
                         android:textColor="@color/route_edit_fg" />
 
-                    <Button
-                        android:id="@+id/btn_date"
+                    <TextView
+                        android:id="@+id/tv_date"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="0.50"
                         android:textColor="@color/route_edit_fg"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:clickable="true" 
+                        android:gravity="center"
                         android:onClick="setdate"/>
                     
-                    <Button
-                        android:id="@+id/btn_time"
+                    <TextView
+                        android:id="@+id/tv_time"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="0.35"
                         android:textColor="@color/route_edit_fg"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:clickable="true"
+                        android:gravity="center" 
                         android:onClick="settime" />
 
+                </TableRow>
+                
+                <TableRow>
+
+                    <View
+                        android:id="@+id/line3"
+                        android:layout_width="match_parent"
+                        android:layout_height="5dp"
+                        android:background="#00000000" />
                 </TableRow>
 
             </TableLayout>

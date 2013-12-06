@@ -139,6 +139,8 @@
     <string name="duration">Dur.</string>
     
     <string name="pickdate">Date</string>
+    <string name="picktime">Time</string>
+    <string name="colon">：</string>
 
 <string-array name="country_arrays">
         <item>繁體中文</item>

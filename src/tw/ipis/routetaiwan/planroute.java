@@ -37,7 +37,6 @@ import tw.ipis.routetaiwan.planroute.DirectionResponseObject.Route.Leg.Step.Valu
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -81,7 +80,6 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TableRow.LayoutParams;
 import android.widget.TextView;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -99,8 +97,8 @@ public class planroute extends Activity {
 	private ImageView gps_recving;
 	private AutoCompleteTextView from;
 	private AutoCompleteTextView to;
-	private Button btn_date;
-	private Button btn_time;
+	private TextView tv_date;
+	private TextView tv_time;
 	private LocationManager locationMgr;
 	private DownloadWebPageTask task = null;
 	private boolean isrequested = false;
@@ -132,10 +130,10 @@ public class planroute extends Activity {
 
 		from = (AutoCompleteTextView)findViewById(R.id.from);
 		to = (AutoCompleteTextView)findViewById(R.id.to);
-		btn_date = (Button)findViewById(R.id.btn_date);
-		btn_time = (Button)findViewById(R.id.btn_time);
-		btn_date.setText(String.format("%04d-%02d-%02d", now.get(Calendar.YEAR), now.get(Calendar.MONTH) + 1, now.get(Calendar.DAY_OF_MONTH)));
-		btn_time.setText(String.format("%02d:%02d", now.get(Calendar.HOUR_OF_DAY), now.get(Calendar.MINUTE)));
+		tv_date = (TextView)findViewById(R.id.tv_date);
+		tv_time = (TextView)findViewById(R.id.tv_time);
+		tv_date.setText(String.format("%04d-%02d-%02d", now.get(Calendar.YEAR), now.get(Calendar.MONTH) + 1, now.get(Calendar.DAY_OF_MONTH)));
+		tv_time.setText(String.format("%02d:%02d", now.get(Calendar.HOUR_OF_DAY), now.get(Calendar.MINUTE)));
 
 		TextView text_from = (TextView)findViewById(R.id.textfrom);
 		TextView text_to = (TextView)findViewById(R.id.textto);
@@ -457,32 +455,29 @@ public class planroute extends Activity {
 		Calendar now = Calendar.getInstance();
 		final Dialog d = new Dialog(planroute.this);
 		final String[] dates = new String[28];
+		int matched_item = 0;
 
 		for(int i=0; i<dates.length; i++) {
 			dates[i] = String.format("%04d-%02d-%02d (%s)", now.get(Calendar.YEAR), now.get(Calendar.MONTH) + 1, now.get(Calendar.DAY_OF_MONTH), weekday2str(now.get(Calendar.DAY_OF_WEEK) - 1));
+			if(dates[i].startsWith(tv_date.getText().toString()))
+				matched_item = i;
 			now.add(Calendar.DATE, 1);
 		}
 
 		d.setTitle(getResources().getString(R.string.pickdate));
 		d.setContentView(R.layout.date_picker);
 		Button btn_yes = (Button) d.findViewById(R.id.np_btn_yes);
-		Button btn_no = (Button) d.findViewById(R.id.np_btn_no);
 		final NumberPicker np = (NumberPicker) d.findViewById(R.id.numberPicker1);
 		np.setMaxValue(dates.length - 1); // max value 28
 		np.setMinValue(0);   // min value 0
 		np.setWrapSelectorWheel(false);
 		np.setDisplayedValues(dates);
 		np.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
+		np.setValue(matched_item);
 		btn_yes.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				btn_date.setText(dates[np.getValue()].replaceAll(" (.*)", ""));
-				d.dismiss();
-			}
-		});
-		btn_no.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View arg0) {
+				tv_date.setText(dates[np.getValue()].replaceAll(" (.*)", ""));
 				d.dismiss();
 			}
 		});
@@ -490,25 +485,52 @@ public class planroute extends Activity {
 	}
 
 	public void settime(View v) {
-		final Calendar c = Calendar.getInstance();
-		int hour = c.get(Calendar.HOUR_OF_DAY);
-		int minute = c.get(Calendar.MINUTE);
+		final Dialog d = new Dialog(planroute.this);
+		String val[] = tv_time.getText().toString().split(":");
+		int hour = 0, min = 0;
+		final String[] hours = new String[24];
+		final String[] mins = new String[60];
+		
+		if(val.length == 2) {
+			hour = Integer.parseInt(val[0]);
+			min = Integer.parseInt(val[1]);
+		}
+		
+		for(int i=0; i<mins.length; i++) {
+			if(i < hours.length)
+				hours[i] = String.format("%02d", i);
+			mins[i] = String.format("%02d", i);
+		}
 
-		final Dialog d = new TimePickerDialog(this, myTimeSetListener, hour, minute, false);
+		d.setTitle(getResources().getString(R.string.picktime));
+		d.setContentView(R.layout.time_picker);
+		Button btn_yes = (Button) d.findViewById(R.id.time_btn_yes);
+		final NumberPicker hour_np = (NumberPicker) d.findViewById(R.id.hour_picker);
+		hour_np.setMaxValue(hours.length - 1); // max value 24
+		hour_np.setMinValue(0);   // min value 0
+		hour_np.setWrapSelectorWheel(true);
+		hour_np.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
+		hour_np.setDisplayedValues(hours);
+		hour_np.setValue(hour);
+		
+		final NumberPicker min_np = (NumberPicker) d.findViewById(R.id.min_picker);
+		min_np.setMaxValue(mins.length - 1); // max value 60
+		min_np.setMinValue(0);   // min value 0
+		min_np.setWrapSelectorWheel(true);
+		min_np.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
+		min_np.setDisplayedValues(mins);
+		min_np.setValue(min);
+		
+		btn_yes.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				tv_time.setText(String.format("%02d:%02d", hour_np.getValue(), min_np.getValue()));
+				d.dismiss();
+			}
+		});
 		d.show();
 	}
 	
-	private TimePickerDialog.OnTimeSetListener myTimeSetListener
-	  = new TimePickerDialog.OnTimeSetListener(){
-
-	   @Override
-	   public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-	    // TODO Auto-generated method stub
-	    String time = "Hour: " + String.valueOf(hourOfDay) + "\n"
-	     + "Minute: " + String.valueOf(minute);
-	   }
-	 };
-
 	public void start_planing(View v) {
 		if(check_network()) {
 			if(task != null && task.getStatus() != DownloadWebPageTask.Status.FINISHED)
