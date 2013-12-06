@@ -16,6 +16,7 @@ import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -35,6 +36,8 @@ import tw.ipis.routetaiwan.planroute.DirectionResponseObject.Route.Leg.Step.Poly
 import tw.ipis.routetaiwan.planroute.DirectionResponseObject.Route.Leg.Step.ValueText;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -70,6 +73,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.NumberPicker;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
@@ -77,6 +81,7 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TableRow.LayoutParams;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -94,6 +99,8 @@ public class planroute extends Activity {
 	private ImageView gps_recving;
 	private AutoCompleteTextView from;
 	private AutoCompleteTextView to;
+	private Button btn_date;
+	private Button btn_time;
 	private LocationManager locationMgr;
 	private DownloadWebPageTask task = null;
 	private boolean isrequested = false;
@@ -111,6 +118,7 @@ public class planroute extends Activity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		Calendar now = Calendar.getInstance();
 
 		super.onCreate(savedInstanceState);
 
@@ -121,27 +129,31 @@ public class planroute extends Activity {
 		gps_recving.setAdjustViewBounds(true);
 
 		start_positioning();
-		
+
 		from = (AutoCompleteTextView)findViewById(R.id.from);
 		to = (AutoCompleteTextView)findViewById(R.id.to);
-		
+		btn_date = (Button)findViewById(R.id.btn_date);
+		btn_time = (Button)findViewById(R.id.btn_time);
+		btn_date.setText(String.format("%04d-%02d-%02d", now.get(Calendar.YEAR), now.get(Calendar.MONTH) + 1, now.get(Calendar.DAY_OF_MONTH)));
+		btn_time.setText(String.format("%02d:%02d", now.get(Calendar.HOUR_OF_DAY), now.get(Calendar.MINUTE)));
+
 		TextView text_from = (TextView)findViewById(R.id.textfrom);
 		TextView text_to = (TextView)findViewById(R.id.textto);
-		
+
 		text_from.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				from.requestFocus();
 			}
 		});
-		
+
 		text_to.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				to.requestFocus();
 			}
 		});
-		
+
 		set_fav_adapters();
 
 		from.setOnFocusChangeListener(new OnFocusChangeListener()
@@ -161,7 +173,7 @@ public class planroute extends Activity {
 				}
 			}
 		});
-		
+
 		from.setOnTouchListener(new OnTouchListener() {
 
 			@Override
@@ -175,7 +187,7 @@ public class planroute extends Activity {
 				return false;
 			}
 		});
-		
+
 		to.setOnFocusChangeListener(new OnFocusChangeListener()
 		{
 			@Override
@@ -193,7 +205,7 @@ public class planroute extends Activity {
 				}
 			}
 		});
-		
+
 		to.setOnTouchListener(new OnTouchListener() {
 
 			@Override
@@ -207,7 +219,7 @@ public class planroute extends Activity {
 				return false;
 			}
 		});
-		
+
 		/* Intent from showmap class */
 		Bundle Data = this.getIntent().getExtras();
 		if(Data != null) {
@@ -239,7 +251,7 @@ public class planroute extends Activity {
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
 	}
-	
+
 	private void set_fav_adapters() {
 		File folder = new File(projectdir);
 		if (!folder.exists()) {
@@ -269,7 +281,7 @@ public class planroute extends Activity {
 					e.printStackTrace();
 				}
 			}
-			
+
 			if(points.size() > 0) {
 				String list[] = new String[points.size()];
 				for(int i=0; i<points.size(); i++) {
@@ -285,57 +297,57 @@ public class planroute extends Activity {
 		}
 	}
 
-//	private class get_fav_points extends AsyncTask<Void, Void, String[]> {
-//		@Override
-//		protected String[] doInBackground(Void... params) {
-//			File folder = new File(projectdir);
-//			if (!folder.exists()) {
-//				folder.mkdir();
-//				return new String[0];
-//			}
-//			else {
-//				favorite_points = new ArrayList<File>();
-//				points = new ArrayList<FavPoint>();
-//				/* Display result */
-//				favorite_points = getListFiles(folder);
-//				if(favorite_points.isEmpty()) {
-//					return new String[0];
-//				}
-//				for(File fd : favorite_points) {
-//					try {
-//						String buf = getStringFromFile(fd);
-//						FavPoint fp = decode_str_to_points(buf);
-//						if(fp == null && fd.exists())
-//							fd.delete();
-//						else if(fp != null) {
-//							fp.set_filename(fd);
-//							points.add(fp);
-//						}
-//					} catch (Exception e) {
-//						Log.e(TAG, "Cannot open file " + fd.getName());
-//						e.printStackTrace();
-//					}
-//				}
-//				if(points.size() > 0) {
-//					String list[] = new String[points.size()];
-//					for(int i=0; i<points.size(); i++) {
-//						list[i] = points.get(i).name;
-//					}
-//					return list;
-//				}
-//				return new String[0];
-//			}
-//		}
-//
-//		@Override
-//		protected void onPostExecute(String[] contact) {
-//			if(contact.length > 0) {
-//				adapter = new ArrayAdapter<String>(planroute.this, R.layout.contact_list, R.id.contact_name, contact);
-//				from.setAdapter(adapter);
-//				to.setAdapter(adapter);
-//			}
-//		}
-//	}
+	//	private class get_fav_points extends AsyncTask<Void, Void, String[]> {
+	//		@Override
+	//		protected String[] doInBackground(Void... params) {
+	//			File folder = new File(projectdir);
+	//			if (!folder.exists()) {
+	//				folder.mkdir();
+	//				return new String[0];
+	//			}
+	//			else {
+	//				favorite_points = new ArrayList<File>();
+	//				points = new ArrayList<FavPoint>();
+	//				/* Display result */
+	//				favorite_points = getListFiles(folder);
+	//				if(favorite_points.isEmpty()) {
+	//					return new String[0];
+	//				}
+	//				for(File fd : favorite_points) {
+	//					try {
+	//						String buf = getStringFromFile(fd);
+	//						FavPoint fp = decode_str_to_points(buf);
+	//						if(fp == null && fd.exists())
+	//							fd.delete();
+	//						else if(fp != null) {
+	//							fp.set_filename(fd);
+	//							points.add(fp);
+	//						}
+	//					} catch (Exception e) {
+	//						Log.e(TAG, "Cannot open file " + fd.getName());
+	//						e.printStackTrace();
+	//					}
+	//				}
+	//				if(points.size() > 0) {
+	//					String list[] = new String[points.size()];
+	//					for(int i=0; i<points.size(); i++) {
+	//						list[i] = points.get(i).name;
+	//					}
+	//					return list;
+	//				}
+	//				return new String[0];
+	//			}
+	//		}
+	//
+	//		@Override
+	//		protected void onPostExecute(String[] contact) {
+	//			if(contact.length > 0) {
+	//				adapter = new ArrayAdapter<String>(planroute.this, R.layout.contact_list, R.id.contact_name, contact);
+	//				from.setAdapter(adapter);
+	//				to.setAdapter(adapter);
+	//			}
+	//		}
+	//	}
 
 	public FavPoint decode_str_to_points(String buf) {
 		if(buf == null)
@@ -394,7 +406,7 @@ public class planroute extends Activity {
 	/* Fixed 網路功能沒開時造成的crash */
 	public boolean check_network() {
 		ConnectivityManager connMgr = (ConnectivityManager) 
-				getSystemService(Context.CONNECTIVITY_SERVICE);
+		getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 		if (networkInfo != null && networkInfo.isConnected()) {
 			Toast.makeText(this, getResources().getString(R.string.info_network_using) + networkInfo.getTypeName() , Toast.LENGTH_SHORT).show();
@@ -419,6 +431,84 @@ public class planroute extends Activity {
 		}
 	}
 
+	private String weekday2str(int weekday) {
+		switch (weekday) {
+		case 0:
+			return getResources().getString(R.string.sun);
+		case 1:
+			return getResources().getString(R.string.mon);
+		case 2:
+			return getResources().getString(R.string.tue);
+		case 3:
+			return getResources().getString(R.string.wed);
+		case 4:
+			return getResources().getString(R.string.thu);
+		case 5:
+			return getResources().getString(R.string.fri);
+		case 6:
+			return getResources().getString(R.string.sat);
+		default:
+			return "";
+
+		}
+	}
+
+	public void setdate(View v) {
+		Calendar now = Calendar.getInstance();
+		final Dialog d = new Dialog(planroute.this);
+		final String[] dates = new String[28];
+
+		for(int i=0; i<dates.length; i++) {
+			dates[i] = String.format("%04d-%02d-%02d (%s)", now.get(Calendar.YEAR), now.get(Calendar.MONTH) + 1, now.get(Calendar.DAY_OF_MONTH), weekday2str(now.get(Calendar.DAY_OF_WEEK) - 1));
+			now.add(Calendar.DATE, 1);
+		}
+
+		d.setTitle(getResources().getString(R.string.pickdate));
+		d.setContentView(R.layout.date_picker);
+		Button btn_yes = (Button) d.findViewById(R.id.np_btn_yes);
+		Button btn_no = (Button) d.findViewById(R.id.np_btn_no);
+		final NumberPicker np = (NumberPicker) d.findViewById(R.id.numberPicker1);
+		np.setMaxValue(dates.length - 1); // max value 28
+		np.setMinValue(0);   // min value 0
+		np.setWrapSelectorWheel(false);
+		np.setDisplayedValues(dates);
+		np.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
+		btn_yes.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				btn_date.setText(dates[np.getValue()].replaceAll(" (.*)", ""));
+				d.dismiss();
+			}
+		});
+		btn_no.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				d.dismiss();
+			}
+		});
+		d.show();
+	}
+
+	public void settime(View v) {
+		final Calendar c = Calendar.getInstance();
+		int hour = c.get(Calendar.HOUR_OF_DAY);
+		int minute = c.get(Calendar.MINUTE);
+
+		final Dialog d = new TimePickerDialog(this, myTimeSetListener, hour, minute, false);
+		d.show();
+	}
+	
+	private TimePickerDialog.OnTimeSetListener myTimeSetListener
+	  = new TimePickerDialog.OnTimeSetListener(){
+
+	   @Override
+	   public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+	    // TODO Auto-generated method stub
+	    String time = "Hour: " + String.valueOf(hourOfDay) + "\n"
+	     + "Minute: " + String.valueOf(minute);
+	   }
+	 };
+
 	public void start_planing(View v) {
 		if(check_network()) {
 			if(task != null && task.getStatus() != DownloadWebPageTask.Status.FINISHED)
@@ -430,7 +520,7 @@ public class planroute extends Activity {
 			from = (AutoCompleteTextView)findViewById(R.id.from);
 			String start = from.getText().toString();	// Get user input "From"
 			Location currentloc = GetCurrentPosition();
-			
+
 			from.setError(null);
 			to.setError(null);
 
@@ -566,7 +656,7 @@ public class planroute extends Activity {
 		}
 
 		isrequested = false;
-		
+
 		Log.i(TAG, getResources().getString(R.string.locale));
 
 		if(getResources().getString(R.string.locale).contentEquals("English"))
@@ -577,7 +667,7 @@ public class planroute extends Activity {
 		long now = System.currentTimeMillis() / 1000;
 		if(destination.isEmpty())
 			destination = "Taipei 101";
-		
+
 		destination = replace_name(destination);
 
 		try {
@@ -742,7 +832,7 @@ public class planroute extends Activity {
 		startAnimation.start();
 		return iv;
 	}
-	
+
 	private ImageView createImageViewbyR(int R, TableRow parent, int height, int width) {
 		ImageView iv = new ImageView(this);
 		iv.setImageBitmap(null);
@@ -909,19 +999,19 @@ public class planroute extends Activity {
 					if(step.travel_mode.contentEquals("WALKING")) {
 						if(getResources().getString(R.string.locale).contentEquals("English")
 								&&  step.html_instructions.matches("[a-zA-Z ]+[\\u4E00-\\u9FA5]+.*")) {	// 中文
-								String temp = step.html_instructions.replaceAll("[a-zA-Z ]", "");
-								Log.i(TAG, "temp=" + temp);
-								step.html_instructions = String.format("%s %s", "Walk to", name_translate_english(temp));
+							String temp = step.html_instructions.replaceAll("[a-zA-Z ]", "");
+							Log.i(TAG, "temp=" + temp);
+							step.html_instructions = String.format("%s %s", "Walk to", name_translate_english(temp));
 						}
-						
+
 						String walk = new StringBuilder().append(step.html_instructions).append("\n(" + step.distance.text + ", " +step.duration.text + ")").toString();
 						tr = CreateTableRow(tl, 1.0f, i);
 						createImageViewbyR(R.drawable.walk, tr, basic_pixel, basic_pixel);
-						
+
 						ArrayList<MarkP> markers = new ArrayList<MarkP>();
 						markers.add(new MarkP("walk", getResources().getString(R.string.departure), step.distance.text + ", " +step.duration.text, step.start_location));
 						markers.add(new MarkP("end", getResources().getString(R.string.destination), null, step.end_location));
-						
+
 						createTextView(walk, tr, Color.rgb(0,0,0), 0.85f, Gravity.LEFT | Gravity.CENTER_VERTICAL, "all," + step.polyline.points, markers);
 						createImageViewbyAnim(tr, basic_btn_pixel, basic_btn_pixel);
 
@@ -934,7 +1024,7 @@ public class planroute extends Activity {
 						String type = step.transit_details.line.vehicle.type;
 						String agencyname = step.transit_details.line.agencies[0].name;
 						String text = "transit,";
-						
+
 						if(getResources().getString(R.string.locale).contentEquals("English") && step.transit_details.line.short_name != null) {
 							step.transit_details.line.short_name = step.transit_details.line.short_name.replaceAll("高鐵", "HSR");
 							step.transit_details.line.short_name = step.transit_details.line.short_name.replaceAll("自強號", "Tze-Chiang Limited Express");
@@ -951,7 +1041,7 @@ public class planroute extends Activity {
 							step.transit_details.line.short_name = step.transit_details.line.short_name.replaceAll("高雄捷運紅線", "MRT Red Line");
 							step.transit_details.line.short_name = step.transit_details.line.short_name.replaceAll("高雄捷運橘線", "MRT Orange Line");
 						}
-						
+
 						if(getResources().getString(R.string.locale).contentEquals("English")) {
 							step.transit_details.headsign = step.transit_details.headsign.replaceAll("往", "bound for ");
 							step.transit_details.headsign = step.transit_details.headsign.replaceAll(",車次", ", Train ID ");
@@ -961,13 +1051,13 @@ public class planroute extends Activity {
 
 						String trans = String.format("%s%s", getResources().getString(R.string.taketransit)
 								, step.transit_details.line.short_name != null ? step.transit_details.line.short_name : ""); 
-						
+
 						String headsign = step.transit_details.headsign;
-						
+
 						String arrival_stop = step.transit_details.arrival_stop.name;
 						if(getResources().getString(R.string.locale).contentEquals("English"))
 							arrival_stop = name_translate_english(arrival_stop);
-						
+
 						String trans_to = new StringBuilder().append(getResources().getString(R.string.to)).append(arrival_stop).toString();
 
 						String time_taken = new StringBuilder().append("\n(" + step.transit_details.num_stops + getResources().getString(R.string.stops) + ", " +step.duration.text + ")").toString();
@@ -977,9 +1067,9 @@ public class planroute extends Activity {
 						if(type.contentEquals("BUS")) {
 							createImageViewbyR(R.drawable.bus, tr, basic_pixel, basic_pixel);
 							text = new StringBuilder().append(text).append("bus,").append(step.transit_details.line.short_name + ",").append(step.transit_details.line.agencies[0].name + ",")
-									.append(step.transit_details.departure_stop.name + ",").append(step.transit_details.arrival_stop.name + ",")
-									.append(step.transit_details.line.name + ",")
-									.append(step.transit_details.departure_time.value).toString();
+							.append(step.transit_details.departure_stop.name + ",").append(step.transit_details.arrival_stop.name + ",")
+							.append(step.transit_details.line.name + ",")
+							.append(step.transit_details.departure_time.value).toString();
 							if(getResources().getString(R.string.locale).contentEquals("English"))
 								headsign = String.format(" (%s%s) ", getResources().getString(R.string.go_to), name_translate_english(headsign.replaceAll("[a-zA-Z, ]", "")));
 							else
@@ -997,7 +1087,7 @@ public class planroute extends Activity {
 							ArrayList<MarkP> markers = new ArrayList<MarkP>();
 							if(agencyname.contentEquals("台北捷運")) {
 								createImageViewbyR(R.drawable.trtc, tr, basic_pixel, basic_pixel);
-								
+
 								markers.add(new MarkP("trtc"
 										, getResources().getString(R.string.taketransit_mrt) + step.transit_details.line.short_name
 										, getResources().getString(R.string.go_to) + step.transit_details.headsign + getResources().getString(R.string.dirction)
@@ -1006,7 +1096,7 @@ public class planroute extends Activity {
 										, getResources().getString(R.string.exit_station)
 										, step.transit_details.arrival_stop.name
 										, step.transit_details.arrival_stop.location));
-								
+
 								dires.routes[i].legs[j].mark.add(new MarkP("trtc"
 										, getResources().getString(R.string.taketransit_mrt) + step.transit_details.line.short_name
 										, getResources().getString(R.string.go_to) + step.transit_details.headsign + getResources().getString(R.string.dirction)
@@ -1014,7 +1104,7 @@ public class planroute extends Activity {
 							}
 							else if(agencyname.contentEquals("高雄捷運")) {
 								createImageViewbyR(R.drawable.krtc, tr, basic_pixel, basic_pixel);
-								
+
 								markers.add(new MarkP("krtc"
 										, getResources().getString(R.string.taketransit_mrt) + step.transit_details.line.short_name
 										, getResources().getString(R.string.go_to) + step.transit_details.headsign + getResources().getString(R.string.dirction)
@@ -1023,7 +1113,7 @@ public class planroute extends Activity {
 										, getResources().getString(R.string.exit_station)
 										, step.transit_details.arrival_stop.name
 										, step.transit_details.arrival_stop.location));
-								
+
 								dires.routes[i].legs[j].mark.add(new MarkP("krtc"
 										, getResources().getString(R.string.taketransit) + step.transit_details.line.short_name
 										, getResources().getString(R.string.go_to) + step.transit_details.headsign + getResources().getString(R.string.dirction)
@@ -1032,23 +1122,23 @@ public class planroute extends Activity {
 							else
 								createTextView("車", tr, Color.rgb(0,0,0), 0.1f, Gravity.CENTER, "transit,null", (String)null, (String)null);
 							text = new StringBuilder().append("all,").append(step.polyline.points).toString();
-							
+
 							if(getResources().getString(R.string.locale).contentEquals("English"))
 								headsign = String.format(" (%s%s) ", getResources().getString(R.string.go_to), name_translate_english(headsign.replaceAll("[a-zA-Z, ]", "")));
 							else
 								headsign = String.format(" (%s%s) ", getResources().getString(R.string.go_to), headsign);
-//							if(getResources().getString(R.string.locale).contentEquals("English")) {
-//								trans = trans.replace("Take", "Take MRT(subway)");
-//							}
+							//							if(getResources().getString(R.string.locale).contentEquals("English")) {
+							//								trans = trans.replace("Take", "Take MRT(subway)");
+							//							}
 							createTextView(trans + headsign + trans_to + time_taken, tr, Color.rgb(0,0,0), 0.85f, Gravity.LEFT | Gravity.CENTER_VERTICAL, text, markers);
 						}
 						else if(type.contentEquals("HEAVY_RAIL")) {
 							if(agencyname.contentEquals("台灣高鐵")) {
 								createImageViewbyR(R.drawable.hsr, tr, basic_pixel, basic_pixel);
 								text = new StringBuilder().append(text).append("hsr,").append(train_num(step.transit_details.headsign)+",")
-										.append(step.transit_details.departure_time.value+",")
-										.append(step.transit_details.departure_stop.name+",")
-										.append(step.transit_details.arrival_stop.name).toString();
+								.append(step.transit_details.departure_time.value+",")
+								.append(step.transit_details.departure_stop.name+",")
+								.append(step.transit_details.arrival_stop.name).toString();
 								dires.routes[i].legs[j].mark.add(new MarkP("thsrc"
 										, getResources().getString(R.string.taketransit) + step.transit_details.line.short_name
 										, step.transit_details.headsign
@@ -1069,12 +1159,12 @@ public class planroute extends Activity {
 							}
 							else
 								createTextView("車", tr, Color.rgb(0,0,0), 0.1f, Gravity.CENTER, "transit,null", step.transit_details.departure_stop.name, step.transit_details.arrival_stop.name);
-							
+
 							if(getResources().getString(R.string.locale).contentEquals("English"))
 								headsign = String.format(" (%s%s%s) ", getResources().getString(R.string.go_to), name_translate_english(headsign.replaceAll("[a-zA-Z0-9, ]", "")), headsign.substring(headsign.indexOf(',')));
 							else
 								headsign = String.format(" (%s) ", headsign);
-							
+
 							createTextView(trans + headsign + trans_to + time_taken, tr, Color.rgb(0,0,0), 0.85f, Gravity.LEFT | Gravity.CENTER_VERTICAL, text, 
 									step.start_location, step.end_location);
 
@@ -1086,13 +1176,13 @@ public class planroute extends Activity {
 							.append(trans_to)
 							.append("\n(" + step.transit_details.num_stops + getResources().getString(R.string.stops) + ", " +step.duration.text + ")").toString();
 							createImageViewbyR(R.drawable.ship, tr, basic_pixel, basic_pixel);
-							
+
 							ArrayList<MarkP> markers = new ArrayList<MarkP>();
 							markers.add(new MarkP("ferry", getResources().getString(R.string.taketransit) + getResources().getString(R.string.ferry), step.transit_details.num_stops + getResources().getString(R.string.stops) + ", " +step.duration.text, step.start_location));
 							markers.add(new MarkP("end", getResources().getString(R.string.destination), null, step.end_location));
-							
+
 							createTextView(description, tr, Color.rgb(0,0,0), 0.85f, Gravity.LEFT | Gravity.CENTER_VERTICAL, "all," + step.polyline.points, markers);
-							
+
 							dires.routes[i].legs[j].mark.add(new MarkP("ferry", getResources().getString(R.string.taketransit) + getResources().getString(R.string.ferry), step.transit_details.num_stops + getResources().getString(R.string.stops) + ", " +step.duration.text, step.start_location));
 						}
 						else if(type.contentEquals("DRIVING")) {
@@ -1126,9 +1216,9 @@ public class planroute extends Activity {
 				String dur = String.format(" (%d" + getResources().getString(R.string.hour) + "%d" + getResources().getString(R.string.minute) + ")",
 						TimeUnit.SECONDS.toHours(duration), TimeUnit.SECONDS.toMinutes(duration % 3600));
 				title = new StringBuilder().append(convertTime(dires.routes[i].legs[j].departure_time.value)).append(" - ")
-						.append(convertTime(dires.routes[i].legs[j].arrival_time.value))
-						.append(dur)
-						.append("\n" + str).toString();
+				.append(convertTime(dires.routes[i].legs[j].arrival_time.value))
+				.append(dur)
+				.append("\n" + str).toString();
 				createTextView(title, time_row, Color.rgb(0,0,0), 0.95f, Gravity.LEFT | Gravity.CENTER_VERTICAL,
 						"all," + dires.routes[i].overview_polyline.points, dires.routes[i].legs[j].mark);
 				createImageViewbyAnim(time_row, basic_btn_pixel, basic_btn_pixel);
@@ -1143,16 +1233,16 @@ public class planroute extends Activity {
 
 		return true;
 	}
-	
+
 	private String name_translate_english(String name) {
 		String en_stations[] = getResources().getStringArray(R.array.en_station_id);
 		String zh_trtc[] = getResources().getStringArray(R.array.zh_trtc);
 		String en_trtc[] = getResources().getStringArray(R.array.en_trtc);
 		String zh_krtc[] = getResources().getStringArray(R.array.zh_krtc);
 		String en_krtc[] = getResources().getStringArray(R.array.en_krtc);
-		
+
 		String out = name;
-		
+
 		if(getResources().getString(R.string.locale).contentEquals("English")) {
 			if(name.contains("火車站")) {
 				int idx = name.indexOf("火車站");
@@ -1224,12 +1314,12 @@ public class planroute extends Activity {
 			return;
 		}
 	}
-	
+
 	private int find_station_by_zhname(String station) {
 		String zh_stations[] = getResources().getStringArray(R.array.zh_station);
 		int i = 0;
 		boolean matched = false;
-		
+
 		if(station.matches("臺[北中南東]"))
 			station = station.replace("臺", "台");
 

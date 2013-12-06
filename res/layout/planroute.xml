@@ -104,21 +104,19 @@
 
                     <Button
                         android:id="@+id/btn_date"
-                        style="?android:attr/buttonStyleSmall"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="0.50"
                         android:textColor="@color/route_edit_fg"
-                        android:text="2013-12-06" />
+                        android:onClick="setdate"/>
                     
                     <Button
                         android:id="@+id/btn_time"
-                        style="?android:attr/buttonStyleSmall"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="0.35"
                         android:textColor="@color/route_edit_fg"
-                        android:text="12:00" />
+                        android:onClick="settime" />
 
                 </TableRow>
 

@@ -137,6 +137,8 @@
     <string name="CK">C.K.</string>
     <string name="Local">Local</string>
     <string name="duration">Dur.</string>
+    
+    <string name="pickdate">Date</string>
 
 <string-array name="country_arrays">
         <item>繁體中文</item>

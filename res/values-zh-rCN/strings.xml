@@ -17,7 +17,7 @@
     <string name="pos_to"><i>Taipei 101</i></string>
     <string name="str_from">起點</string>
     <string name="str_to">終點</string>
-    <string name="str_time">出發時間</string>
+    <string name="str_time">時間</string>
     <string name="go">Go</string>
     <string name="transit">轉乘</string>
     <string name="walkto">行走到</string>
@@ -151,6 +151,8 @@
     <string name="CK">莒光</string>
     <string name="Local">區間</string>
     <string name="duration">時間</string>
+    
+    <string name="pickdate">選擇日期</string>
     
     <string-array name="country_arrays">
         <item>繁體中文</item>
