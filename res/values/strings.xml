@@ -15,6 +15,7 @@
     <string name="pos_to"><i>Taipei 101</i></string>
     <string name="str_from">From</string>
     <string name="str_to">To</string>
+    <string name="str_time">ETD</string>
     <string name="go">Go</string>
     <string name="transit">Transit</string>
     <string name="walkto">Walk to&#160;</string>
@@ -45,7 +46,7 @@
     <string name="no_remind">Don\'t remind me again</string>
     <string name="info_sms_sending">Will send SMS, SMS charges may apply</string>
     <string name="info_planroute_edit">Address/Place/Favorite point</string>
-    <string name="info_showmap_edit">Looking for Address/Place</string>
+    <string name="info_showmap_edit">Address/Place</string>
     <string name="common_bus">Bus</string>
     <string name="common_mrt">Subway/MRT</string>
     <string name="trtc">TRTC</string>
@@ -96,7 +97,7 @@
 
     <string name="search_google">Search</string>
 
-    <string name="provide_by_tra">Source: TRA</string>
+    <string name="provide_by_tra">Source: Taiwan Railway Administration</string>
     <string name="provide_by_5284">Source: www.5284.com.tw</string>
     <string name="provide_by_khh">Source: Kaohsiung City Gov.</string>
     <string name="provide_by_txg">Source: Taichung City Gov.</string>

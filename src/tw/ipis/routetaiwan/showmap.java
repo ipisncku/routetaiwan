@@ -91,9 +91,10 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 	private LocationClient locationclient;
 	private LocationRequest locationrequest;
 	private boolean first_read = true;
+	private boolean pos_track = false;
 	private boolean button_exist = false;
-	MarkerOptions opt_start, opt_destination, opt_temp;
-	Marker start, dest, temp;
+	MarkerOptions opt_start, opt_destination, opt_temp, opt_mypos;
+	Marker start, dest, temp, mypos;
 	List<Marker> results;
 	Point p = new Point(0, 0);
 	private static final String projectdir = Environment.getExternalStorageDirectory() + "/.routetaiwan/";
@@ -113,6 +114,19 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 		criteria.setBearingRequired(false);
 		criteria.setCostAllowed(true);
 		criteria.setPowerRequirement(Criteria.POWER_LOW);
+		
+		Drawable dr = getResources().getDrawable(R.drawable.pos_notfollow);
+		Bitmap bitmap = ((BitmapDrawable) dr).getBitmap();
+		
+		Drawable drawable = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(bitmap, 
+				(int) (32 * getResources().getDisplayMetrics().density), (int) (32 * getResources().getDisplayMetrics().density), true)); 
+		ImageButton trackme = (ImageButton) findViewById(R.id.myMapLocationButton);
+		trackme.setBackgroundDrawable(drawable);		
+		RelativeLayout.LayoutParams imageLayoutParameters = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+		imageLayoutParameters.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+		imageLayoutParameters.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+		imageLayoutParameters.setMargins(0, 0, (int)(8 * getResources().getDisplayMetrics().density), (int)(8 * getResources().getDisplayMetrics().density));
+		trackme.setLayoutParams(imageLayoutParameters);
 
 		if (locationMgr.getBestProvider(criteria, true) == null ) {
 			AlertDialog.Builder dialog = new AlertDialog.Builder(new ContextThemeWrapper(this, R.style.ThemeWithCorners));
@@ -182,7 +196,7 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 				RelativeLayout.LayoutParams coverLayoutParameters = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
 				cover.setLayoutParams(coverLayoutParameters);
 				
-				RelativeLayout.LayoutParams imageLayoutParameters = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+				imageLayoutParameters = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
 				imageLayoutParameters.addRule(RelativeLayout.CENTER_IN_PARENT);
 				imageLayoutParameters.setMargins(0, 120, 0, 0);
 				image.setLayoutParams(imageLayoutParameters);
@@ -231,6 +245,7 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			opt_start = new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.map_start));
 			opt_destination = new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.map_destination));
 			opt_temp = new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.marker));
+			opt_mypos = new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.map_mylocation));
 
 			locationclient = new LocationClient(this,this,this);
 			locationclient.connect();
@@ -242,9 +257,11 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			googleMap = fm.getMap();
 
 			// Enabling MyLocation Layer of Google Map
-			googleMap.setMyLocationEnabled(true);
+			googleMap.setMyLocationEnabled(false);
 
 			googleMap.getUiSettings().setCompassEnabled(true);
+			googleMap.getUiSettings().setZoomControlsEnabled(false);
+			googleMap.getUiSettings().setAllGesturesEnabled(true);
 			
 			CameraPosition camPosition = new CameraPosition.Builder()
 			.target(new LatLng(23.583234, 120.582598))
@@ -266,16 +283,16 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			
 			etLocation = (EditText) findViewById(R.id.search_map);
 			
-			etLocation.setOnClickListener(new OnClickListener(){  
-				public void onClick(View v) {
-					etLocation.setError(getResources().getString(R.string.info_showmap_edit));
-				}  
-			});
+//			etLocation.setOnClickListener(new OnClickListener(){  
+//				public void onClick(View v) {
+//					etLocation.setError(getResources().getString(R.string.info_showmap_edit));
+//				}  
+//			});
 
 			cover.setOnTouchListener(new OnTouchListener() {
 				@Override
 				public boolean onTouch(View v, MotionEvent event) {
-					etLocation.setError(null);
+//					etLocation.setError(null);
 					p.x = (int)event.getX();
 					p.y = (int)event.getY();
 					return false;
@@ -359,7 +376,8 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 
 			// Getting longitude of the current location
 			double longitude = location.getLongitude();
-
+			
+			Log.i(TAG, "focus!");
 
 			if(first_read) {
 				CameraPosition camPosition = new CameraPosition.Builder()
@@ -370,6 +388,18 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 				googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(camPosition));
 				first_read = false;
 			}
+			else if(pos_track) {
+				CameraPosition camPosition = new CameraPosition.Builder()
+				.target(new LatLng(latitude, longitude))
+				.zoom(googleMap.getCameraPosition().zoom)
+				.build();
+
+				googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(camPosition));
+			}
+			opt_mypos.position(new LatLng(latitude, longitude));
+			if(mypos != null)
+				mypos.remove();
+			mypos = googleMap.addMarker(opt_mypos);
 		}
 	}
 
@@ -701,6 +731,32 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			}
 		});
 	}
+	
+	public void track_me(View v) {
+		ImageButton trackme = (ImageButton) findViewById(R.id.myMapLocationButton);
+		if(pos_track == false) {
+			pos_track = true;
+			Drawable dr = getResources().getDrawable(R.drawable.pos_follow);
+			Bitmap bitmap = ((BitmapDrawable) dr).getBitmap();
+			
+			Drawable drawable = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(bitmap, 
+					(int) (32 * getResources().getDisplayMetrics().density), (int) (32 * getResources().getDisplayMetrics().density), true)); 
+			trackme.setBackgroundDrawable(drawable);
+			if(locationclient != null && locationclient.isConnected()) {
+				Location last = locationclient.getLastLocation();
+				focus_on_me(last);
+			}
+		}
+		else {
+			pos_track = false;
+			Drawable dr = getResources().getDrawable(R.drawable.pos_notfollow);
+			Bitmap bitmap = ((BitmapDrawable) dr).getBitmap();
+			
+			Drawable drawable = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(bitmap, 
+					(int) (32 * getResources().getDisplayMetrics().density), (int) (32 * getResources().getDisplayMetrics().density), true)); 
+			trackme.setBackgroundDrawable(drawable);
+		}
+	}
 
 	public void google_search(View v) {
 		etLocation = (EditText) findViewById(R.id.search_map);
@@ -714,11 +770,19 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 		imm.hideSoftInputFromWindow(etLocation.getWindowToken(), 0);
 
 		if(location!=null && !location.equals("")){
+			pos_track = false;
+			Drawable dr = getResources().getDrawable(R.drawable.pos_notfollow);
+			Bitmap bitmap = ((BitmapDrawable) dr).getBitmap();
+			
+			Drawable drawable = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(bitmap, 
+					(int) (32 * getResources().getDisplayMetrics().density), (int) (32 * getResources().getDisplayMetrics().density), true)); 
+			ImageButton trackme = (ImageButton) findViewById(R.id.myMapLocationButton);
+			trackme.setBackgroundDrawable(drawable);
 			v.setEnabled(false);
 			new Geocoder_get_address_by_name().execute(location);
 		}
-		else
-			etLocation.setError(getResources().getString(R.string.info_showmap_edit));
+//		else
+//			etLocation.setError(getResources().getString(R.string.info_showmap_edit));
 	}
 	
 	private class Geocoder_get_address_by_name extends AsyncTask<String, Void, List<Address>>{

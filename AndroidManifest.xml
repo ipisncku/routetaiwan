@@ -3,14 +3,14 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="tw.ipis.routetaiwan"
-    android:versionCode="372"
+    android:versionCode="382"
     android:versionName="0.10.24" >
 
 <!--  Pad version  -->
 <!--
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="tw.ipis.routetaiwan"
-    android:versionCode="371"
+    android:versionCode="381"
     android:versionName="0.10.24" >
 -->
     <uses-sdk
@@ -106,19 +106,19 @@
         <activity android:name="tw.ipis.routetaiwan.SmsReceriver"
             android:configChanges="locale|orientation|screenSize"
             android:theme="@style/ThemeWithCorners_noTitle" ></activity>
-
-        <!--  production key  -->
-
+        
+				<!-- production key -->
+<!--        
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="AIzaSyCLlYQfiYAcQsQXFZbksR4Frr0yrIhhR98"/>
-
+-->
         <!-- debug key -->
-<!--
+
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="AIzaSyAL7IpREp53WpGcHshCcjBBgnsL6KYLhzw"/>
--->
+
         
     </application>
 

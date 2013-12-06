@@ -3,24 +3,36 @@
     android:id="@+id/rl_showmap"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
-
+    
     <fragment
         android:id="@+id/mapv2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         class="com.google.android.gms.maps.MapFragment" />
-
-    <View
-        android:id="@+id/mapcover"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:background="#00000000" />
-
+    
+    <ImageButton
+        android:id="@+id/myMapLocationButton"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginRight="8dp"
+        android:layout_marginBottom="8dp"
+        android:background="@drawable/pos_notfollow"
+        android:onClick="track_me"
+        android:contentDescription="My Location" />
+    
     <TableLayout
+        android:id="@+id/tl_map"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true" >
+        android:layout_alignParentTop="true"
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="10dp"
+        android:background="#CFFF" >
 
         <TableRow
             android:id="@+id/tableRow1"
@@ -31,9 +43,12 @@
                 android:id="@+id/search_map"
                 android:layout_height="wrap_content"
                 android:layout_width="0dp"
-                android:layout_weight="0.65"
+                android:layout_weight="0.80"
+                android:layout_gravity="center"
                 android:selectAllOnFocus="true"
                 android:singleLine="true"
+                android:textColor="#000000"
+                android:hint="@string/info_showmap_edit"
                 android:ems="10" >
             </EditText>
 
@@ -51,14 +66,15 @@
                 android:scaleType="fitCenter"
                 android:src="@drawable/search_btn" />
 
-            <View
-                android:id="@+id/view1"
-                android:layout_height="wrap_content"
-                android:layout_width="0dp"
-                android:layout_weight="0.15"
-                android:background="#00000000" />
-
         </TableRow>
     </TableLayout>
+
+    <View
+        android:id="@+id/mapcover"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:background="#00000000" />
 
 </RelativeLayout>

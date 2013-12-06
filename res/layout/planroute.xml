@@ -22,7 +22,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" >
 
-            <TableLayout android:layout_weight="0.70" >
+            <TableLayout
+                android:layout_weight="0.70" >
 
                 <TableRow>
 
@@ -88,6 +89,39 @@
                         android:completionHint="@string/info_planroute_edit"
                         android:textColorHint="#c3c3c3" />
                 </TableRow>
+                
+                <TableRow>
+
+                    <TextView
+                        android:id="@+id/texttime"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0.15"
+                        android:gravity="center"
+                        android:text="@string/str_time"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:textColor="@color/route_edit_fg" />
+
+                    <Button
+                        android:id="@+id/btn_date"
+                        style="?android:attr/buttonStyleSmall"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0.50"
+                        android:textColor="@color/route_edit_fg"
+                        android:text="2013-12-06" />
+                    
+                    <Button
+                        android:id="@+id/btn_time"
+                        style="?android:attr/buttonStyleSmall"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0.35"
+                        android:textColor="@color/route_edit_fg"
+                        android:text="12:00" />
+
+                </TableRow>
+
             </TableLayout>
 
             <ImageButton
@@ -107,16 +141,7 @@
                 android:src="@drawable/search_btn" />
         </TableRow>
 
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
 
-            <View
-                android:id="@+id/line2"
-                android:layout_width="match_parent"
-                android:layout_height="3dp"
-                android:background="#00000000" />
-        </TableRow>
     </TableLayout>
 
     <ScrollView
@@ -126,6 +151,7 @@
         android:layout_alignParentBottom="true"
         android:layout_below="@+id/tl_planroute"
         android:background="@color/route_show_bg" >
+
     </ScrollView>
 
 </RelativeLayout>
