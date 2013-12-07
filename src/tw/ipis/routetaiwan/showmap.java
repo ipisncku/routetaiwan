@@ -15,8 +15,8 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.DialogInterface.OnShowListener;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -94,7 +94,7 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 	private boolean pos_track = false;
 	private boolean button_exist = false;
 	MarkerOptions opt_start, opt_destination, opt_temp, opt_mypos;
-	Marker start, dest, temp, mypos;
+	Marker start, dest, temp;
 	List<Marker> results;
 	Point p = new Point(0, 0);
 	private static final String projectdir = Environment.getExternalStorageDirectory() + "/.routetaiwan/";
@@ -257,7 +257,7 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			googleMap = fm.getMap();
 
 			// Enabling MyLocation Layer of Google Map
-			googleMap.setMyLocationEnabled(false);
+			googleMap.setMyLocationEnabled(true);
 
 			googleMap.getUiSettings().setCompassEnabled(true);
 			googleMap.getUiSettings().setZoomControlsEnabled(false);
@@ -295,10 +295,21 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 //					etLocation.setError(null);
 					p.x = (int)event.getX();
 					p.y = (int)event.getY();
+					
+					ImageButton trackme = (ImageButton) findViewById(R.id.myMapLocationButton);
+					if(p.x <= trackme.getLeft() || p.y <= trackme.getTop()) {
+						pos_track = false;
+
+						Drawable dr = getResources().getDrawable(R.drawable.pos_notfollow);
+						Bitmap bitmap = ((BitmapDrawable) dr).getBitmap();
+
+						Drawable drawable = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(bitmap, 
+								(int) (32 * getResources().getDisplayMetrics().density), (int) (32 * getResources().getDisplayMetrics().density), true)); 
+						trackme.setBackgroundDrawable(drawable);
+					}
 					return false;
 				}
 			});
-
 
 			googleMap.setOnMapLongClickListener(new OnMapLongClickListener() {
 				@Override
@@ -397,9 +408,6 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 				googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(camPosition));
 			}
 			opt_mypos.position(new LatLng(latitude, longitude));
-			if(mypos != null)
-				mypos.remove();
-			mypos = googleMap.addMarker(opt_mypos);
 		}
 	}
 
@@ -835,8 +843,9 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 					MarkerOptions markerOptions = new MarkerOptions();
 					markerOptions.position(latLng);
 					markerOptions.title(address.getFeatureName());
-					markerOptions.snippet(address.getMaxAddressLineIndex() > 0 ? address.getAddressLine(0) 
-							: address.getAdminArea() + address.getLocality());
+					String description = address.getMaxAddressLineIndex() > 0 ? address.getAddressLine(0) 
+							: address.getAdminArea() + address.getLocality();
+					markerOptions.snippet(description.replace("null", ""));
 
 					Marker marker = googleMap.addMarker(markerOptions);
 					if(i == 0)
