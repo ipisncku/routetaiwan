@@ -245,7 +245,6 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 			opt_start = new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.map_start));
 			opt_destination = new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.map_destination));
 			opt_temp = new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.marker));
-			opt_mypos = new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.map_mylocation));
 
 			locationclient = new LocationClient(this,this,this);
 			locationclient.connect();
@@ -407,7 +406,6 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 
 				googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(camPosition));
 			}
-			opt_mypos.position(new LatLng(latitude, longitude));
 		}
 	}
 

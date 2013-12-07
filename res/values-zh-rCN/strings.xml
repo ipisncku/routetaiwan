@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">繞台灣</string>
-    <string name="plan_route">路徑規劃</string>
-    <string name="show_map">顯示地圖</string>
-    <string name="my_favorite">儲存路徑</string>
-    <string name="fav_points">喜愛點</string>
+    <string name="app_name">绕台湾</string>
+    <string name="plan_route">路径规划</string>
+    <string name="show_map">显示地图</string>
+    <string name="my_favorite">储存路径</string>
+    <string name="fav_points">喜爱点</string>
     <string name="version">版本</string>
     
-    <string name="locale">繁體中文</string>
-    <string name="language_settings">語言設定</string>
+    <string name="locale">简体中文</string>
+    <string name="language_settings">语言设定</string>
     <string name="hello_world">Hello world!</string>
-    <string name="showmap2">觀看地圖</string>
+    <string name="showmap2">观看地图</string>
     <string name="your_pos">Your Position: </string>
-    <string name="pos_from"><i>現在位置</i></string>
+    <string name="pos_from"><i>现在位置</i></string>
     <string name="pos_to"><i>Taipei 101</i></string>
-    <string name="str_from">起點</string>
-    <string name="str_to">終點</string>
-    <string name="str_time">時間</string>
+    <string name="str_from">起点</string>
+    <string name="str_to">终点</string>
+    <string name="str_time">时间</string>
     <string name="go">Go</string>
-    <string name="transit">轉乘</string>
+    <string name="transit">转乘</string>
     <string name="walkto">行走到</string>
     <string name="taketransit">搭乘</string>
     <string name="taketransit_bus">搭乘</string>
@@ -27,107 +27,107 @@
     <string name="go_to">往</string>
     <string name="dirction">方向</string>
     <string name="stops">站</string>
-    <string name="hour">小時</string>
+    <string name="hour">小时</string>
     <string name="minute">分</string>
     <string name="to">到</string>
-    <string name="no_service">未發車</string>
-    <string name="exit_stop">下車站</string>
-    <string name="exit_station">下車站</string>
-    <string name="warning_no_loc_provider">無法定位, 請開啟GPS或網路</string>
-    <string name="info_network_using">網路服務: </string>
-    <string name="info_positioning_by_gps">GPS定位中，請稍候</string>
+    <string name="no_service">未发车</string>
+    <string name="exit_stop">下车站</string>
+    <string name="exit_station">下车站</string>
+    <string name="warning_no_loc_provider">无法定位, 请开启GPS或网路</string>
+    <string name="info_network_using">网路服务: </string>
+    <string name="info_positioning_by_gps">GPS定位中，请稍候</string>
     <string name="info_gps_fixed">GPS定位完成</string>
-    <string name="info_positioning_by_network">使用網路定位中</string>
-    <string name="info_no_result">沒有結果, 請重新輸入</string>
-    <string name="info_internal_error">發生錯誤</string>
+    <string name="info_positioning_by_network">使用网路定位中</string>
+    <string name="info_no_result">没有结果, 请重新输入</string>
+    <string name="info_internal_error">发生错误</string>
     
-    <string name="info_illegal_num">電話號碼輸入錯誤</string>
+    <string name="info_illegal_num">电话号码输入错误</string>
     <string name="info_illegal_titlename">不合法字元 \",\"</string>
-    <string name="sms_sent">訊息已傳送</string>
-    <string name="sms_received">收到了位置簡訊</string>
+    <string name="sms_sent">讯息已传送</string>
+    <string name="sms_received">收到了位置短信</string>
     <string name="notice">提醒</string>
     <string name="no_remind">不再提醒</string>
-    <string name="info_sms_sending">將使用簡訊傳送，簡訊費用依各電信公司費率計收</string>
-    <string name="info_planroute_edit">地址/地名/喜愛點名稱</string>
+    <string name="info_sms_sending">将使用短信传送，短信费用依各电信公司费率计收</string>
+    <string name="info_planroute_edit">地址/地名/喜爱点名称</string>
     <string name="info_showmap_edit">地址/地名</string>
     
-    <string name="common_bus">公車</string>
-    <string name="common_mrt">捷運</string>
+    <string name="common_bus">公车</string>
+    <string name="common_mrt">捷运</string>
     
-    <string name="trtc">台北捷運</string>
-    <string name="krtc">高雄捷運</string>
-    <string name="hsr">台灣高鐵</string>
-    <string name="tra">台灣鐵路管理局</string>
+    <string name="trtc">台北捷运</string>
+    <string name="krtc">高雄捷运</string>
+    <string name="hsr">台湾高铁</string>
+    <string name="tra">台湾铁路管理局</string>
     
-    <string name="add_to_departure">起點</string>
-    <string name="add_to_arrival">終點</string>
-    <string name="send_friend">傳送</string>
-    <string name="save_result">儲存</string>
+    <string name="add_to_departure">起点</string>
+    <string name="add_to_arrival">终点</string>
+    <string name="send_friend">传送</string>
+    <string name="save_result">储存</string>
     <string name="cancel_result">清除</string>
     
-    <string name="edit_title">地點名稱</string>
+    <string name="edit_title">地点名称</string>
     
-    <string name="goto_planroute">規劃路徑</string>
+    <string name="goto_planroute">规划路径</string>
     
-    <string name="sendfrom">來自</string>
+    <string name="sendfrom">来自</string>
     
-    <string name="name_or_number">輸入電話號碼</string>
+    <string name="name_or_number">输入电话号码</string>
     
-    <string name="instruction">長按地圖可以設定起/終點\n或是傳送地點給親朋好友喔!</string>
-    <string name="plan_route_instruction">點選各細項可以看詳細解說\n長按結果可以儲存路徑</string>
-    <string name="understand">了解</string>
+    <string name="instruction">长按地图可以设定起/终点\n或是传送地点给亲朋好友喔!</string>
+    <string name="plan_route_instruction">点选各细项可以看详细解说\n长按结果可以储存路径</string>
+    <string name="understand">明白</string>
     
-    <string name="diag_saving">儲存此路徑?</string>
-    <string name="diag_delete">確定要刪除嗎?</string>
-    <string name="saved">已儲存</string>
-    <string name="saved_to_fav">已儲存到喜愛點</string>
-    <string name="diag_yes">確定</string>
+    <string name="diag_saving">储存此路径?</string>
+    <string name="diag_delete">确定要删除吗?</string>
+    <string name="saved">已储存</string>
+    <string name="saved_to_fav">已储存到喜爱点</string>
+    <string name="diag_yes">确定</string>
     <string name="diag_no">取消</string>
-    <string name="file_already_existed">路徑已經存在</string>
+    <string name="file_already_existed">路径已经存在</string>
     
-    <string name="realtime_under_construction">即時資訊施工中</string>
-    <string name="realtime_info">即時資訊</string>
-    <string name="arriving">進站中</string>
-    <string name="almost_arriving">即將到站</string>
-    <string name="hsr_status">高鐵目前狀態</string>
-    <string name="hsr_normal">正常運行</string>
-    <string name="hsr_warning">異常狀況</string>
-    <string name="network_issue">網路連線異常</string>
-    <string name="time_table">時刻表</string>
+    <string name="realtime_under_construction">即时资讯施工中</string>
+    <string name="realtime_info">即时资讯</string>
+    <string name="arriving">进站中</string>
+    <string name="almost_arriving">即将到站</string>
+    <string name="hsr_status">高铁目前状态</string>
+    <string name="hsr_normal">正常运行</string>
+    <string name="hsr_warning">异常状况</string>
+    <string name="network_issue">网路连线异常</string>
+    <string name="time_table">时刻表</string>
     
-    <string name="estimate">預計</string>
-    <string name="departure_time">出發時間</string>
-    <string name="arrival_time">抵達時間</string>
-    <string name="trival_time">行駛時間</string>
-    <string name="train_id">車次</string>
+    <string name="estimate">预计</string>
+    <string name="departure_time">出发时间</string>
+    <string name="arrival_time">抵达时间</string>
+    <string name="trival_time">行驶时间</string>
+    <string name="train_id">车次</string>
     
-    <string name="no_data">沒有資料</string>
-    <string name="no_loc_provider">WiFi/GPS定位服務未開啟</string>
-    <string name="no_loc_provider_msg">至少需要一項定位服務\n按\"確定\"前往設定頁面</string>
-    <string name="no_network">無法使用網路</string>
-    <string name="error">錯誤</string>
-    <string name="not_in_tw">查詢的位置不在台灣，目前僅支援台灣本島</string>
-    <string name="ok">確定</string>
+    <string name="no_data">没有资料</string>
+    <string name="no_loc_provider">WiFi/GPS定位服务未开启</string>
+    <string name="no_loc_provider_msg">至少需要一项定位服务\n按\"确定\"前往设定页面</string>
+    <string name="no_network">无法使用网路</string>
+    <string name="error">错误</string>
+    <string name="not_in_tw">查询的位置不在台湾，目前仅支援台湾本岛</string>
+    <string name="ok">确定</string>
     <string name="cancel">取消</string>
     
     <string name="search_google">Search</string>
     
-    <string name="provide_by_tra">資料來源: 台灣鐵路局</string>
-    <string name="provide_by_5284">資料來源: 5284我愛巴士</string>
-    <string name="provide_by_khh">資料來源: 高雄市政府</string>
-    <string name="provide_by_txg">資料來源: 台中市政府</string>
-    <string name="provide_by_tyn">資料來源: 桃園縣政府</string>
-    <string name="provide_by_bus">資料來源: 公路總局</string>
-    <string name="provide_by_thsr">資料來源: 台灣高鐵</string>
-    <string name="error_find_start_dest">無法標記起訖點</string>
+    <string name="provide_by_tra">资料来源: 台湾铁路局</string>
+    <string name="provide_by_5284">资料来源: 5284我爱巴士</string>
+    <string name="provide_by_khh">资料来源: 高雄市政府</string>
+    <string name="provide_by_txg">资料来源: 台中市政府</string>
+    <string name="provide_by_tyn">资料来源: 桃园县政府</string>
+    <string name="provide_by_bus">资料来源: 公路总局</string>
+    <string name="provide_by_thsr">资料来源: 台湾高铁</string>
+    <string name="error_find_start_dest">无法标记起讫点</string>
     
-    <string name="departure">起點</string>
+    <string name="departure">起点</string>
     <string name="destination">目的地</string>
-    <string name="choose_line">選擇路線</string>
-    <string name="carrier">客運業者</string>
-    <string name="fav_pt_hint">喜愛點提示</string>
-    <string name="details">詳細資訊</string>
-    <string name="no_service_today">本日無發車</string>
+    <string name="choose_line">选择路线</string>
+    <string name="carrier">客运业者</string>
+    <string name="fav_pt_hint">喜爱点提示</string>
+    <string name="details">详细资讯</string>
+    <string name="no_service_today">本日无发车</string>
     
     <string name="sun">日</string>
     <string name="mon">一</string>
@@ -137,26 +137,28 @@
     <string name="fri">五</string>
     <string name="sat">六</string>
     
-    <string name="ferry">渡輪</string>
-    <string name="current_status">目前狀態</string>
-    <string name="on_time">準點</string>
+    <string name="ferry">渡轮</string>
+    <string name="current_status">目前状态</string>
+    <string name="on_time">准点</string>
     <string name="delay">晚</string>
     <string name="station">站名</string>
     <string name="train_arr_time">到站</string>
-    <string name="train_dep_time">離站</string>
+    <string name="train_dep_time">离站</string>
     
-    <string name="train_type">車種</string>
+    <string name="train_type">车种</string>
     
-    <string name="TC">自強</string>
+    <string name="TC">自强</string>
     <string name="CK">莒光</string>
-    <string name="Local">區間</string>
-    <string name="duration">時間</string>
+    <string name="Local">区间</string>
+    <string name="Localfast">区间快</string>
+    <string name="duration">时间</string>
     
-    <string name="pickdate">選擇日期</string>
-    <string name="picktime">選擇時間</string>
+    <string name="pickdate">选择日期</string>
+    <string name="picktime">选择时间</string>
     
     <string-array name="country_arrays">
         <item>繁體中文</item>
+        <item>简体中文</item>
         <item>English</item>
     </string-array>
     

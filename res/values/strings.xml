@@ -136,6 +136,7 @@
     <string name="TC">T.C.</string>
     <string name="CK">C.K.</string>
     <string name="Local">Local</string>
+    <string name="Localfast">Local</string>
     <string name="duration">Dur.</string>
     
     <string name="pickdate">Date</string>
@@ -144,8 +145,9 @@
     
     <string name="search">Start search</string>
 
-<string-array name="country_arrays">
+    <string-array name="country_arrays">
         <item>繁體中文</item>
+        <item>简体中文</item>
         <item>English</item>
     </string-array>
 

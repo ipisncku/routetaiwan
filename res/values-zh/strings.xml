@@ -150,6 +150,7 @@
     <string name="TC">自強</string>
     <string name="CK">莒光</string>
     <string name="Local">區間</string>
+    <string name="Localfast">區間快</string>
     <string name="duration">時間</string>
     
     <string name="pickdate">選擇日期</string>
@@ -157,6 +158,7 @@
     
     <string-array name="country_arrays">
         <item>繁體中文</item>
+        <item>简体中文</item>
         <item>English</item>
     </string-array>
     

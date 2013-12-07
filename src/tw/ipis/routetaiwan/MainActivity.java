@@ -116,10 +116,13 @@ public class MainActivity extends Activity {
 			public void onClick(DialogInterface dialog, int which) {
 				switch (which) {
 				case 0:
-					setLocale("zh_TW");
+					setLocale(Locale.TRADITIONAL_CHINESE);
 					break;
 				case 1:
-					setLocale("en");
+					setLocale(Locale.SIMPLIFIED_CHINESE);
+					break;
+				case 2:
+					setLocale(Locale.ENGLISH);
 					break;
 				}
 			}
@@ -127,8 +130,8 @@ public class MainActivity extends Activity {
 		dialog.show();
 	}
 
-	public void setLocale(String lang) {
-		myLocale = new Locale(lang);
+	public void setLocale(Locale lang) {
+		myLocale = lang;
 		Resources res = getResources();
 		DisplayMetrics dm = res.getDisplayMetrics();
 		Configuration conf = res.getConfiguration();

@@ -631,6 +631,8 @@ public class planroute extends Activity {
 
 		if(getResources().getString(R.string.locale).contentEquals("English"))
 			Mapapi = new StringBuilder().append(Mapapi).append("&language=en").toString();
+		else if(getResources().getString(R.string.locale).contentEquals("简体中文"))
+			Mapapi = new StringBuilder().append(Mapapi).append("&language=zh-cn").toString();
 		else
 			Mapapi = new StringBuilder().append(Mapapi).append("&language=zh-tw").toString();
 

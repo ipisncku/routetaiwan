@@ -1808,6 +1808,10 @@ public class pop_transit extends Activity {
 				type.setTextColor(Color.BLACK);
 				type.setText(R.string.Local);
 			}
+			else if(train.type.contentEquals("Fast Local Train")) {
+				type.setTextColor(Color.BLACK);
+				type.setText(R.string.Local);
+			}
 			else {
 				type.setTextColor(Color.BLACK);
 				type.setText(train.type);
