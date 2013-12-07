@@ -295,58 +295,6 @@ public class planroute extends Activity {
 		}
 	}
 
-	//	private class get_fav_points extends AsyncTask<Void, Void, String[]> {
-	//		@Override
-	//		protected String[] doInBackground(Void... params) {
-	//			File folder = new File(projectdir);
-	//			if (!folder.exists()) {
-	//				folder.mkdir();
-	//				return new String[0];
-	//			}
-	//			else {
-	//				favorite_points = new ArrayList<File>();
-	//				points = new ArrayList<FavPoint>();
-	//				/* Display result */
-	//				favorite_points = getListFiles(folder);
-	//				if(favorite_points.isEmpty()) {
-	//					return new String[0];
-	//				}
-	//				for(File fd : favorite_points) {
-	//					try {
-	//						String buf = getStringFromFile(fd);
-	//						FavPoint fp = decode_str_to_points(buf);
-	//						if(fp == null && fd.exists())
-	//							fd.delete();
-	//						else if(fp != null) {
-	//							fp.set_filename(fd);
-	//							points.add(fp);
-	//						}
-	//					} catch (Exception e) {
-	//						Log.e(TAG, "Cannot open file " + fd.getName());
-	//						e.printStackTrace();
-	//					}
-	//				}
-	//				if(points.size() > 0) {
-	//					String list[] = new String[points.size()];
-	//					for(int i=0; i<points.size(); i++) {
-	//						list[i] = points.get(i).name;
-	//					}
-	//					return list;
-	//				}
-	//				return new String[0];
-	//			}
-	//		}
-	//
-	//		@Override
-	//		protected void onPostExecute(String[] contact) {
-	//			if(contact.length > 0) {
-	//				adapter = new ArrayAdapter<String>(planroute.this, R.layout.contact_list, R.id.contact_name, contact);
-	//				from.setAdapter(adapter);
-	//				to.setAdapter(adapter);
-	//			}
-	//		}
-	//	}
-
 	public FavPoint decode_str_to_points(String buf) {
 		if(buf == null)
 			return null;
@@ -686,7 +634,16 @@ public class planroute extends Activity {
 		else
 			Mapapi = new StringBuilder().append(Mapapi).append("&language=zh-tw").toString();
 
-		long now = System.currentTimeMillis() / 1000;
+		Calendar c = Calendar.getInstance();
+		String date[] = tv_date.getText().toString().split("-");
+		String time[] = tv_time.getText().toString().split(":");
+		
+		if(date.length == 3 && time.length == 2) {
+			c.set(Integer.parseInt(date[0]), Integer.parseInt(date[1]) - 1, Integer.parseInt(date[2])
+					, Integer.parseInt(time[0]), Integer.parseInt(time[1]));
+		}
+		long now = c.getTimeInMillis() / 1000;
+		
 		if(destination.isEmpty())
 			destination = "Taipei 101";
 
@@ -774,7 +731,7 @@ public class planroute extends Activity {
 	public String convertTime(long time){
 		time = time * 1000;	// Change to milli-seconds
 		Date date = new Date(time);
-		Format format = new SimpleDateFormat("HH:mm");
+		Format format = new SimpleDateFormat("MM/dd HH:mm");
 		return format.format(date).toString();
 	}
 

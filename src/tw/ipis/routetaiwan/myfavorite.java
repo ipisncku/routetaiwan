@@ -156,7 +156,7 @@ public class myfavorite extends Activity {
 	public String convertTime(long time){
 		time = time * 1000;	// Change to milli-seconds
 		Date date = new Date(time);
-		Format format = new SimpleDateFormat("HH:mm");
+		Format format = new SimpleDateFormat("MM/dd HH:mm");
 		return format.format(date).toString();
 	}
 

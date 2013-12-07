@@ -141,6 +141,8 @@
     <string name="pickdate">Date</string>
     <string name="picktime">Time</string>
     <string name="colon">：</string>
+    
+    <string name="search">Start search</string>
 
 <string-array name="country_arrays">
         <item>繁體中文</item>

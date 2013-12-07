@@ -4,12 +4,13 @@
 
     <TableLayout
         android:id="@+id/tl_timepicker"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true" >
 
-        <TableRow>
+        <TableRow
+            android:layout_centerHorizontal="true">
 
             <NumberPicker
                 android:id="@+id/hour_picker"
@@ -40,6 +41,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/tl_timepicker"
-        android:text="@string/diag_yes" />
+        android:text="@string/ok" />
 
 </RelativeLayout>

@@ -65,6 +65,8 @@ GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 
 			// Enabling MyLocation Layer of Google Map
 			googleMap.setMyLocationEnabled(true);
+			googleMap.getUiSettings().setZoomControlsEnabled(false);
+			googleMap.getUiSettings().setAllGesturesEnabled(true);
 
 			// Draw poly line and make markers.
 			Bundle Data = this.getIntent().getExtras();

@@ -15,6 +15,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/numberPicker1"
-        android:text="@string/diag_yes" />
+        android:text="@string/ok" />
 
 </RelativeLayout>
