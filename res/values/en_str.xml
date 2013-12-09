@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="en_str">
+        <item>HSR</item>
+        <item>Tze-Chiang Limited Express</item>
+        <item>Chu-Kuang Express</item>
+        <item>Local Train</item>
+        <item>MRT Tamsui (Red/Green) Line</item>
+        <item>MRT Xinyi (Red) Line</item>
+        <item>MRT Zhonghe-XinLu (Orange) Line</item>
+        <item>MRT Bannan (Blue) Line</item>
+        <item>MRT Wenhu (Brown) Line</item>
+        <item>MRT Xiaonanmen (Light Green) Line</item>
+        <item>MRT Xiaobitan Branch Line</item>
+        <item>Maokong Gondola</item>
+        <item>MRT Red Line</item>
+        <item>MRT Orange Line</item>
+    </string-array>
+
+</resources>

@@ -150,11 +150,15 @@
     <string name="TC">自強</string>
     <string name="CK">莒光</string>
     <string name="Local">區間</string>
-    <string name="Localfast">區間快</string>
+    <string name="Localfast">區快</string>
     <string name="duration">時間</string>
     
     <string name="pickdate">選擇日期</string>
     <string name="picktime">選擇時間</string>
+    <string name="trainstation">火車站</string>
+    <string name="normalstation">站</string>
+    <string name="str_hsr">高鐵</string>
+    <string name="mrt">捷運</string>
     
     <string-array name="country_arrays">
         <item>繁體中文</item>

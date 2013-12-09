@@ -87,6 +87,7 @@ public class pop_transit extends Activity {
 	final Handler handler = new Handler();
 	Runnable runtask;
 	private String[] hsr_stations = {"台北站", "板橋站", "桃園站", "新竹站", "台中站", "嘉義站", "台南站", "左營站"};
+	private String[] cn_hsr_stations = {"台北站", "板桥站", "桃园站", "新竹站", "台中站", "嘉义站", "台南站", "左营站"};
 	private String[] en_hsr_stations = {"Taipei", "Banciao", "Taoyuan", "Hsinchu", "Taichung", "Chiayi", "Tainan", "Zuoying"};
 	private static final int ID_PROVIDER_ANNOUNCEMENT = 0x12365401;
 	private static final int ID_HSR_STATUS = 0x12345001;
@@ -187,6 +188,7 @@ public class pop_transit extends Activity {
 
 			String zh_stations[] = getResources().getStringArray(R.array.zh_station);
 			String en_stations[] = getResources().getStringArray(R.array.en_station_id);
+			String cn_stations[] = getResources().getStringArray(R.array.cn_station);
 
 			/* 設定activity title, ex: 自強 123 */
 			this.setTitle(car_class + " " + line);
@@ -322,6 +324,8 @@ public class pop_transit extends Activity {
 			TextView tv_depart_time = new TextView(pop_transit.this);
 			if(getResources().getString(R.string.locale).contentEquals("English"))
 				tv_depart_time.setText(en_stations[dept_station_seq] + getResources().getString(R.string.estimate) + getResources().getString(R.string.departure_time) + ": " + depart_time);
+			else if(getResources().getString(R.string.locale).contentEquals("简体中文"))
+				tv_depart_time.setText(cn_stations[dept_station_seq] + getResources().getString(R.string.estimate) + getResources().getString(R.string.departure_time) + ": " + depart_time);
 			else
 				tv_depart_time.setText(zh_stations[dept_station_seq] + getResources().getString(R.string.estimate) + getResources().getString(R.string.departure_time) + ": " + depart_time);
 			tv_depart_time.setBackgroundColor(Color.BLACK);
@@ -375,6 +379,8 @@ public class pop_transit extends Activity {
 			tv.setTextColor(Color.WHITE);
 			if(getResources().getString(R.string.locale).contentEquals("English"))
 				tv.setText(en_stations[dept_station_seq]);
+			else if(getResources().getString(R.string.locale).contentEquals("简体中文"))
+				tv.setText(cn_stations[dept_station_seq]);
 			else
 				tv.setText(zh_stations[dept_station_seq]);
 			tv.setTextSize(16);
@@ -389,6 +395,8 @@ public class pop_transit extends Activity {
 			tv.setTextColor(Color.WHITE);
 			if(getResources().getString(R.string.locale).contentEquals("English"))
 				tv.setText(en_stations[arr_station_seq]);
+			else if(getResources().getString(R.string.locale).contentEquals("简体中文"))
+				tv.setText(cn_stations[arr_station_seq]);
 			else
 				tv.setText(zh_stations[arr_station_seq]);
 			tv.setTextSize(16);
@@ -701,6 +709,8 @@ public class pop_transit extends Activity {
 			String boarding_time = String.format("%02d/%02d %02d:%02d", date.month + 1, date.monthDay, date.hour, date.minute);
 			if(getResources().getString(R.string.locale).contentEquals("English"))
 				tv.setText(en_hsr_stations[seq_dept] + getResources().getString(R.string.estimate) + getResources().getString(R.string.departure_time) + ": " + boarding_time);
+			else if(getResources().getString(R.string.locale).contentEquals("简体中文"))
+				tv.setText(cn_hsr_stations[seq_dept] + getResources().getString(R.string.estimate) + getResources().getString(R.string.departure_time) + ": " + boarding_time);
 			else 
 				tv.setText(dept + getResources().getString(R.string.estimate) + getResources().getString(R.string.departure_time) + ": " + boarding_time);
 			tv.setTextColor(Color.WHITE);
@@ -749,6 +759,8 @@ public class pop_transit extends Activity {
 			tv = new TextView(this);
 			if(getResources().getString(R.string.locale).contentEquals("English"))
 				tv.setText(en_hsr_stations[seq_dept]);
+			else if(getResources().getString(R.string.locale).contentEquals("简体中文"))
+				tv.setText(cn_hsr_stations[seq_dept]);
 			else
 				tv.setText(dept);
 			tv.setTextColor(Color.WHITE);
@@ -763,6 +775,8 @@ public class pop_transit extends Activity {
 			tv = new TextView(this);
 			if(getResources().getString(R.string.locale).contentEquals("English"))
 				tv.setText(en_hsr_stations[seq_arr]);
+			else if(getResources().getString(R.string.locale).contentEquals("简体中文"))
+				tv.setText(cn_hsr_stations[seq_arr]);
 			else
 				tv.setText(arr);
 			tv.setTextColor(Color.WHITE);
@@ -1885,6 +1899,7 @@ public class pop_transit extends Activity {
 		boolean first_read = false;
 		int train_index = 0;
 		String en_stations[] = getResources().getStringArray(R.array.en_station_id);
+		String cn_stations[] = getResources().getStringArray(R.array.cn_station);
 
 		if(timetable.isEmpty()) {
 			first_read = true;
@@ -1914,11 +1929,13 @@ public class pop_transit extends Activity {
 				TextView tv = new TextView(this);
 				tv.setTextColor(Color.BLACK);
 				tv.setText(temp.station);
-				if(getResources().getString(R.string.locale).contentEquals("English")) {
-					int idx = find_station_by_zhname(string_replace(temp.station));
-					if(idx >= 0)
-						tv.setText(en_stations[idx]);
-				}
+				
+				int idx = find_station_by_zhname(string_replace(temp.station));
+				if(idx >= 0 && getResources().getString(R.string.locale).contentEquals("English"))
+					tv.setText(en_stations[idx]);
+				else if(idx >= 0 && getResources().getString(R.string.locale).contentEquals("简体中文"))
+					tv.setText(cn_stations[idx]);
+				
 				tv.setTextSize(16);
 				tv.setHorizontallyScrolling(false);
 				tv.setWidth(0);

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="zh_str">
+        <item>高鐵</item>
+        <item>自強號</item>
+        <item>莒光號</item>
+        <item>復興/區間</item>
+        <item>捷運淡水線</item>
+        <item>台北捷運信義線</item>
+        <item>台北捷運中和蘆洲線</item>
+        <item>台北捷運板南線</item>
+        <item>台北捷運文湖線</item>
+        <item>台北捷運小南門線</item>
+        <item>台北捷運小碧潭支線</item>
+        <item>貓空纜車</item>
+        <item>高雄捷運紅線</item>
+        <item>高雄捷運橘線</item>
+    </string-array>
+
+</resources>

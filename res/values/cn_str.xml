@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="cn_str">
+        <item>高铁</item>
+        <item>自强号</item>
+        <item>莒光号</item>
+        <item>復兴/区间</item>
+        <item>捷运淡水线</item>
+        <item>台北捷运信义线</item>
+        <item>台北捷运中和芦洲线</item>
+        <item>台北捷运板南线</item>
+        <item>台北捷运文湖线</item>
+        <item>台北捷运小南门线</item>
+        <item>台北捷运小碧潭支线</item>
+        <item>猫空缆车</item>
+        <item>高雄捷运红线</item>
+        <item>高雄捷运橘线</item>
+    </string-array>
+
+</resources>

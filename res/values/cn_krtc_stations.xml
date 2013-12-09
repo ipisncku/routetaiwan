@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string-array name="cn_krtc">
+		<item>小港站</item>
+		<item>高雄国际机场站</item>
+		<item>草衙站</item>
+		<item>前镇高中站</item>
+		<item>凯旋站</item>
+		<item>狮甲站</item>
+		<item>三多商圈站</item>
+		<item>中央公园站</item>
+		<item>美丽岛站</item>
+		<item>高雄车站</item>
+		<item>后驿站</item>
+		<item>凹子底站</item>
+		<item>巨蛋站</item>
+		<item>生态园区站</item>
+		<item>左营站</item>
+		<item>世运站</item>
+		<item>油厂国小站</item>
+		<item>楠梓加工区站</item>
+		<item>后劲站</item>
+		<item>都会公园站</item>
+		<item>青埔站</item>
+		<item>桥头糖厂站</item>
+		<item>桥头火车站</item>
+		<item>南冈山站</item>
+		<item>西子湾站</item>
+		<item>盐埕埔站</item>
+		<item>市议会站</item>
+		<item>信义国小站</item>
+		<item>文化中心站</item>
+		<item>五块厝站</item>
+		<item>技击馆站</item>
+		<item>卫武营站</item>
+		<item>凤山西站</item>
+		<item>凤山站</item>
+		<item>大东站</item>
+		<item>凤山国中站</item>
+		<item>大寮站</item>
+	</string-array>
+</resources>

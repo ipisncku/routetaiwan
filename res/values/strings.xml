@@ -144,6 +144,10 @@
     <string name="colon">：</string>
     
     <string name="search">Start search</string>
+    <string name="trainstation">station</string>
+    <string name="normalstation">station</string>
+    <string name="str_hsr">HSR</string>
+    <string name="mrt">MRT</string>
 
     <string-array name="country_arrays">
         <item>繁體中文</item>
