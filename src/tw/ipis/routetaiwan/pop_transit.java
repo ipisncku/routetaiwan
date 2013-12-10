@@ -177,10 +177,11 @@ public class pop_transit extends Activity {
 			final String str_date = String.format("%d/%02d/%02d", date.year, date.month + 1, date.monthDay);
 			String depart_time = String.format("%02d:%02d", date.hour, date.minute);
 
-			String depart_time_later = "23:59";
+			String depart_time_later = (date.hour + 3 > 23) ? "23:59" : String.format("%02d:%02d", date.hour + 3, date.minute);;
 
 			final String tra_real_time_url = "http://twtraffic.tra.gov.tw/twrail/mobile/TrainDetail.aspx?searchdate={0}&traincode={1}";
-			String tra_timetable_url = "http://163.29.3.99/mobile_en/clean/result.jsp?from1={0}&to1={1}&carclass=2&Date={2}&sTime={3}&eTime={4}&Dep=true&Submit=Submit";
+//			String tra_timetable_url = "http://163.29.3.99/mobile_en/clean/result.jsp?from1={0}&to1={1}&carclass=2&Date={2}&sTime={3}&eTime={4}&Dep=true&Submit=Submit";
+			String tra_timetable_url = "http://twtraffic.tra.gov.tw/twrail/SearchResult.aspx?searchtype=0&searchdate={2}&fromstation={0}&tostation={1}&trainclass=2&fromtime={3}&totime={4}";
 			String current_status = getResources().getString(R.string.current_status) + ":";
 
 			int dept_station_seq = find_station_by_zhname(dept.replaceAll("[火]?車站", ""));
@@ -531,7 +532,7 @@ public class pop_transit extends Activity {
 						});
 				String timetable_url = MessageFormat.format(tra_timetable_url
 						, id_stations[dept_station_seq], id_stations[arr_station_seq]
-								, str_date, depart_time, depart_time_later);
+								, str_date, depart_time.replace(":", ""), depart_time_later.replace(":", ""));
 				Log.i(TAG, "url=" + timetable_url);
 				timetable.addView(process2);
 				task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, timetable_url);
@@ -1810,19 +1811,19 @@ public class pop_transit extends Activity {
 			type.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, (int) (32 * getResources().getDisplayMetrics().density), 0.15f));
 			tr.addView(type);
 
-			if(train.type.contentEquals("Tze-Chiang")) {
+			if(train.type.contentEquals("自強")) {
 				type.setTextColor(Color.RED);
 				type.setText(R.string.TC);
 			}
-			else if(train.type.contentEquals("Chu-Kuang")) {
+			else if(train.type.contentEquals("莒光")) {
 				type.setTextColor(Color.rgb(0xdc, 0x8c, 0x00));
 				type.setText(R.string.CK);
 			}
-			else if(train.type.contentEquals("Local Train")) {
+			else if(train.type.contentEquals("區間車")) {
 				type.setTextColor(Color.BLACK);
 				type.setText(R.string.Local);
 			}
-			else if(train.type.contentEquals("Fast Local Train")) {
+			else if(train.type.contentEquals("區間快")) {
 				type.setTextColor(Color.BLACK);
 				type.setText(R.string.Local);
 			}
@@ -2518,15 +2519,30 @@ public class pop_transit extends Activity {
 						org.jsoup.nodes.Document doc;
 						doc = Jsoup.connect(url).userAgent("Mozilla").get();
 
-						Elements ps = doc.select("p.even, p.odd");
-						for(org.jsoup.nodes.Element p : ps) {
-							Elements fonts = p.select("font");
-							Log.i(TAG, String.format("%s %s: %s %s(%s)", fonts.get(0).text(), fonts.get(1).text()
-									, fonts.get(2).text(), fonts.get(3).text(), fonts.get(4).text()));
-							TrainTimeTable tt = new TrainTimeTable(fonts.get(0).text(), fonts.get(1).text()
-									, fonts.get(2).text(), fonts.get(3).text(), fonts.get(4).text());
-							routes.add(tt);
+						Elements trs = doc.select("tr.Grid_Row");
+						
+						if(trs.size() > 1) {
+							for(int i = 1; i < trs.size(); i++) {
+								Elements tds = trs.get(i).select("td");
+								if(tds.size() == 11) {
+									TrainTimeTable tt = new TrainTimeTable(tds.get(0).text(), tds.get(1).text()
+									, tds.get(4).text(), tds.get(5).text(), tds.get(6).text());
+									Log.i(TAG, String.format("(%d)%s %s: %s %s(%s)", tds.size(), tds.get(0).text(), tds.get(1).text()
+											, tds.get(4).text(), tds.get(5).text(), tds.get(6).text()));
+									routes.add(tt);
+								}
+							}
 						}
+						
+//						Elements ps = doc.select("p.even, p.odd");
+//						for(org.jsoup.nodes.Element p : ps) {
+//							Elements fonts = p.select("font");
+//							Log.i(TAG, String.format("%s %s: %s %s(%s)", fonts.get(0).text(), fonts.get(1).text()
+//									, fonts.get(2).text(), fonts.get(3).text(), fonts.get(4).text()));
+//							TrainTimeTable tt = new TrainTimeTable(fonts.get(0).text(), fonts.get(1).text()
+//									, fonts.get(2).text(), fonts.get(3).text(), fonts.get(4).text());
+//							routes.add(tt);
+//						}
 						success = true;
 					} catch (IOException e) {
 						Log.i(TAG, "fail! retry!");

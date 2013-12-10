@@ -17,7 +17,7 @@ public class TrainTimeTable {
 	
 	/* duration 0 h 36m -> 0:36 */
 	private String convert_time2str(String raw) {
-		String out = raw.replaceAll("[ m]", "").replace("h", "&");
+		String out = raw.replaceAll("分", "").replace("小時", "&");
 		String time[] = out.split("&");
 		if(time.length == 2)
 			return String.format("%d:%02d", Integer.parseInt(time[0]), Integer.parseInt(time[1]));
