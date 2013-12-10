@@ -177,7 +177,7 @@ public class pop_transit extends Activity {
 			final String str_date = String.format("%d/%02d/%02d", date.year, date.month + 1, date.monthDay);
 			String depart_time = String.format("%02d:%02d", date.hour, date.minute);
 
-			String depart_time_later = (date.hour + 3 > 23) ? "23:59" : String.format("%02d:%02d", date.hour + 3, date.minute);;
+			String depart_time_later = (date.hour + 6 > 23) ? "23:59" : String.format("%02d:%02d", date.hour + 6, date.minute);;
 
 			final String tra_real_time_url = "http://twtraffic.tra.gov.tw/twrail/mobile/TrainDetail.aspx?searchdate={0}&traincode={1}";
 //			String tra_timetable_url = "http://163.29.3.99/mobile_en/clean/result.jsp?from1={0}&to1={1}&carclass=2&Date={2}&sTime={3}&eTime={4}&Dep=true&Submit=Submit";
