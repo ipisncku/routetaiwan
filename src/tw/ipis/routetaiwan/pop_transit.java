@@ -1114,6 +1114,10 @@ public class pop_transit extends Activity {
 					encode = "025民族";
 					line = "25民族幹線";
 				}
+				else if(line.contentEquals("205")) {
+					encode = "205中華";
+					line = "205中華幹線";
+				}
 				else if(line.contentEquals("36"))
 					encode = "36復興幹線";
 				else if(line.contentEquals("50"))
@@ -1129,8 +1133,14 @@ public class pop_transit extends Activity {
 				else
 					encode = line;
 
-				if(Current_time.hour > 17 && line.contentEquals("紅36")) {
-					encode = "紅36繞駛";		// 為了較好的效能..
+				if(Current_time.hour > 17 && line.contentEquals("16A")) {
+					encode = "16A(1730-2330繞文信路口)";
+				}
+				else if(Current_time.hour > 17 && line.contentEquals("紅36")) {
+					encode = "紅36繞駛";
+				}
+				else if(Current_time.hour > 17 && line.contentEquals("3")) {
+					encode = "3(繞文信路)";
 				}
 
 				//				String khh_bus_url = "http://122.146.229.210/bus/pda/businfo.aspx?Routeid={0}&GO_OR_BACK=1&Line=All&lang=Cht";

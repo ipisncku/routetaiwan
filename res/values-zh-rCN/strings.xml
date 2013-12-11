@@ -51,7 +51,7 @@
     <string name="info_planroute_edit">地址/地名/喜爱点名称</string>
     <string name="info_showmap_edit">地址/地名</string>
     
-    <string name="common_bus">公车</string>
+    <string name="common_bus">公交車</string>
     <string name="common_mrt">捷运</string>
     
     <string name="trtc">台北捷运</string>
