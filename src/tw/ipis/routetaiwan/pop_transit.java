@@ -1133,14 +1133,17 @@ public class pop_transit extends Activity {
 				else
 					encode = line;
 
-				if(Current_time.hour > 17 && line.contentEquals("16A")) {
+				if(line.contentEquals("16A") && Current_time.hour > 17 && Current_time.minute > 30) {
 					encode = "16A(1730-2330繞文信路口)";
 				}
-				else if(Current_time.hour > 17 && line.contentEquals("紅36")) {
+				else if(line.contentEquals("紅36") && Current_time.hour > 17) {
 					encode = "紅36繞駛";
 				}
-				else if(Current_time.hour > 17 && line.contentEquals("3")) {
+				else if(line.contentEquals("3") && Current_time.hour > 17) {
 					encode = "3(繞文信路)";
+				}
+				else if(line.contentEquals("橘12") && Current_time.weekDay == 2 && Current_time.hour > 16) {
+					encode = "橘12繞駛";
 				}
 
 				//				String khh_bus_url = "http://122.146.229.210/bus/pda/businfo.aspx?Routeid={0}&GO_OR_BACK=1&Line=All&lang=Cht";
