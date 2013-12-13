@@ -1766,6 +1766,8 @@ public class pop_transit extends Activity {
 
 		dept = string_replace(dept);
 		arr = string_replace(arr);
+		
+		Log.i(TAG, String.format("%s:%s", dept, arr));
 
 		for (BusRoute temp : routes) {
 			/* Check for where the buses are */
@@ -1780,6 +1782,7 @@ public class pop_transit extends Activity {
 			}
 
 			String stopname = temp.StopName;
+			Log.i(TAG, "stop name=" + stopname);
 
 			/* Check for departure/arrival stops */
 			if(end == null && ( dept.contains(stopname) || stopname.contains(dept) )) {
@@ -1789,6 +1792,8 @@ public class pop_transit extends Activity {
 				}
 				else if(match_depart == false)
 					start = temp;
+				
+				Log.i(TAG, "match start! " + start.StopName);
 			}
 			else if(start != null && ( arr.contains(stopname) || stopname.contains(arr) )) {
 				if(match_arr == false && arr.contentEquals(stopname)) {
@@ -1798,6 +1803,7 @@ public class pop_transit extends Activity {
 				else if(end == null && match_arr == false) {
 					end = temp;
 				}
+				Log.i(TAG, "match end! " + end.StopName);
 			}
 		}
 		if(start != null && end != null) {
@@ -2428,6 +2434,7 @@ public class pop_transit extends Activity {
 		original_sta.add("桃園機場一航站(下車站)"); after_sta.add("第一航");
 		original_sta.add("桃園機場二航站(下車站)"); after_sta.add("第二航");
 		original_sta.add("(下車站)"); after_sta.add("");
+		original_sta.add("新崛江"); after_sta.add("新堀江");
 	}
 
 	private String string_replace(String station) {
