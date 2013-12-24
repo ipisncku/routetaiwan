@@ -13,7 +13,6 @@
     package="tw.ipis.routetaiwan"
     android:versionCode="521"
     android:versionName="0.10.35" >
--->
     <uses-sdk
         android:minSdkVersion="15"
         android:targetSdkVersion="19" />
