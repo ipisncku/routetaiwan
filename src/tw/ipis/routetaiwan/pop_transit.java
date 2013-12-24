@@ -1219,8 +1219,16 @@ public class pop_transit extends Activity {
 			else if(check_agency(agency, bus_taoyuang, line, name)) {
 				String txg_bus_url = "http://124.199.77.90/Taoyuan/PDA/businfo.aspx?Routeid={0}&GO_OR_BACK={1}&Line={0}&lang=Cht";
 				try {
-					final String url_go = MessageFormat.format(txg_bus_url, URLEncoder.encode(line, "UTF-8"), "1");
-					final String url_bk = MessageFormat.format(txg_bus_url, URLEncoder.encode(line, "UTF-8"), "2");
+					String encode;
+					if(line.contentEquals("112北"))
+						encode = "112N";
+					else if(line.contentEquals("112南"))
+						encode = "112S";
+					else
+						encode = line;
+					
+					final String url_go = MessageFormat.format(txg_bus_url, URLEncoder.encode(encode, "UTF-8"), "1");
+					final String url_bk = MessageFormat.format(txg_bus_url, URLEncoder.encode(encode, "UTF-8"), "2");
 
 					/* 設定activity title, ex: 226 即時資訊 */
 					this.setTitle(line + " " + getResources().getString(R.string.realtime_info));
