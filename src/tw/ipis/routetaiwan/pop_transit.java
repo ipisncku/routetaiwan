@@ -2422,7 +2422,7 @@ public class pop_transit extends Activity {
 		/* 桃園公車 客運列表 */
 		/* http://124.199.77.90/Taoyuan/PDA/busroute.aspx?lang=Cht */
 		bus_taoyuang.add(new bus_provider("桃園客運", "[0-9]{1,3}[ABS]?|BR|GR"));
-		bus_taoyuang.add(new bus_provider("中壢客運", "[0-9]{1,3}[ABS]?|BR|GR"));
+		bus_taoyuang.add(new bus_provider("中壢客運", "[0-9]{1,3}[ABS南北]?|BR|GR"));
 		bus_taoyuang.add(new bus_provider("統聯客運", "705"));
 		bus_taoyuang.add(new bus_provider("新竹客運", "301"));
 		bus_taoyuang.add(new bus_provider("亞通客運", "703"));
