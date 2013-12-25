@@ -3,15 +3,15 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="tw.ipis.routetaiwan"
-    android:versionCode="432"
-    android:versionName="0.10.29" >
+    android:versionCode="442"
+    android:versionName="0.10.30" >
 
 <!--  Pad version  -->
 <!--
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="tw.ipis.routetaiwan"
-    android:versionCode="431"
-    android:versionName="0.10.29" >
+    android:versionCode="441"
+    android:versionName="0.10.30" >
 -->
     <uses-sdk
         android:minSdkVersion="15"

@@ -173,7 +173,7 @@ public class pop_transit extends Activity {
 		/* If type = "tra", then open webview for ex: http://twtraffic.tra.gov.tw/twrail/mobile/TrainDetail.aspx?searchdate=2013/10/03&traincode=117 */
 		if(type.contentEquals("tra")) {
 			Time date = new Time();
-			date.set(current_time_millis > time * 1000 ? current_time_millis : time * 1000);
+			date.set(time * 1000);
 			final String str_date = String.format("%d/%02d/%02d", date.year, date.month + 1, date.monthDay);
 			String depart_time = String.format("%02d:%02d", date.hour, date.minute);
 
@@ -639,7 +639,7 @@ public class pop_transit extends Activity {
 		/* 高鐵 */
 		else if(type.contentEquals("hsr")) {
 			Time date = new Time();
-			date.set(current_time_millis > time * 1000 ? current_time_millis : time * 1000);
+			date.set(time * 1000);
 			
 			String str_date = String.format("%d%02d%02d", date.year, date.month + 1, date.monthDay);
 			String hsr_real_time_url = "http://www.thsrc.com.tw/tw/TimeTable/DailyTimeTable/{0}";
@@ -1301,7 +1301,7 @@ public class pop_transit extends Activity {
 			}
 			else if(line.matches("[0-9]{4}")) {
 				final Time date = new Time();
-				date.set(current_time_millis > time * 1000 ? current_time_millis : time * 1000);
+				date.set(time * 1000);
 				
 				String url_runid;
 				if(getResources().getString(R.string.locale).contentEquals("English"))

@@ -796,6 +796,7 @@ public class myfavorite extends Activity {
 		}
 		else if(action.regionMatches(0, "transit", 0, 7)) {
 			String[] transit_detail = action.split(",");
+			long current_time = System.currentTimeMillis() / 1000;
 
 			Intent launchpop = new Intent(this, pop_transit.class);
 			Bundle bundle=new Bundle();
@@ -806,12 +807,12 @@ public class myfavorite extends Activity {
 				bundle.putString("class", transit_detail[3]);
 				bundle.putString("dept", transit_detail[4]);
 				bundle.putString("arr", transit_detail[5]);
-				bundle.putLong("time", Long.parseLong(transit_detail[6]));
+				bundle.putLong("time", Long.parseLong(transit_detail[6]) > current_time ? Long.parseLong(transit_detail[6]) : current_time);
 			}
 			else if(transit_detail[1].contentEquals("hsr")) {
 				bundle.putString("type", transit_detail[1]);
 				bundle.putString("line", transit_detail[2]);
-				bundle.putLong("time", Long.parseLong(transit_detail[3]));
+				bundle.putLong("time", Long.parseLong(transit_detail[3]) > current_time ? Long.parseLong(transit_detail[3]) : current_time);
 				bundle.putString("dept", transit_detail[4]);
 				bundle.putString("arr", transit_detail[5]);
 			}
@@ -822,7 +823,7 @@ public class myfavorite extends Activity {
 				bundle.putString("dept", transit_detail[4]);
 				bundle.putString("arr", transit_detail[5]);
 				bundle.putString("headname", transit_detail[6]);
-				bundle.putLong("time", Long.parseLong(transit_detail[7]));
+				bundle.putLong("time", Long.parseLong(transit_detail[7]) > current_time ? Long.parseLong(transit_detail[7]) : current_time);
 			}
 			else {
 				bundle.putString("type", transit_detail[1]);	// type = null
