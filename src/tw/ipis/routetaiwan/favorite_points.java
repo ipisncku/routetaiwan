@@ -199,6 +199,7 @@ public class favorite_points extends Activity {
 				iv.setImageResource(R.drawable.favorite_32);
 				iv.setMaxHeight((int) (img_base_pixel * getResources().getDisplayMetrics().density));
 				iv.setMaxWidth((int) (img_base_pixel * getResources().getDisplayMetrics().density));
+				iv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.2f));
 			}
 			else {
 				String PhotoURI = getPhotoByNumber(fp.phonenum);
@@ -207,15 +208,16 @@ public class favorite_points extends Activity {
 					iv.setImageURI(Uri.parse(PhotoURI));
 					iv.setMaxWidth((int) (img_base_pixel * getResources().getDisplayMetrics().density));
 					iv.setMaxHeight((int) (img_base_pixel * getResources().getDisplayMetrics().density));
+					iv.setLayoutParams(new TableRow.LayoutParams((int) (img_base_pixel * getResources().getDisplayMetrics().density), (int) (img_base_pixel * getResources().getDisplayMetrics().density), 0.2f));
 				}
 				else {
 					iv.setImageResource(R.drawable.friend);
 					iv.setMaxHeight((int) (img_base_pixel * getResources().getDisplayMetrics().density));
 					iv.setMaxWidth((int) (img_base_pixel * getResources().getDisplayMetrics().density));
+					iv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.2f));
 				}
 			}
 			iv.setAdjustViewBounds(true);
-			iv.setLayoutParams(new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.2f));
 			tr.addView(iv);
 
 			TableLayout tl_text = new TableLayout(this);
