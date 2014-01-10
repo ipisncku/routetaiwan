@@ -3,14 +3,14 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="tw.ipis.routetaiwan"
-    android:versionCode="462"
+    android:versionCode="472"
     android:versionName="0.10.31" >
 
 <!--  Pad version  -->
 <!--
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="tw.ipis.routetaiwan"
-    android:versionCode="461"
+    android:versionCode="471"
     android:versionName="0.10.31" >
 -->
     <uses-sdk
