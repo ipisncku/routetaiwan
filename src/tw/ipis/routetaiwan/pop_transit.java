@@ -998,7 +998,7 @@ public class pop_transit extends Activity {
 								public void parsedBUS(List<BusRoute> routes) {
 									rl.removeView(process);
 
-									find_start_dest(routes, dept, arr);
+									find_start_dest(routes, dept, arr, false);
 									create_realtime_table(routes, tl, sv);
 									loading.setVisibility(ProgressBar.INVISIBLE);
 									return;
@@ -1071,7 +1071,7 @@ public class pop_transit extends Activity {
 								public void parsedBUS(List<BusRoute> routes) {
 									rl.removeView(process);
 
-									find_start_dest(routes, dept, arr);
+									find_start_dest(routes, dept, arr, true);
 									create_realtime_table(routes, tl, sv);
 									loading.setVisibility(ProgressBar.INVISIBLE);
 									return;
@@ -1267,7 +1267,7 @@ public class pop_transit extends Activity {
 								public void parsedBUS(List<BusRoute> routes) {
 									rl.removeView(process);
 
-									find_start_dest(routes, dept, arr);
+									find_start_dest(routes, dept, arr, true);
 									create_realtime_table(routes, tl, sv);
 									loading.setVisibility(ProgressBar.INVISIBLE);
 									return;
@@ -1568,7 +1568,7 @@ public class pop_transit extends Activity {
 													public void parsedBUS(List<BusRoute> routes) {
 														rl.removeView(process);
 
-														find_start_dest(routes, dept, arr);
+														find_start_dest(routes, dept, arr, true);
 														create_realtime_table(routes, tl, sv);
 														loading.setVisibility(ProgressBar.INVISIBLE);
 														return;
@@ -1737,7 +1737,7 @@ public class pop_transit extends Activity {
 						come_time, car_id));
 			}
 			rl.removeView(process);
-			find_start_dest(routes, dept, arr);
+			find_start_dest(routes, dept, arr, true);
 			create_realtime_table(routes, tl, sv);
 
 		} catch (ParserConfigurationException e) {
@@ -1767,7 +1767,7 @@ public class pop_transit extends Activity {
 		}
 	}  
 
-	private void find_start_dest(List<BusRoute> routes, String dept, String arr) {
+	private void find_start_dest(List<BusRoute> routes, String dept, String arr, boolean set_car) {
 		BusRoute start = null, end = null;
 		int maxtime = 999;
 		boolean match_depart = false, match_arr = false;
@@ -1779,14 +1779,16 @@ public class pop_transit extends Activity {
 
 		for (BusRoute temp : routes) {
 			/* Check for where the buses are */
-			if(temp.Value.contentEquals("null"))
-				maxtime = 999;
-			else {
-				int wait_time = Integer.parseInt(temp.Value);
-				if(wait_time < maxtime) {
-					temp.set_car();
+			if(set_car) {
+				if(temp.Value.contentEquals("null"))
+					maxtime = 999;
+				else {
+					int wait_time = Integer.parseInt(temp.Value);
+					if(wait_time < maxtime) {
+						temp.set_car();
+					}
+					maxtime = wait_time;
 				}
-				maxtime = wait_time;
 			}
 
 			String stopname = temp.StopName;
@@ -2710,11 +2712,10 @@ public class pop_transit extends Activity {
 					Elements trs = doc.select("tr.ttego1, tr.ttego2");
 					for (org.jsoup.nodes.Element tr : trs) {
 						String wait_time = null, pure_text = null;
+						boolean car = false;
 						Elements tds = tr.select("td");
 
 						pure_text = tds.get(1).text().replaceAll("[0-9A-Z]{2,3}-[0-9A-Z]{2,3} ", "");
-						//						if(tds.get(1).select("img[src^=bus]").size() != 0)
-						//							Log.i(TAG, "get BUS!");
 
 						if(pure_text.contentEquals("將到站"))
 							wait_time = "1";
@@ -2724,15 +2725,28 @@ public class pop_transit extends Activity {
 							wait_time = pure_text.replaceAll("分", "");
 						else
 							wait_time = "null";
-
-						routes.add(new BusRoute(tds.get(0).text(), 1, 
-								0, wait_time, getResources().getString(R.string.no_service), ""));
-
+						
+						if(wait_time.matches("[0-9a-z]+ [0-9A-Z]{2,3}-[0-9A-Z]{2,3}")) {
+							car = true;
+							wait_time = wait_time.replaceAll("[0-9A-Z]{2,3}-[0-9A-Z]{2,3}", "");
+							wait_time = wait_time.replaceAll(" ", "");
+						}
+						
+						Log.i(TAG, "waittime="+wait_time);
+						
+						BusRoute bus = new BusRoute(tds.get(0).text(), 1, 
+								0, wait_time, getResources().getString(R.string.no_service), "");
+						
+						if(car)
+							bus.set_car();
+						
+						routes.add(bus);
 					}
 
 					trs = doc.select("tr.tteback1, tr.tteback2");
 					for (org.jsoup.nodes.Element tr : trs) {
 						String wait_time = null, pure_text = null;
+						boolean car = false;
 						Elements tds = tr.select("td");
 
 						pure_text = tds.get(1).text().replaceAll("[0-9A-Za-z]{2,3}-[0-9A-Za-z]{2,3} ", "");
@@ -2745,9 +2759,22 @@ public class pop_transit extends Activity {
 							wait_time = pure_text.replaceAll("分", "");
 						else
 							wait_time = "null";
-
-						routes.add(new BusRoute(tds.get(0).text(), 2, 
-								0, wait_time, getResources().getString(R.string.no_service), ""));
+						
+						if(wait_time.matches("[0-9a-z]+ [0-9A-Z]{2,3}-[0-9A-Z]{2,3}")) {
+							car = true;
+							wait_time = wait_time.replaceAll("[0-9A-Z]{2,3}-[0-9A-Z]{2,3}", "");
+							wait_time = wait_time.replaceAll(" ", "");
+						}
+						
+						Log.i(TAG, "waittime="+wait_time);
+						
+						BusRoute bus = new BusRoute(tds.get(0).text(), 2, 
+								0, wait_time, getResources().getString(R.string.no_service), "");
+						
+						if(car)
+							bus.set_car();
+						
+						routes.add(bus);
 					}
 
 				} catch (IOException e) {
