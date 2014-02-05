@@ -1058,7 +1058,9 @@ public class planroute extends Activity {
 							text = new StringBuilder().append(text).append("bus,").append(step.transit_details.line.short_name + ",").append(step.transit_details.line.agencies[0].name + ",")
 							.append(step.transit_details.departure_stop.name + ",").append(step.transit_details.arrival_stop.name + ",")
 							.append(step.transit_details.line.name + ",")
-							.append(step.transit_details.departure_time.value).toString();
+							.append(step.transit_details.departure_time.value + ",")
+							.append(String.format("%f %f", step.transit_details.departure_stop.location.lat, step.transit_details.departure_stop.location.lng)).toString();
+							
 							if(getResources().getString(R.string.locale).contentEquals("English"))
 								headsign = String.format(" (%s%s) ", getResources().getString(R.string.go_to), name_translate(headsign.replaceAll("[a-zA-Z, ]", "")));
 							else
@@ -1738,6 +1740,7 @@ public class planroute extends Activity {
 				bundle.putString("arr", transit_detail[5]);
 				bundle.putString("headname", transit_detail[6]);
 				bundle.putLong("time", Long.parseLong(transit_detail[7]));
+				bundle.putString("latlng", transit_detail[8]);
 			}
 			else {
 				bundle.putString("type", transit_detail[1]);	// type = null

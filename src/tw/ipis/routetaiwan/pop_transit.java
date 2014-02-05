@@ -28,6 +28,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -115,6 +117,7 @@ public class pop_transit extends Activity {
 
 		Bundle Data = this.getIntent().getExtras();
 		String type = Data.getString("type");
+		LatLng depart_location = null;
 
 		long time = 0;
 		long current_time_millis = System.currentTimeMillis();
@@ -133,6 +136,10 @@ public class pop_transit extends Activity {
 				arr = Data.getString("arr");
 				name = Data.getString("headname");
 				time = Data.getLong("time");
+				
+				String pos[] = Data.getString("latlng").split(" ");
+				
+				depart_location = new LatLng(Double.parseDouble(pos[0]), Double.parseDouble(pos[1]));
 			}
 			else if(type.contentEquals("tra")) {
 				car_class = Data.getString("class");
@@ -942,7 +949,7 @@ public class pop_transit extends Activity {
 		/* 公車 客運 */
 		else {
 
-			if(check_agency(agency, bus_taipei, line, name)) {
+			if(check_agency(agency, bus_taipei, line, name, depart_location)) {
 				String encode;
 
 				if(line.contentEquals("三鶯線先導公車"))
@@ -1030,7 +1037,7 @@ public class pop_transit extends Activity {
 					finish();
 				}
 			}
-			else if(check_agency(agency, bus_taichung, line, name)) {
+			else if(check_agency(agency, bus_taichung, line, name, depart_location)) {
 				String txg_bus_url = "http://citybus.taichung.gov.tw/pda/aspx/businfomation/roadname_roadline.aspx?ChoiceRoute=0&line={0}&lang=CHT&goback={1}&route={0}";
 				try {
 					final String url_go = MessageFormat.format(txg_bus_url, URLEncoder.encode(line, "UTF-8"), "1");
@@ -1103,29 +1110,43 @@ public class pop_transit extends Activity {
 					finish();
 				}
 			}
-			else if(check_agency(agency, bus_kaohsiung, line, name)) {
+			else if(check_agency(agency, bus_kaohsiung, line, name, depart_location)) {
 				String encode;
 				/* Workaround...偉哉陳菊... */
 				if(line.contentEquals("168東"))
 					encode = "168環東";
 				else if(line.contentEquals("168西"))
 					encode = "168環西";
-				else if(line.contentEquals("民族幹線")) {
-					encode = "025民族";
-					line = "25民族幹線";
-				}
 				else if(line.contentEquals("205")) {
 					encode = "205中華";
 					line = "205中華幹線";
 				}
 				else if(line.contentEquals("36"))
-					encode = "36復興幹線";
+					encode = "36復興";
 				else if(line.contentEquals("50"))
 					encode = "50五福";
+				else if(line.contentEquals("60"))
+					encode = "60覺民";
+				else if(line.contentEquals("70"))
+					encode = "70三多";
 				else if(line.contentEquals("88"))
 					encode = "88建國";
 				else if(line.contentEquals("92"))
 					encode = "92自由";
+				else if(line.contentEquals("217"))
+					encode = "217新昌";
+				else if(line.contentEquals("248"))
+					encode = "248中正";
+				else if(line.contentEquals("紅18"))
+					encode = "紅18一心";
+				else if(line.contentEquals("紅28"))
+					encode = "紅28九如";
+				else if(line.contentEquals("紅30"))
+					encode = "紅30建工";
+				else if(line.contentEquals("紅33"))
+					encode = "紅33明誠";
+				else if(line.contentEquals("橘12"))
+					encode = "橘12鳳青";
 				else if(line.contentEquals("旗美快捷"))
 					encode = "旗美國道快捷公車";
 				else if(line.contentEquals("旗山快捷"))
@@ -1216,7 +1237,7 @@ public class pop_transit extends Activity {
 					finish();
 				}
 			}
-			else if(check_agency(agency, bus_taoyuang, line, name)) {
+			else if(check_agency(agency, bus_taoyuang, line, name, depart_location)) {
 				String txg_bus_url = "http://124.199.77.90/Taoyuan/PDA/businfo.aspx?Routeid={0}&GO_OR_BACK={1}&Line={0}&lang=Cht";
 				try {
 					String encode;
@@ -2360,14 +2381,22 @@ public class pop_transit extends Activity {
 		return tr;
 	}
 
-	private boolean check_agency(String agency, ArrayList<bus_provider> provider, String line, String headname) {
+	private boolean check_agency(String agency, ArrayList<bus_provider> provider, String line, String headname, LatLng depart_location) {
 		for (int i = 0; i < provider.size(); i++) {
 			if(agency.contentEquals(provider.get(i).provider)) {
 				if(provider.get(i).line_restriction != null) {
 					if(line.matches(provider.get(i).line_restriction)) {
-						if(provider.get(i).name == null)
+						if(provider.get(i).bound_leftdown == null)
 							return true;
-						else if(provider.get(i).name.contentEquals(headname))
+						else if (depart_location != null){
+							if(depart_location.latitude >= provider.get(i).bound_leftdown.latitude && depart_location.latitude <= provider.get(i).bound_rightup.latitude
+									&& depart_location.longitude >= provider.get(i).bound_leftdown.longitude && depart_location.longitude <= provider.get(i).bound_rightup.longitude) {
+								return true;
+							}
+							else
+								return false;
+						}
+						else 
 							return true;
 					}
 					else
@@ -2400,24 +2429,26 @@ public class pop_transit extends Activity {
 		bus_taipei.add(new bus_provider("皇家客運", "1717"));
 
 		/* 高雄公車 客運業者列表 */
-		bus_kaohsiung.add(new bus_provider("高雄市公車處", null));
 		bus_kaohsiung.add(new bus_provider("南台灣客運", null));
 		bus_kaohsiung.add(new bus_provider("義大客運", "850[1-6]|^[0-9]{1,3}|[^0-9][0-9]{1,2}"));
-		bus_kaohsiung.add(new bus_provider("東南客運", "37|62|81|248|紅[167]|紅1[0268]|紅2[07]|橘1|橘20"));
+		bus_kaohsiung.add(new bus_provider("東南客運", "37|62|81|248|紅[167]|紅1[0126]|紅27|橘1|橘20"));
 		bus_kaohsiung.add(new bus_provider("高雄客運", "5|2[34]|60|87|9[78]|[^0-9].*|80[0-4][0-9]|[紅橘][0-9]{1,2}[A-B]?"));
+		bus_kaohsiung.add(new bus_provider("漢程客運", null));
+		bus_kaohsiung.add(new bus_provider("港都客運", null));
+		bus_kaohsiung.add(new bus_provider("統聯客運", "橘[89]|橘10|橘2[12]|紅21|11|2[56]|53|8[238][區]?|100", new LatLng(22.4786063,120.2255712), new LatLng(23.4628869,120.9750159)));
 
 		/* 台中公車 客運業者列表 */
 		/* ref: http://citybus.taichung.gov.tw/pda/aspx/businfomation/choiceRoad.aspx?lang=CHT */
-		bus_taichung.add(new bus_provider("豐原客運", "650[68]|6595|[0-9]{1,3}"));
-		bus_taichung.add(new bus_provider("台中客運", "[0-9]{1,3}|9區|6871|6899"));
-		bus_taichung.add(new bus_provider("仁友客運", "[0-9]{1,3}|6235"));
-		bus_taichung.add(new bus_provider("統聯客運", "[0-9]{1,2}|[12][0-9]{2}|75區[12]"));
+		bus_taichung.add(new bus_provider("豐原客運", "[0-9]{1,3}"));
+		bus_taichung.add(new bus_provider("台中客運", "[0-9]{1,3}|9區"));
+		bus_taichung.add(new bus_provider("仁友客運", "21|30|45|105"));
+		bus_taichung.add(new bus_provider("統聯客運", "[0-9]{1,2}|[12][0-9]{2}|15[01259]|162|28[12]|75區[12]", new LatLng(23.9803627,120.3290119), new LatLng(24.4339626,121.3121096)));
 		bus_taichung.add(new bus_provider("巨業交通", "[0-9]{1,3}|68繞|168區[12]|169區"));
 		bus_taichung.add(new bus_provider("全航客運", "[0-9]{1,3}|58區[12]"));
-		bus_taichung.add(new bus_provider("彰化客運", "52|99"));
+		bus_taichung.add(new bus_provider("彰化客運", "52|99|99區"));
 		bus_taichung.add(new bus_provider("和欣客運", "16[01]"));
 		bus_taichung.add(new bus_provider("東南客運", "7|17|67|98"));
-		bus_taichung.add(new bus_provider("豐榮客運", "[0-9]{1,3}"));
+		bus_taichung.add(new bus_provider("豐榮客運", "4[08]|89|127"));
 		bus_taichung.add(new bus_provider("苗栗客運", "181"));
 		bus_taichung.add(new bus_provider("中台灣客運", "[0-9]{1,3}"));
 
@@ -3097,16 +3128,19 @@ public class pop_transit extends Activity {
 	public class bus_provider {
 		String provider;
 		String line_restriction;	// Regular expression
-		String name;
+		LatLng bound_leftdown;
+		LatLng bound_rightup;
 		public bus_provider(String p, String l) {
 			provider = p;
 			line_restriction = l;
-			name = null;
+			bound_leftdown = null;
+			bound_rightup = null;
 		}
-		public bus_provider(String p, String l, String n) {
+		public bus_provider(String p, String l, LatLng leftdown, LatLng right_up) {
 			provider = p;
 			line_restriction = l;
-			name = n;
+			bound_leftdown = leftdown;
+			bound_rightup = right_up;
 		}
 	}
 
