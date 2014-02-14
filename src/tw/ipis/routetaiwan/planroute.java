@@ -1071,7 +1071,7 @@ public class planroute extends Activity {
 
 							dires.routes[i].legs[j].mark.add(new MarkP("bus"
 									,	getResources().getString(R.string.taketransit_bus) + step.transit_details.line.short_name
-									, getResources().getString(R.string.go_to) + step.transit_details.headsign + getResources().getString(R.string.dirction)
+									, getResources().getString(R.string.go_to) + name_translate(step.transit_details.headsign) + getResources().getString(R.string.dirction)
 									, step.transit_details.departure_stop.location));
 						}
 						else if(type.contentEquals("SUBWAY")) {
@@ -1081,16 +1081,16 @@ public class planroute extends Activity {
 
 								markers.add(new MarkP("trtc"
 										, getResources().getString(R.string.taketransit_mrt) + step.transit_details.line.short_name
-										, getResources().getString(R.string.go_to) + step.transit_details.headsign + getResources().getString(R.string.dirction)
+										, getResources().getString(R.string.go_to) + name_translate(step.transit_details.headsign) + getResources().getString(R.string.dirction)
 										, step.transit_details.departure_stop.location));
 								markers.add(new MarkP("end"
 										, getResources().getString(R.string.exit_station)
-										, step.transit_details.arrival_stop.name
+										, name_translate(step.transit_details.arrival_stop.name)
 										, step.transit_details.arrival_stop.location));
 
 								dires.routes[i].legs[j].mark.add(new MarkP("trtc"
 										, getResources().getString(R.string.taketransit_mrt) + step.transit_details.line.short_name
-										, getResources().getString(R.string.go_to) + step.transit_details.headsign + getResources().getString(R.string.dirction)
+										, getResources().getString(R.string.go_to) + name_translate(step.transit_details.headsign) + getResources().getString(R.string.dirction)
 										, step.transit_details.departure_stop.location));
 							}
 							else if(agencyname.contentEquals("高雄捷運")) {
@@ -1098,16 +1098,16 @@ public class planroute extends Activity {
 
 								markers.add(new MarkP("krtc"
 										, getResources().getString(R.string.taketransit_mrt) + step.transit_details.line.short_name
-										, getResources().getString(R.string.go_to) + step.transit_details.headsign + getResources().getString(R.string.dirction)
+										, getResources().getString(R.string.go_to) + name_translate(step.transit_details.headsign) + getResources().getString(R.string.dirction)
 										, step.transit_details.departure_stop.location));
 								markers.add(new MarkP("end"
 										, getResources().getString(R.string.exit_station)
-										, step.transit_details.arrival_stop.name
+										, name_translate(step.transit_details.arrival_stop.name)
 										, step.transit_details.arrival_stop.location));
 
 								dires.routes[i].legs[j].mark.add(new MarkP("krtc"
 										, getResources().getString(R.string.taketransit) + step.transit_details.line.short_name
-										, getResources().getString(R.string.go_to) + step.transit_details.headsign + getResources().getString(R.string.dirction)
+										, getResources().getString(R.string.go_to) + name_translate(step.transit_details.headsign) + getResources().getString(R.string.dirction)
 										, step.transit_details.departure_stop.location));
 							}
 							else
@@ -1132,7 +1132,7 @@ public class planroute extends Activity {
 								.append(step.transit_details.arrival_stop.name).toString();
 								dires.routes[i].legs[j].mark.add(new MarkP("thsrc"
 										, getResources().getString(R.string.taketransit) + step.transit_details.line.short_name
-										, step.transit_details.headsign
+										, name_translate(step.transit_details.headsign)
 										, step.transit_details.departure_stop.location));
 							}
 							else if(agencyname.contentEquals("台灣鐵路管理局")) {
@@ -1145,7 +1145,7 @@ public class planroute extends Activity {
 								.append(step.transit_details.departure_time.value).toString();
 								dires.routes[i].legs[j].mark.add(new MarkP("tra"
 										, getResources().getString(R.string.taketransit) + step.transit_details.line.short_name
-										, step.transit_details.headsign
+										, name_translate(step.transit_details.headsign)
 										, step.transit_details.departure_stop.location));
 							}
 							else

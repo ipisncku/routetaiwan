@@ -385,11 +385,11 @@ public class myfavorite extends Activity {
 
 								markers.add(new MarkP("trtc"
 										, getResources().getString(R.string.taketransit_mrt) + step.transit_details.line.short_name
-										, getResources().getString(R.string.go_to) + step.transit_details.headsign + getResources().getString(R.string.dirction)
+										, getResources().getString(R.string.go_to) + name_translate(step.transit_details.headsign) + getResources().getString(R.string.dirction)
 										, step.transit_details.departure_stop.location));
 								markers.add(new MarkP("end"
 										, getResources().getString(R.string.exit_station)
-										, step.transit_details.arrival_stop.name
+										, name_translate(step.transit_details.arrival_stop.name)
 										, step.transit_details.arrival_stop.location));
 							}
 							else if(agencyname.contentEquals("高雄捷運")) {
@@ -397,11 +397,11 @@ public class myfavorite extends Activity {
 
 								markers.add(new MarkP("krtc"
 										, getResources().getString(R.string.taketransit_mrt) + step.transit_details.line.short_name
-										, getResources().getString(R.string.go_to) + step.transit_details.headsign + getResources().getString(R.string.dirction)
+										, getResources().getString(R.string.go_to) + name_translate(step.transit_details.headsign) + getResources().getString(R.string.dirction)
 										, step.transit_details.departure_stop.location));
 								markers.add(new MarkP("end"
 										, getResources().getString(R.string.exit_station)
-										, step.transit_details.arrival_stop.name
+										, name_translate(step.transit_details.arrival_stop.name)
 										, step.transit_details.arrival_stop.location));
 							}
 							else
