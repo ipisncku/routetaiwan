@@ -604,16 +604,15 @@ public class pop_transit extends Activity {
 
 									while(i < rawinfo.length) {
 										if(i + 3 < rawinfo.length) {
-											TrainTable train = new TrainTable(strrefine(rawinfo[i]), strrefine(rawinfo[i+1]), strrefine(rawinfo[i+2])
+											TrainTable train = new TrainTable(strrefine(rawinfo[i]), time_add_comon(strrefine(rawinfo[i+1])), time_add_comon(strrefine(rawinfo[i+2]))
 													, false, strrefine(rawinfo[i+3]).contentEquals("x") ? true : false);
 											train.set_delay(delaytime);
-											i = i + 4;
-											if(i < rawinfo.length && strrefine(rawinfo[i]).contentEquals("30")) {
+											if(i < rawinfo.length && strrefine(rawinfo[i+3]).contentEquals("30")) {
 												/*FIXME: 台鐵的蠢code有時後會出現兩個以上的30...*/
 												train.set_train();
 												train.leaved=false;
-												i++;
 											}
+											i = i + 4;
 											Log.i(TAG, train.dumpitem());
 											info.add(train);
 										}
@@ -622,9 +621,16 @@ public class pop_transit extends Activity {
 									}
 									return info;
 								}
+								
 								private String strrefine(String raw) {
 									/* Input: ('台北') */
 									String result = raw.substring(raw.indexOf('\'') + 1, raw.lastIndexOf('\''));
+									return result;
+								}
+								
+								private String time_add_comon(String raw) {
+									/* Input: 0859 */
+									String result = String.format("%s:%s", raw.substring(0, 2), raw.substring(2, raw.length()));
 									return result;
 								}
 
